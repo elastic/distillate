@@ -1,0 +1,64 @@
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright
+# ownership. Elasticsearch B.V. licenses this file to you under
+# the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+project: 'Distillate'
+# Internal Codex publication needs a `registry:` environment name and a
+# `codex.group` from the docs team. Those values are not public; leave them
+# unset until onboarding. Isolated GitHub Pages builds do not need them.
+# Vite playground and executable fixtures live under `docs/` but are not pages.
+exclude:
+  - playground/**
+  - examples/**
+toc:
+  - file: index.md
+  - folder: getting-started
+    children:
+      - file: index.md
+      - file: installation.md
+      - file: quick-start.md
+      - file: your-first-stylesheet.md
+  - folder: concepts
+    children:
+      - file: index.md
+      - file: distillery.md
+      - file: tokens.md
+      - file: authoring.md
+      - file: collection.md
+      - file: naming-and-output.md
+      - file: ordering.md
+      - file: single-copy.md
+  - folder: guides
+    children:
+      - file: index.md
+      - file: vs-emotion.md
+      - file: theming.md
+      - file: compact-artifacts.md
+      - file: react-renderer.md
+      - file: emotion-migration.md
+      - file: var-invariant.md
+      - file: name-collisions.md
+  - folder: reference
+    children:
+      - file: index.md
+      - file: entry-points.md
+      - file: environment.md
+      - file: api.md
+      - folder: api
+      - file: okf-map.md
+  - file: playground.md
+subs:
+  pkg: '@elastic/distillate'

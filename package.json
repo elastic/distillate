@@ -1,0 +1,121 @@
+{
+  "name": "@elastic/distillate",
+  "version": "0.1.0",
+  "description": "Theme-agnostic CSS style engine: typed authoring with dependency capture, render-driven reachability collection, and dual readable/compact output targets. One runtime dependency: stylis.",
+  "license": "Apache-2.0",
+  "author": "Elastic",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elastic/distillate.git"
+  },
+  "homepage": "https://elastic.github.io/distillate/",
+  "bugs": {
+    "url": "https://github.com/elastic/distillate/issues"
+  },
+  "type": "module",
+  "sideEffects": [
+    "**/instance.ts",
+    "**/instance.js"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./emotion": {
+      "types": "./dist/emotion.d.ts",
+      "import": "./dist/emotion.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "import": "./dist/testing.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "src",
+    "!src/**/*.test.ts",
+    "!docs/examples/**/*.test.ts",
+    "!src/types",
+    "LICENSE.txt",
+    "NOTICE.txt",
+    "THIRD_PARTY_LICENSES.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "pnpm@10.17.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "pnpm build:clean && pnpm build:compile && pnpm build:specifiers",
+    "build:clean": "rm -rf ./dist",
+    "build:compile": "tsc -p tsconfig.build.json",
+    "build:specifiers": "tsc-alias -p tsconfig.build.json",
+    "prepack": "pnpm docs:api && pnpm build",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p docs/playground/tsconfig.json --noEmit",
+    "lint": "pnpm lint:es && pnpm lint:md",
+    "lint:es": "eslint .",
+    "lint:fix": "pnpm lint:es --fix",
+    "lint:md": "markdownlint-cli2",
+    "okf:check": "okf validate .okf/distillate && node scripts/check_okf_anchors.js && node scripts/write_okf_map.js --check",
+    "okf:index": "okf index .okf/distillate && pnpm okf:map",
+    "okf:map": "node scripts/write_okf_map.js",
+    "test": "vitest run && pnpm --filter @elastic/distillate-playground test",
+    "test:coverage": "vitest run --coverage",
+    "docs:api": "typedoc && node scripts/docs_api_anchors.js",
+    "docs:build": "pnpm docs:api && docs-builder",
+    "docs:dev": "pnpm docs:api && node scripts/docs_dev.js",
+    "docs:serve": "pnpm docs:dev",
+    "playground:dev": "pnpm --filter @elastic/distillate-playground dev",
+    "playground:build": "pnpm --filter @elastic/distillate-playground build",
+    "smoke:exports": "node scripts/smoke_exports.js",
+    "smoke:declarations": "node scripts/check_declarations.js",
+    "licenses:report": "node scripts/licenses_report.js",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm smoke:exports && pnpm smoke:declarations && pnpm licenses:report --check",
+    "semantic-release": "semantic-release",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "stylis": "4.4.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.25.1",
+    "@rmenke/css-tokenizer-tests": "^1.2.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@types/node": "^22.15.3",
+    "@types/stylis": "^4.2.7",
+    "@vitest/coverage-v8": "^3.2.7",
+    "eslint": "^9.25.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-license-header": "^0.9.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "globals": "^17.12.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "markdownlint-cli2": "^0.23.2",
+    "prettier": "^3.5.3",
+    "semantic-release": "^24.2.7",
+    "tsc-alias": "^1.8.16",
+    "typedoc": "^0.28.13",
+    "typedoc-plugin-markdown": "^4.9.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.31.0",
+    "vitest": "^3.1.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}

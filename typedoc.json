@@ -1,0 +1,36 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/index.ts",
+    "src/emotion.ts",
+    "src/testing.ts"
+  ],
+  "out": "docs/reference/api",
+  "plugin": [
+    "typedoc-plugin-markdown"
+  ],
+  "readme": "none",
+  "githubPages": false,
+  "hideGenerator": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "disableSources": false,
+  "cleanOutputDir": true,
+  "entryFileName": "index",
+  "outputFileStrategy": "modules",
+  "membersWithOwnFile": [],
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "useCustomAnchors": true,
+  "customAnchorsFormat": "squareBracket",
+  "useCodeBlocks": true,
+  "indexFormat": "table",
+  "parametersFormat": "table",
+  "propertiesFormat": "table",
+  "enumMembersFormat": "table",
+  "sanitizeComments": true,
+  "intentionallyNotExported": [
+    "PendingStyleHandle"
+  ]
+}

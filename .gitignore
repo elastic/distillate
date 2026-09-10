@@ -1,0 +1,19 @@
+.DS_Store
+node_modules/
+dist/
+coverage/
+.vite/
+*.log
+.env
+.env.*
+!.env.example
+.eslintcache
+.pnpm-store
+.artifacts
+docs/reference/api
+playground/dist
+
+# IDE
+.idea
+.vscode
+.cursor

@@ -1,0 +1,7 @@
+{
+  "upstream": "elastic/distillate",
+  "branches": [],
+  "all": true,
+  "prTitle": "{commitMessages} [{targetBranch}]",
+  "labels": ["backport"]
+}
