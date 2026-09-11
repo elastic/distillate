@@ -43,7 +43,8 @@ jobs:
       - name: Build playground
         run: pnpm playground:build
         env:
-          PLAYGROUND_BASE: /distillate/playground/
+          # Relative paths work on both the unique private host and elastic.github.io/distillate/.
+          PLAYGROUND_BASE: ./
       - name: Copy playground into docs output
         run: |
           mkdir -p .artifacts/docs/html/playground

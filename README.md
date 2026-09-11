@@ -11,15 +11,15 @@
 </p>
 <!-- markdownlint-enable MD033 -->
 
----
-
 A small, theme-agnostic engine for portable component-library artifacts where render-reachable CSS matters.
 
 Distillate is a theme-agnostic CSS style engine for component library authors who need one authored style system to emit two forms: a readable stylesheet for host applications, and a compact, tree-shaken, render-reachable CSS payload for self-contained artifacts such as emails, SVG renders, agent replies, and exported HTML. It has one runtime dependency, [stylis](https://github.com/thysultan/stylis.js) 4.4.0, and no brand assumptions: prefixes, theme tokens, and scope selectors all come from the environment you provide.
 
 If you are styling an application directly, or need per-render dynamic class names, `styled.*`, keyframes, or object styles, see the [comparison guide](https://elastic.github.io/distillate/guides/vs-emotion.html) to decide whether Distillate fits.
 
-Docs: [elastic.github.io/distillate](https://elastic.github.io/distillate/). Playground: [elastic.github.io/distillate/playground](https://elastic.github.io/distillate/playground/). Examples in [`docs/examples/`](https://github.com/elastic/distillate/tree/main/docs/examples) are executed by the test suite, so the CSS output shown below is real.
+- **Docs:** [elastic.github.io/distillate](https://elastic.github.io/distillate/)
+- **Playground:** [elastic.github.io/distillate/playground](https://elastic.github.io/distillate/playground/)
+- **Examples:** [`docs/examples/`](https://github.com/elastic/distillate/tree/main/docs/examples) (executed by the test suite, so the CSS output shown below is real)
 
 ## Install
 
