@@ -6,7 +6,7 @@ resource: https://github.com/elastic/distillate/blob/main/src/names.ts
 tags: [distillate, naming, output]
 status: stable
 stale_after: 2027-03-11
-generated: { by: claude-sonnet-4.6, at: 2026-09-11T19:21:00Z }
+generated: { by: anthropic/claude-sonnet-4.6, at: 2026-09-11T19:21:00Z }
 sources:
   - id: names
     resource: https://github.com/elastic/distillate/blob/main/src/names.ts

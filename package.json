@@ -41,6 +41,8 @@
     "!src/**/*.test.ts",
     "!docs/examples/**/*.test.ts",
     "!src/types",
+    "!docs/playground/node_modules",
+    "!docs/playground/dist",
     "LICENSE.txt",
     "NOTICE.txt",
     "THIRD_PARTY_LICENSES.md"
