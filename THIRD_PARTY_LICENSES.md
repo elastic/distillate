@@ -41,7 +41,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@commitlint/to-lines` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+to-lines@19.8.1/node_modules/@commitlint/to-lines` |
 | `@commitlint/top-level` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+top-level@19.8.1/node_modules/@commitlint/top-level` |
 | `@commitlint/types` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+types@19.8.1/node_modules/@commitlint/types` |
-| `@esbuild/darwin-arm64` | 0.25.12 | MIT | `node_modules/.pnpm/@esbuild+darwin-arm64@0.25.12/node_modules/@esbuild/darwin-arm64` |
 | `@eslint-community/eslint-utils` | 4.10.1 | MIT | `node_modules/.pnpm/@eslint-community+eslint-utils@4.10.1_eslint@9.39.5_jiti@2.6.1_/node_modules/@eslint-community/eslint-utils` |
 | `@eslint-community/regexpp` | 4.12.2 | MIT | `node_modules/.pnpm/@eslint-community+regexpp@4.12.2/node_modules/@eslint-community/regexpp` |
 | `@eslint/config-array` | 0.21.2 | Apache-2.0 | `node_modules/.pnpm/@eslint+config-array@0.21.2/node_modules/@eslint/config-array` |
@@ -102,7 +101,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@pnpm/network.ca-file` | 1.0.2 | MIT | `node_modules/.pnpm/@pnpm+network.ca-file@1.0.2/node_modules/@pnpm/network.ca-file` |
 | `@pnpm/npm-conf` | 3.0.3 | MIT | `node_modules/.pnpm/@pnpm+npm-conf@3.0.3/node_modules/@pnpm/npm-conf` |
 | `@rmenke/css-tokenizer-tests` | 1.2.0 | MIT | `node_modules/.pnpm/@rmenke+css-tokenizer-tests@1.2.0/node_modules/@rmenke/css-tokenizer-tests` |
-| `@rollup/rollup-darwin-arm64` | 4.63.1 | MIT | `node_modules/.pnpm/@rollup+rollup-darwin-arm64@4.63.1/node_modules/@rollup/rollup-darwin-arm64` |
 | `@sec-ant/readable-stream` | 0.4.1 | MIT | `node_modules/.pnpm/@sec-ant+readable-stream@0.4.1/node_modules/@sec-ant/readable-stream` |
 | `@semantic-release/changelog` | 6.0.3 | MIT | `node_modules/.pnpm/@semantic-release+changelog@6.0.3_semantic-release@24.2.9_typescript@5.9.3_/node_modules/@semantic-release/changelog` |
 | `@semantic-release/commit-analyzer` | 13.0.1 | MIT | `node_modules/.pnpm/@semantic-release+commit-analyzer@13.0.1_semantic-release@24.2.9_typescript@5.9.3_/node_modules/@semantic-release/commit-analyzer` |
@@ -336,7 +334,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `foreground-child` | 3.3.1 | ISC | `node_modules/.pnpm/npm@10.9.9/node_modules/npm/node_modules/foreground-child` |
 | `fs-extra` | 11.4.0 | MIT | `node_modules/.pnpm/fs-extra@11.4.0/node_modules/fs-extra` |
 | `fs-minipass` | 3.0.3 | ISC | `node_modules/.pnpm/npm@10.9.9/node_modules/npm/node_modules/fs-minipass` |
-| `fsevents` | 2.3.3 | MIT | `node_modules/.pnpm/fsevents@2.3.3/node_modules/fsevents` |
 | `function-timeout` | 1.0.2 | MIT | `node_modules/.pnpm/function-timeout@1.0.2/node_modules/function-timeout` |
 | `get-caller-file` | 2.0.5 | ISC | `node_modules/.pnpm/get-caller-file@2.0.5/node_modules/get-caller-file` |
 | `get-east-asian-width` | 1.6.0 | MIT | `node_modules/.pnpm/get-east-asian-width@1.6.0/node_modules/get-east-asian-width` |
