@@ -99,6 +99,10 @@ const resolvePackageDir = (name, fromDir) => {
   return undefined;
 };
 
+const isPlatformPackage = (pkg) =>
+  (Array.isArray(pkg.os) && pkg.os.length > 0) ||
+  (Array.isArray(pkg.cpu) && pkg.cpu.length > 0);
+
 const walk = (name, fromDir, seen) => {
   const dir = resolvePackageDir(name, fromDir);
   if (dir === undefined || seen.has(dir)) {
@@ -106,6 +110,11 @@ const walk = (name, fromDir, seen) => {
   }
 
   const pkg = readPackage(dir);
+  // Omit `os`/`cpu`-restricted packages so the committed report is host-independent.
+  if (isPlatformPackage(pkg)) {
+    return;
+  }
+
   seen.set(dir, {
     name: pkg.name ?? name,
     version: pkg.version ?? 'unknown',
