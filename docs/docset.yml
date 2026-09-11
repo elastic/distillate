@@ -19,9 +19,10 @@ project: 'Distillate'
 # Internal Codex publication needs a `registry:` environment name and a
 # `codex.group` from the docs team. Those values are not public; leave them
 # unset until onboarding. Isolated GitHub Pages builds do not need them.
-# Vite playground and executable fixtures live under `docs/` but are not pages.
+# Vite playground, its description page, and executable fixtures live under `docs/` but are not pages.
 exclude:
   - playground/**
+  - playground.md
   - examples/**
 toc:
   - file: index.md
@@ -59,6 +60,5 @@ toc:
       - file: api.md
       - folder: api
       - file: okf-map.md
-  - file: playground.md
 subs:
   pkg: '@elastic/distillate'
