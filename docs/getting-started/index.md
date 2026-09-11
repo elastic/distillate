@@ -11,4 +11,4 @@ description: Install Distillate and emit your first stylesheet.
 - [Quick start](quick-start.md)
 - [Your first stylesheet](your-first-stylesheet.md)
 
-After that, read [the distillery](../concepts/distillery.md) and [naming and output](../concepts/naming-and-output.md), or try the [playground](../playground.md).
+After that, read [the distillery](../concepts/distillery.md) and [naming and output](../concepts/naming-and-output.md), or try the [playground](https://elastic.github.io/distillate/playground/).
