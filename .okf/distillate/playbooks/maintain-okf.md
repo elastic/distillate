@@ -5,7 +5,7 @@ description: Keep the Distillate OKF bundle aligned with source, docs, examples,
 tags: [distillate, okf, maintenance]
 status: stable
 stale_after: 2027-03-11
-generated: { by: claude-sonnet-4.6, at: 2026-09-11T19:21:00Z }
+generated: { by: anthropic/claude-sonnet-4.6, at: 2026-09-11T19:21:00Z }
 sources:
   - id: agent-instructions
     resource: https://github.com/elastic/distillate/blob/main/AGENTS.md
