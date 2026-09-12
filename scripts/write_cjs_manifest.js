@@ -23,7 +23,7 @@
 // notably plugin-host platforms (Kibana-style) whose server code is
 // transpiled to CommonJS. This nested manifest overrides the module system
 // for that subtree only, per Node's documented dual-package layout:
-// https://nodejs.org/api/packages.html#dual-commonwesm-packages
+// https://nodejs.org/api/packages.html#dual-commonjses-module-packages
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';

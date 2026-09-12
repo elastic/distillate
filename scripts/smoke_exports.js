@@ -19,18 +19,23 @@
 
 import { createRequire } from 'node:module';
 
-const distillate = await import('../dist/index.js');
-const emotion = await import('../dist/emotion.js');
-const testing = await import('../dist/testing.js');
+// Resolve by package name (Node's package self-reference), not by relative
+// dist path, so this exercises the same "exports" conditions (and "main")
+// an external consumer's `import`/`require` goes through. A relative
+// `dist/index.js` read would still pass even if an export condition path
+// were wrong.
+const distillate = await import('@elastic/distillate');
+const emotion = await import('@elastic/distillate/emotion');
+const testing = await import('@elastic/distillate/testing');
 
-// Also smoke-test the CommonJS build (dist/cjs) that consumers reach via the
-// "require" export condition. Loading both builds in one process is the
+// Also smoke-test the CommonJS build reached via the "require" export
+// condition (and "main"). Loading both builds in one process is the
 // dual-package hazard documented in single-copy.md, but this script only
 // checks shapes and exits, so the two copies never coexist at steady state.
 const require = createRequire(import.meta.url);
-const distillateCjs = require('../dist/cjs/index.js');
-const emotionCjs = require('../dist/cjs/emotion.js');
-const testingCjs = require('../dist/cjs/testing.js');
+const distillateCjs = require('@elastic/distillate');
+const emotionCjs = require('@elastic/distillate/emotion');
+const testingCjs = require('@elastic/distillate/testing');
 
 const requiredExports = [
   ['@elastic/distillate', distillate.createDistillery],
