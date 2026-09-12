@@ -17,9 +17,20 @@
  * under the License.
  */
 
+import { createRequire } from 'node:module';
+
 const distillate = await import('../dist/index.js');
 const emotion = await import('../dist/emotion.js');
 const testing = await import('../dist/testing.js');
+
+// Also smoke-test the CommonJS build (dist/cjs) that consumers reach via the
+// "require" export condition. Loading both builds in one process is the
+// dual-package hazard documented in single-copy.md, but this script only
+// checks shapes and exits, so the two copies never coexist at steady state.
+const require = createRequire(import.meta.url);
+const distillateCjs = require('../dist/cjs/index.js');
+const emotionCjs = require('../dist/cjs/emotion.js');
+const testingCjs = require('../dist/cjs/testing.js');
 
 const requiredExports = [
   ['@elastic/distillate', distillate.createDistillery],
@@ -28,6 +39,12 @@ const requiredExports = [
   [
     '@elastic/distillate/testing.findVarRefViolations',
     testing.findVarRefViolations,
+  ],
+  ['@elastic/distillate (cjs)', distillateCjs.createDistillery],
+  ['@elastic/distillate/emotion (cjs)', emotionCjs.createEmotion],
+  [
+    '@elastic/distillate/testing (cjs)',
+    testingCjs.assertVarRefsHaveDeclarations,
   ],
 ];
 

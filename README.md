@@ -27,7 +27,7 @@ If you are styling an application directly, or need per-render dynamic class nam
 npm install @elastic/distillate
 ```
 
-Requires Node.js 20 or later. The package is ESM-only.
+Requires Node.js 20 or later. The package ships as ESM (`import`) with a parallel CommonJS build (`require`) for consumers that cannot load ESM directly — see [Installation](https://elastic.github.io/distillate/getting-started/installation.html).
 
 ## Quick start
 

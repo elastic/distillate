@@ -68,7 +68,8 @@ for (const file of globSync('**/*.{js,d.ts}', { cwd: distDir })) {
           reason: `relative import escapes dist/ (resolves to ${relative(repoRoot, target)})`,
         });
       }
-      if (!/\.[a-zA-Z0-9]+$/.test(specifier)) {
+      const isCjs = file.startsWith(`cjs${sep}`);
+      if (!isCjs && !/\.[a-zA-Z0-9]+$/.test(specifier)) {
         violations.push({
           file,
           specifier,

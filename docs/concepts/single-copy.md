@@ -93,3 +93,11 @@ module.exports = {
 ## Plugin-host architectures
 
 In a platform where many independently built plugins share one runtime (Kibana-style), the platform — not any individual plugin — must own the single copy. Declare Distillate as a **platform-provided shared dependency** (similar to how `react` and `react-dom` are shared), and configure each plugin build to externalize all three entry points. A plugin that bundles its own copy will silently inflate every artifact it emits and break variant tree-shaking across the module boundary.
+
+## Dual-package hazard
+
+The package is published as ESM (`dist/`, reached through the `import` export condition) with a parallel CommonJS build (`dist/cjs/`, reached through `require`) so hosts that transpile to CommonJS — a Kibana-style server plugin, for instance — can `require('@elastic/distillate')` without hitting Node's `ERR_REQUIRE_ESM`. Both builds compile from the same `src/`, but they are two physically distinct sets of files.
+
+That reintroduces the single-copy problem one level up: if one importer in a process reaches the package through `import` and another reaches it through `require`, Node loads **both** builds, each with its own module-scope state and its own identity token. This is the same failure mode as two copies in `node_modules`, described above — a `console.warn`, not a crash, and it silently inflates artifact CSS because variants from one build look unmarked to the other build's collector.
+
+This is a real risk specifically where a host mixes module systems for the same dependency — for example, a plugin-host platform where some plugins bundle Distillate via `import` and others load it via `require`. It is not a risk merely because both `dist/` and `dist/cjs/` exist on disk; a consistent toolchain resolves to exactly one of them. Pick one export condition for a given runtime and keep every importer on it — the platform-external, dedupe, and alias configuration above pins the *physical directory*; it does not by itself prevent a second, differently-loaded copy of that directory if some other part of the same process resolves the package through the other condition.

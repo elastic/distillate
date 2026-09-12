@@ -17,21 +17,24 @@
     "**/instance.ts",
     "**/instance.js"
   ],
-  "main": "./dist/index.js",
+  "main": "./dist/cjs/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/cjs/index.js"
     },
     "./emotion": {
       "types": "./dist/emotion.d.ts",
-      "import": "./dist/emotion.js"
+      "import": "./dist/emotion.js",
+      "require": "./dist/cjs/emotion.js"
     },
     "./testing": {
       "types": "./dist/testing.d.ts",
-      "import": "./dist/testing.js"
+      "import": "./dist/testing.js",
+      "require": "./dist/cjs/testing.js"
     }
   },
   "files": [
@@ -56,10 +59,12 @@
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "build": "pnpm build:clean && pnpm build:compile && pnpm build:specifiers",
+    "build": "pnpm build:clean && pnpm build:compile && pnpm build:specifiers && pnpm build:compile:cjs && pnpm build:cjs-manifest",
     "build:clean": "rm -rf ./dist",
     "build:compile": "tsc -p tsconfig.build.json",
     "build:specifiers": "tsc-alias -p tsconfig.build.json",
+    "build:compile:cjs": "tsc -p tsconfig.build.cjs.json",
+    "build:cjs-manifest": "node scripts/write_cjs_manifest.js",
     "prepack": "pnpm docs:api && pnpm build",
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p docs/playground/tsconfig.json --noEmit",
     "lint": "pnpm lint:es && pnpm lint:md",
