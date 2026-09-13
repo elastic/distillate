@@ -17,25 +17,17 @@
  * under the License.
  */
 
-import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Resolve by package name (Node's package self-reference), not by relative
-// dist path, so this exercises the same "exports" conditions (and "main")
-// an external consumer's `import`/`require` goes through. A relative
-// `dist/index.js` read would still pass even if an export condition path
-// were wrong.
+// dist path, so this exercises the same "exports" conditions an external
+// consumer's `import` goes through. A relative `dist/index.js` read would
+// still pass even if an export condition path were wrong.
 const distillate = await import('@elastic/distillate');
 const emotion = await import('@elastic/distillate/emotion');
 const testing = await import('@elastic/distillate/testing');
-
-// Also smoke-test the CommonJS build reached via the "require" export
-// condition (and "main"). Loading both builds in one process is the
-// dual-package hazard documented in single-copy.md, but this script only
-// checks shapes and exits, so the two copies never coexist at steady state.
-const require = createRequire(import.meta.url);
-const distillateCjs = require('@elastic/distillate');
-const emotionCjs = require('@elastic/distillate/emotion');
-const testingCjs = require('@elastic/distillate/testing');
 
 const requiredExports = [
   ['@elastic/distillate', distillate.createDistillery],
@@ -44,12 +36,6 @@ const requiredExports = [
   [
     '@elastic/distillate/testing.findVarRefViolations',
     testing.findVarRefViolations,
-  ],
-  ['@elastic/distillate (cjs)', distillateCjs.createDistillery],
-  ['@elastic/distillate/emotion (cjs)', emotionCjs.createEmotion],
-  [
-    '@elastic/distillate/testing (cjs)',
-    testingCjs.assertVarRefsHaveDeclarations,
   ],
 ];
 
@@ -95,3 +81,15 @@ if (leaked.length > 0) {
 console.log(
   `Package export check passed: ${requiredExports.length} required, ${forbiddenExports.length} forbidden.`
 );
+
+// The CommonJS build (reached via the "require" export condition and
+// "main") runs in a separate process rather than inline here. Loading both
+// builds via `import` and `require` in one process is exactly the
+// dual-package hazard documented in single-copy.md: it would make this
+// script's own duplicate-instance `console.warn` fire on every run,
+// drowning out a real one. See smoke_exports_cjs.cjs.
+const cjsCheck = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  'smoke_exports_cjs.cjs'
+);
+execFileSync(process.execPath, [cjsCheck], { stdio: 'inherit' });
