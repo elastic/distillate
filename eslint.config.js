@@ -67,6 +67,13 @@ export default tseslint.config(
     },
   },
   {
+    // `.cjs` is an explicit CommonJS marker; `require(...)` is the point.
+    files: ['**/*.cjs'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+  {
     files: ['**/*.{ts,tsx,js,cjs}'],
     rules: {
       'no-unused-vars': 'off',
@@ -143,7 +150,7 @@ export default tseslint.config(
       'src/**/*.{ts,tsx}',
       'docs/examples/**/*.ts',
       'docs/playground/**/*.{ts,tsx}',
-      'scripts/**/*.js',
+      'scripts/**/*.{js,cjs}',
       'eslint.config.js',
       'vitest.config.ts',
     ],

@@ -5,7 +5,7 @@ description: Install Distillate and emit your first stylesheet.
 
 # Getting started
 
-{{pkg}} is an ESM package for Node.js 20 and later. Three pages get a library bound and emitting CSS:
+{{pkg}} targets Node.js 20 and later, published as ESM with a parallel CommonJS build for hosts that can only `require(...)`. Three pages get a library bound and emitting CSS:
 
 - [Installation](installation.md)
 - [Quick start](quick-start.md)

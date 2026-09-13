@@ -11,6 +11,9 @@ sources:
   - id: instance
     resource: https://github.com/elastic/distillate/blob/main/src/instance.ts
     title: Single-copy guard
+  - id: package
+    resource: https://github.com/elastic/distillate/blob/main/package.json
+    title: Dual-build export conditions
 ---
 
 # Definition
@@ -21,4 +24,9 @@ On import, a random token is stored at `globalThis[Symbol.for('elastic.distillat
 
 `package.json` `sideEffects` lists `**/instance.ts` and `**/instance.js`. Consumers must externalize `@elastic/distillate`.
 
+## Dual-package hazard
+
+The package publishes ESM (`dist/`, the `import` condition) and a parallel CommonJS build (`dist/cjs/`, the `require`/`main` condition) so a host that transpiles to CommonJS (a Kibana-style server plugin) can `require(...)` without `ERR_REQUIRE_ESM`. One importer reaching the package via `import` and another via `require` in the same process load both builds — two module instances, two identity tokens, the same failure mode as two copies in `node_modules`.[^package]
+
 [^instance]: Single-copy guard
+[^package]: Dual-build export conditions

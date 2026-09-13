@@ -31,7 +31,7 @@ const manifest = JSON.parse(
 const BUILTINS = new Set(builtinModules);
 
 const SPECIFIER_PATTERN =
-  /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+)['"]([^'"\n]+)['"]/g;
+  /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+|\brequire\s*\(\s*)['"]([^'"\n]+)['"]/g;
 
 const withoutComments = (source) =>
   source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/[^\n]*/g, '$1');
@@ -68,7 +68,8 @@ for (const file of globSync('**/*.{js,d.ts}', { cwd: distDir })) {
           reason: `relative import escapes dist/ (resolves to ${relative(repoRoot, target)})`,
         });
       }
-      if (!/\.[a-zA-Z0-9]+$/.test(specifier)) {
+      const isCjs = file.startsWith(`cjs${sep}`);
+      if (!isCjs && !/\.[a-zA-Z0-9]+$/.test(specifier)) {
         violations.push({
           file,
           specifier,

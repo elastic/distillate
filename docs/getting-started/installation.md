@@ -9,7 +9,9 @@ description: Add Distillate to a project.
 npm install @elastic/distillate
 ```
 
-pnpm and yarn work the same way. The package is ESM-only (`"type": "module"`) and declares `engines.node` `>=20`.
+pnpm and yarn work the same way. The package declares `engines.node` `>=20`.
+
+The primary build is ESM (`"type": "module"`), reached through the `import` export condition. A parallel CommonJS build is published under the `require` condition for hosts whose loader cannot use ESM — for example a plugin-host platform (Kibana-style) whose server code is transpiled to CommonJS and calls `require(...)` rather than `import`. Bundlers and Node's own resolver pick whichever condition matches automatically; you do not select one yourself. See [dual-package hazard](../concepts/single-copy.md#dual-package-hazard) for the one thing this adds to watch for.
 
 ## Entry points
 
