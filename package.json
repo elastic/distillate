@@ -2,7 +2,7 @@
   "name": "@elastic/distillate",
   "version": "0.1.0",
   "description": "Theme-agnostic CSS style engine: typed authoring with dependency capture, render-driven reachability collection, and dual readable/compact output targets. One runtime dependency: stylis.",
-  "license": "Apache-2.0",
+  "license": "SEE LICENSE IN LICENSE.txt",
   "author": "Elastic",
   "repository": {
     "type": "git",
@@ -47,6 +47,7 @@
     "!docs/playground/node_modules",
     "!docs/playground/dist",
     "LICENSE.txt",
+    "licenses",
     "NOTICE.txt",
     "THIRD_PARTY_LICENSES.md"
   ],

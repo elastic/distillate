@@ -6,6 +6,7 @@
     ".github/**",
     ".okf/**",
     "THIRD_PARTY_LICENSES.md",
+    "licenses/**",
     "docs/reference/api/**",
   ],
 }

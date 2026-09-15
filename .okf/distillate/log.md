@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-09-15
+
+- **Update**: Product license is dual Elastic License 2.0 and Server Side Public License, v 1, matching EUI. `CONTRIBUTING.md` and `SUPPORT.md` document Elastic-maintained, best-effort contributions and no product SLA.
+
 ## 2026-09-12
 
 - **Update**: `concepts/single-copy.md` gained a "Dual-package hazard" section and a `package` source, covering the new parallel CommonJS build (`dist/cjs`, `require`/`main` export conditions) alongside the existing ESM (`import`) build. `pnpm okf:check` re-run and passing.

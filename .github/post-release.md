@@ -7,7 +7,7 @@ Follow-through once `@elastic/distillate` has been published and the repository 
 1. Confirm `main` is green and the changelog-driving commits since the last tag are the ones you intend to ship.
 2. Run the **Publish a Release** workflow (`release.yml`) from the Actions tab. It is `workflow_dispatch` only — nothing publishes on push.
 3. First run it with **dry_run** enabled. That exercises `pnpm verify` and semantic-release without publishing. With no prior git tag, the first `main` release is **0.1.0** (`scripts/semantic_release_first_version.js` overrides semantic-release's default `1.0.0`).
-4. Publishing needs npm trusted publishing (OIDC) or an `NPM_TOKEN` repository secret, plus a `GITHUB_TOKEN` that can create releases and push the version bump. Configure those before a non-dry run.
+4. Publishing needs the package on [npm trusted publishing](https://docs.npmjs.com/trusted-publishers) for `@elastic/distillate` (OIDC; this workflow already sets `id-token: write`) or an `NPM_TOKEN` repository secret, plus a `GITHUB_TOKEN` that can create releases and push the version bump. Configure those before a non-dry run. The supported consumer install is `npm install @elastic/distillate` from registry.npmjs.org, the same contract as `@elastic/eui`.
 5. A successful run tags the version, publishes `@elastic/distillate` to the npm registry, updates `CHANGELOG.md` and `package.json`, and creates a GitHub Release. Later `feat:` commits become `0.2.0`, `0.3.0`, …; a `BREAKING CHANGE` becomes `1.0.0`.
 
 ## Move CI onto shared infrastructure

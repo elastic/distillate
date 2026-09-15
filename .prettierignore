@@ -4,6 +4,7 @@ coverage
 CHANGELOG.md
 THIRD_PARTY_LICENSES.md
 NOTICE.txt
+licenses
 pnpm-lock.yaml
 .artifacts
 .okf
