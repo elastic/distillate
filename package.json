@@ -59,7 +59,6 @@
     "node": ">=20"
   },
   "scripts": {
-    "preinstall": "npx only-allow pnpm",
     "build": "pnpm build:clean && pnpm build:compile && pnpm build:specifiers && pnpm build:compile:cjs && pnpm build:cjs-manifest",
     "build:clean": "rm -rf ./dist",
     "build:compile": "tsc -p tsconfig.build.json",

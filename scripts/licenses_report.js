@@ -182,7 +182,7 @@ const noticeBlocks = runtimeRows.map((row) => {
 
 const notice = [
   'Distillate',
-  'Copyright Elastic Technologies Inc. and contributors',
+  'Copyright Elasticsearch B.V.',
   '',
   'This NOTICE includes the notices and license texts of runtime dependencies shipped alongside this product.',
   ...(noticeBlocks.length > 0

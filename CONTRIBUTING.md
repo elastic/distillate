@@ -23,7 +23,7 @@ Do not open drive-by PRs for large core work, design-system restyles, or high-im
 
 ## Development
 
-Prerequisites: Node.js 20 or later (see `.nvmrc`) and pnpm via Corepack.
+Prerequisites: Node.js 20 or later (see `.nvmrc`) and pnpm via Corepack. This repository uses pnpm; consumers may install the published package with npm, pnpm, or yarn.
 
 ```sh
 corepack enable
