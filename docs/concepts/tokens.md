@@ -34,7 +34,7 @@ A string leaf is scheme-invariant (`light === dark`). `lightDark(light, dark)` i
 
 `zipSchemes(light, dark)` folds two per-scheme trees into this form: equal strings stay bare, differing strings become `lightDark`, and `ScaleToken` leaves must agree.
 
-Named overlays go on `themes` in `createDistillery`. Declaring a theme does not emit it; name it at `renderStyles` with `{ theme }` or `{ alternates }`. See [declare and select themes](../guides/theming.md).
+Named variations go on `variations` in `createDistillery`. Declaring a variation does not emit it; name it at `renderStyles` with `{ flatten }` or `{ alternates }`. Variations extend the base only. `ScaleToken` leaves must match the base because they inline and cannot vary. See [declare and select variations](../guides/theming.md).
 
 `themeToken(path, cssVar)` remains the constructor derivation calls. Paths are slash-delimited (`colors/ink`), matching `themeVars` keys.
 

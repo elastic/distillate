@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-09-16
+
+- **Update**: Theme vocabulary is now `variations` (declared diffs), `flatten` / `alternates` (render selection). `themes`, render-time `theme`, media-wrapper `tokens`, `ThemeDeclaration`, and `ResolvedThemeLayer` are gone. `ScaleToken` leaves still cannot vary. `pnpm okf:check` re-run after index.
+
 ## 2026-09-12
 
 - **Update**: `concepts/single-copy.md` gained a "Dual-package hazard" section and a `package` source, covering the new parallel CommonJS build (`dist/cjs`, `require`/`main` export conditions) alongside the existing ESM (`import`) build. `pnpm okf:check` re-run and passing.

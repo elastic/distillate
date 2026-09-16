@@ -19,7 +19,7 @@ sources:
     title: Theme derivation
   - id: runtime
     resource: https://github.com/elastic/distillate/blob/main/src/runtime.ts
-    title: renderStyles theme selection
+    title: renderStyles variation selection
 ---
 
 # Definition
@@ -33,10 +33,10 @@ sources:
 | `prefix`     | yes      | CSS identifier segment.                                                                        |
 | `themeScope` | yes      | Selector wrapping the theme-variable block.                                                 |
 | `theme`      | yes      | Nested value tree. Strings and `lightDark` become theme vars; `cq` / `scaleToken` inline.   |
-| `themes`     | no       | Named overlays of `theme`. Declaring a theme does not emit it; name it at `renderStyles`.        |
+| `variations` | no       | Named value-only diffs of `theme`. Declaring a variation does not emit it; name it at `renderStyles`. |
 | `sharedVars` | no       | Cross-module contextual-var paths. Names derive via `cssVarName`.                            |
 
-Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw at construction. `lightDark` values that are not CSS `<color>` throw. Named `themes` overlays that introduce unknown paths or disagree on leaf kind throw. `renderStyles` selects a declared theme with `{ theme }` or `{ alternates }`.[^environment][^theme][^runtime]
+Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw at construction. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw. `renderStyles` selects a declared variation with `{ flatten }` or `{ alternates }`.[^environment][^theme][^runtime]
 
 # Examples
 

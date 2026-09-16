@@ -81,10 +81,10 @@ describe('demoTokenCatalog', () => {
   });
 });
 
-describe('demo theme layers', () => {
+describe('demo theme variations', () => {
   const renderDemo = (options?: {
-    theme?: string;
-    alternates?: readonly { theme: string; selector?: string }[];
+    flatten?: string;
+    alternates?: readonly { variation: string; selector?: string }[];
   }): string => {
     const distillery = createDemoDistillery();
     distillery.createStyleModule('swatch', (t) => ({
@@ -100,33 +100,33 @@ describe('demo theme layers', () => {
     );
   };
 
-  it('keeps base-only output free of declared overlays', () => {
+  it('keeps base-only output free of declared variations', () => {
     const css = renderDemo();
     expect(css).toContain('--dstl-color-accent:light-dark(#BC1E70,#EE72A6)');
     expect(css).not.toContain('#0077cc');
     expect(css).not.toContain('prefers-contrast');
   });
 
-  it('flattens amsterdam into :host', () => {
-    const css = renderDemo({ theme: 'amsterdam' });
+  it('flattens muted into :host', () => {
+    const css = renderDemo({ flatten: 'muted' });
     expect(css).toContain(':host{');
     expect(css).toContain('--dstl-color-accent:#0077cc');
     expect(css).not.toContain('data-eui-theme');
   });
 
-  it('emits amsterdam as a :host() alternate', () => {
+  it('emits muted as a :host() alternate', () => {
     const css = renderDemo({
       alternates: [
-        { theme: 'amsterdam', selector: '[data-eui-theme="amsterdam"]' },
+        { variation: 'muted', selector: '[data-eui-theme="muted"]' },
       ],
     });
     expect(css).toContain(
-      ':host([data-eui-theme="amsterdam"]){--dstl-color-accent:#0077cc}'
+      ':host([data-eui-theme="muted"]){--dstl-color-accent:#0077cc}'
     );
   });
 
   it('wraps highContrast in its media query under :host', () => {
-    const css = renderDemo({ theme: 'highContrast' });
+    const css = renderDemo({ flatten: 'highContrast' });
     expect(css).toContain(
       '@media (prefers-contrast:more){:host{--dstl-color-surface:light-dark(#fff,#000)}}'
     );

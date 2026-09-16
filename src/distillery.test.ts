@@ -867,8 +867,8 @@ describe('readable name guards', () => {
   });
 });
 
-describe('theme layers', () => {
-  const layeredTheme = {
+describe('theme variations', () => {
+  const baseTheme = {
     colors: {
       ink: lightDark('#111', '#eee'),
       accent: lightDark('#06c', '#8cf'),
@@ -876,18 +876,18 @@ describe('theme layers', () => {
     gap: cq('8px', '2cqi'),
   };
 
-  const createLayeredDistillery = (themeScope: string) =>
+  const createVariedDistillery = (themeScope: string) =>
     createDistillery({
       prefix: 'eui',
       themeScope,
-      theme: layeredTheme,
-      themes: {
-        amsterdam: {
+      theme: baseTheme,
+      variations: {
+        muted: {
           colors: { accent: '#0077cc' },
         },
         highContrast: {
           media: '(prefers-contrast: more)',
-          tokens: {
+          variation: {
             colors: {
               ink: lightDark('#000', '#fff'),
             },
@@ -897,7 +897,7 @@ describe('theme layers', () => {
     });
 
   const collectAccent = (
-    distillery: ReturnType<typeof createLayeredDistillery>
+    distillery: ReturnType<typeof createVariedDistillery>
   ) => {
     distillery.createStyleModule('demo', (t) => ({
       root: t.css`
@@ -908,26 +908,30 @@ describe('theme layers', () => {
     return distillery.stylesheetCollector();
   };
 
-  it('does not emit declared themes until they are named at render', () => {
-    const withLayers = createLayeredDistillery('.eui-view');
-    const withoutLayers = createDistillery({
+  it('does not emit declared variations until they are named at render', () => {
+    const withVariations = createVariedDistillery('.eui-view');
+    const withoutVariations = createDistillery({
       prefix: 'eui',
       themeScope: '.eui-view',
-      theme: layeredTheme,
+      theme: baseTheme,
     });
-    const layeredCss = withLayers.renderStyles(collectAccent(withLayers));
-    const baseCss = withoutLayers.renderStyles(collectAccent(withoutLayers));
-    expect(layeredCss).toBe(baseCss);
-    expect(layeredCss).not.toContain('0077cc');
-    expect(layeredCss).not.toContain('prefers-contrast');
+    const variedCss = withVariations.renderStyles(
+      collectAccent(withVariations)
+    );
+    const baseCss = withoutVariations.renderStyles(
+      collectAccent(withoutVariations)
+    );
+    expect(variedCss).toBe(baseCss);
+    expect(variedCss).not.toContain('0077cc');
+    expect(variedCss).not.toContain('prefers-contrast');
   });
 
-  it('flattens a selected theme into themeScope at the same declaration count', () => {
-    const distillery = createLayeredDistillery('.eui-view');
+  it('flattens a selected variation into themeScope at the same declaration count', () => {
+    const distillery = createVariedDistillery('.eui-view');
     const collector = collectAccent(distillery);
     const base = distillery.renderStyles(collector);
     const selected = distillery.renderStyles(collector, undefined, {
-      theme: 'amsterdam',
+      flatten: 'muted',
     });
     expect(selected).toContain('--eui-colors-accent:#0077cc');
     expect(selected).not.toContain('data-eui-theme');
@@ -935,37 +939,37 @@ describe('theme layers', () => {
   });
 
   it('emits alternate diffs under a class-composed selector', () => {
-    const distillery = createLayeredDistillery('.eui-view');
+    const distillery = createVariedDistillery('.eui-view');
     const css = distillery.renderStyles(collectAccent(distillery), undefined, {
       alternates: [
-        { theme: 'amsterdam', selector: '[data-eui-theme="amsterdam"]' },
+        { variation: 'muted', selector: '[data-eui-theme="muted"]' },
       ],
     });
     expect(css).toContain(
       '.eui-view{--eui-colors-accent:light-dark(#06c,#8cf);--eui-colors-ink:light-dark(#111,#eee)}'
     );
     expect(css).toContain(
-      '.eui-view[data-eui-theme="amsterdam"]{--eui-colors-accent:#0077cc}'
+      '.eui-view[data-eui-theme="muted"]{--eui-colors-accent:#0077cc}'
     );
   });
 
   it('emits alternate diffs under :host()', () => {
-    const distillery = createLayeredDistillery(':host');
+    const distillery = createVariedDistillery(':host');
     const css = distillery.renderStyles(collectAccent(distillery), undefined, {
       alternates: [
-        { theme: 'amsterdam', selector: '[data-eui-theme="amsterdam"]' },
+        { variation: 'muted', selector: '[data-eui-theme="muted"]' },
       ],
     });
     expect(css).toContain(
-      ':host([data-eui-theme="amsterdam"]){--eui-colors-accent:#0077cc}'
+      ':host([data-eui-theme="muted"]){--eui-colors-accent:#0077cc}'
     );
   });
 
-  it('wraps a media theme in its query when selected or listed as an alternate', () => {
-    const distillery = createLayeredDistillery('.eui-view');
+  it('keeps the base primary block when flattening a media variation and wraps the diff', () => {
+    const distillery = createVariedDistillery('.eui-view');
     const collector = collectAccent(distillery);
     const selected = distillery.renderStyles(collector, undefined, {
-      theme: 'highContrast',
+      flatten: 'highContrast',
     });
     expect(selected).toContain(
       '.eui-view{--eui-colors-accent:light-dark(#06c,#8cf);--eui-colors-ink:light-dark(#111,#eee)}'
@@ -975,37 +979,37 @@ describe('theme layers', () => {
     );
 
     const alternate = distillery.renderStyles(collector, undefined, {
-      alternates: [{ theme: 'highContrast' }],
+      alternates: [{ variation: 'highContrast' }],
     });
     expect(alternate).toContain(
       '@media (prefers-contrast:more){.eui-view{--eui-colors-ink:light-dark(#000,#fff)}}'
     );
   });
 
-  it('lets themeValueOverrides win over a selected theme', () => {
-    const distillery = createLayeredDistillery('.eui-view');
+  it('lets themeValueOverrides win over a flattened variation', () => {
+    const distillery = createVariedDistillery('.eui-view');
     const css = distillery.renderStyles(collectAccent(distillery), undefined, {
-      theme: 'amsterdam',
+      flatten: 'muted',
       themeValueOverrides: { 'colors/accent': '#ff00ff' },
     });
     expect(css).toContain('--eui-colors-accent:#ff00ff');
     expect(css).not.toContain('#0077cc');
   });
 
-  it('throws for an unknown theme name', () => {
-    const distillery = createLayeredDistillery('.eui-view');
+  it('throws for an unknown variation name', () => {
+    const distillery = createVariedDistillery('.eui-view');
     const collector = collectAccent(distillery);
     expect(() =>
-      distillery.renderStyles(collector, undefined, { theme: 'missing' })
-    ).toThrow(/Unknown theme "missing"/);
+      distillery.renderStyles(collector, undefined, { flatten: 'missing' })
+    ).toThrow(/Unknown variation "missing"/);
   });
 
   it('throws when a non-media alternate omits a selector', () => {
-    const distillery = createLayeredDistillery('.eui-view');
+    const distillery = createVariedDistillery('.eui-view');
     const collector = collectAccent(distillery);
     expect(() =>
       distillery.renderStyles(collector, undefined, {
-        alternates: [{ theme: 'amsterdam' }],
+        alternates: [{ variation: 'muted' }],
       })
     ).toThrow(/needs a selector/);
   });

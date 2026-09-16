@@ -17,7 +17,11 @@
  * under the License.
  */
 
-import type { ResolvedThemeLayer, ThemeDeclaration, ThemeTree } from './theme';
+import type {
+  ResolvedThemeVariation,
+  ThemeTree,
+  ThemeVariation,
+} from './theme';
 
 /** One theme CSS variable. Differing `light`/`dark` fold into `light-dark(...)`. */
 export interface ThemeVarDefinition {
@@ -39,8 +43,8 @@ export interface DistilleryOptions<TTheme extends ThemeTree = ThemeTree> {
   readonly themeScope: string;
   /** Nested value tree. Strings and `lightDark` leaves become theme vars; `ScaleToken` leaves inline. */
   readonly theme: TTheme;
-  /** Named partial overlays of `theme`. Declaring a theme does not emit it; name it at `renderStyles`. */
-  readonly themes?: Readonly<Record<string, ThemeDeclaration<TTheme>>>;
+  /** Named partial variations of `theme`. Declaring a variation does not emit it; name it at `renderStyles`. */
+  readonly variations?: Readonly<Record<string, ThemeVariation<TTheme>>>;
   /** Cross-module contextual-var paths. Names are `cssVarName(prefix, path)`. Module-local `vars(...)` groups are not listed here. */
   readonly sharedVars?: readonly `vars/${string}`[];
 }
@@ -57,6 +61,6 @@ export interface DistilleryEnvironment<TTokens = unknown> {
   readonly sharedVars?: ReadonlySet<`vars/${string}`>;
   /** Typed token tree, surfaced as `tokens` on the authoring API. */
   readonly tokens: TTokens;
-  /** Named layers resolved against `themeVars`. Absent when no `themes` were declared. */
-  readonly themes?: Readonly<Record<string, ResolvedThemeLayer>>;
+  /** Named variations resolved against `themeVars`. Absent when no `variations` were declared. */
+  readonly variations?: Readonly<Record<string, ResolvedThemeVariation>>;
 }

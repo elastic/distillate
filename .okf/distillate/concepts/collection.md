@@ -30,7 +30,7 @@ Prefer `distillery.artifactCollector(names)` (empty) and `distillery.stylesheetC
 | `useAllEntries(module)` | Every entry, including variants.                                     |
 | `useThemeVar(path)`     | Slash-delimited `themeVars` key, e.g. `colors/ink`.                  |
 
-`renderThemeVars` emits every collected theme path (`useThemeVar`, interpolated tokens, surviving default-marker value deps). The body CSS is not consulted; a path can ship with no textual `var(...)` in the body. Named layers, media themes, and `{ alternates }` only change values and extra blocks for those paths.[^runtime][^distillery-tests]
+`renderThemeVars` emits every collected theme path (`useThemeVar`, interpolated tokens, surviving default-marker value deps). The body CSS is not consulted; a path can ship with no textual `var(...)` in the body. Named variations, media variations, and `{ alternates }` only change values and extra blocks for those paths.[^runtime][^distillery-tests]
 
 `reachableDefaults(handle, groupPath)` prunes individual custom-property declarations inside a local-var default group to keys referenced by that handle or by a collected rule targeting it. Rule-level default markers have no host handle and emit every listed key.[^collector][^runtime]
 

@@ -35,7 +35,7 @@ import type {
   StyleRule,
   StyleSelectorResolver,
 } from './styles';
-import { type ResolvedThemeLayer, serializedThemeValue } from './theme';
+import { type ResolvedThemeVariation, serializedThemeValue } from './theme';
 
 /**
  * Emits collected CSS: theme block, then entries, minified.
@@ -68,20 +68,20 @@ export const renderStyles = (
   return minifyCss(fragments.join(''));
 };
 
-/** Per-render theme selection, alternate blocks, and value overrides. */
+/** Per-render variation selection, alternate blocks, and value overrides. */
 export interface RenderStylesOptions {
-  /** Flatten this declared theme into `themeScope`. Default is the base. */
-  theme?: string;
-  /** Extra blocks for runtime switching. Each entry emits only the overlay diff. */
+  /** Flatten this declared variation into `themeScope`. Default is the base. A media variation does not replace the primary block; it wraps its diffs in `@media`. */
+  flatten?: string;
+  /** Extra blocks for runtime switching. Each entry emits only the variation's diff. */
   alternates?: readonly ThemeAlternate[];
   /** Override a theme token's emitted value. */
   themeValueOverrides?: Partial<Record<string, string>>;
 }
 
-/** One runtime-switched theme. `selector` is required unless the theme declares `media`. */
+/** One runtime-switched variation. `selector` is required unless the variation declares `media`. */
 export interface ThemeAlternate {
-  /** Name passed in `DistilleryOptions.themes`. */
-  readonly theme: string;
+  /** Name passed in `DistilleryOptions.variations`. */
+  readonly variation: string;
   /** Consuming page selector, composed with `themeScope`. */
   readonly selector?: string;
 }
@@ -99,8 +99,8 @@ interface RenderContext {
 
 const renderThemeVars = (ctx: RenderContext): string => {
   const { environment, options } = ctx;
-  const selected = options.theme
-    ? themeLayer(environment, options.theme)
+  const selected = options.flatten
+    ? themeVariation(environment, options.flatten)
     : undefined;
   const primaryVars =
     selected && !selected.media ? selected.themeVars : environment.themeVars;
@@ -123,35 +123,35 @@ const renderAlternate = (
   ctx: RenderContext,
   alternate: ThemeAlternate
 ): string => {
-  const layer = themeLayer(ctx.environment, alternate.theme);
+  const resolved = themeVariation(ctx.environment, alternate.variation);
   const selector = alternate.selector
     ? composeThemeSelector(ctx.environment.themeScope, alternate.selector)
-    : layer.media
+    : resolved.media
       ? ctx.environment.themeScope
       : undefined;
   if (!selector) {
     throw new Error(
-      `Alternate theme "${alternate.theme}" needs a selector (media-conditioned themes may omit one).`
+      `Alternate variation "${alternate.variation}" needs a selector (media-conditioned variations may omit one).`
     );
   }
-  const block = renderVarBlock(ctx, selector, layer.diffs);
-  return layer.media ? wrapMedia(layer.media, block) : block;
+  const block = renderVarBlock(ctx, selector, resolved.diffs);
+  return resolved.media ? wrapMedia(resolved.media, block) : block;
 };
 
-const themeLayer = (
+const themeVariation = (
   environment: DistilleryEnvironment<unknown>,
   name: string
-): ResolvedThemeLayer => {
-  const layer = environment.themes?.[name];
-  if (!layer) {
-    const declared = Object.keys(environment.themes ?? {});
+): ResolvedThemeVariation => {
+  const resolved = environment.variations?.[name];
+  if (!resolved) {
+    const declared = Object.keys(environment.variations ?? {});
     const suffix =
       declared.length > 0
         ? ` Declared: ${declared.join(', ')}.`
-        : ' No themes were declared.';
-    throw new Error(`Unknown theme "${name}".${suffix}`);
+        : ' No variations were declared.';
+    throw new Error(`Unknown variation "${name}".${suffix}`);
   }
-  return layer;
+  return resolved;
 };
 
 const renderVarBlock = (

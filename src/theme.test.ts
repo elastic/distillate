@@ -123,27 +123,27 @@ describe('createDistillery theme derivation', () => {
     ).toThrow(/Theme key "colors-ink"/);
   });
 
-  it('throws when a named theme introduces an unknown path', () => {
+  it('throws when a named variation introduces an unknown path', () => {
     expect(() =>
       createDistillery({
         prefix: 'eui',
         themeScope: '.x',
         theme: { colors: { ink: lightDark('#111', '#eee') } },
-        themes: { amsterdam: { colors: { accent: '#0077cc' } } as never },
+        variations: { muted: { colors: { accent: '#0077cc' } } as never },
       })
-    ).toThrow(/Theme "amsterdam": unknown path "colors\/accent"/);
+    ).toThrow(/Variation "muted": unknown path "colors\/accent"/);
   });
 
-  it('throws when a media theme declaration has extra keys', () => {
+  it('throws when a media variation declaration has extra keys', () => {
     expect(() =>
       createDistillery({
         prefix: 'eui',
         themeScope: '.x',
         theme: { colors: { ink: '#111' } },
-        themes: {
+        variations: {
           highContrast: {
             media: '(prefers-contrast: more)',
-            tokens: { colors: { ink: '#000' } },
+            variation: { colors: { ink: '#000' } },
             extra: true,
           } as never,
         },
@@ -157,23 +157,23 @@ describe('createDistillery theme derivation', () => {
         prefix: 'eui',
         themeScope: '.x',
         theme: { colors: { ink: '#111' } },
-        themes: {
+        variations: {
           highContrast: {
             media: '   ',
-            tokens: { colors: { ink: '#000' } },
+            variation: { colors: { ink: '#000' } },
           },
         },
       })
     ).toThrow(/empty media query/);
   });
 
-  it('throws when a named theme diverges a ScaleToken', () => {
+  it('throws when a named variation diverges a ScaleToken', () => {
     expect(() =>
       createDistillery({
         prefix: 'eui',
         themeScope: '.x',
         theme: { gap: cq('8px', '2cqi') },
-        themes: { dense: { gap: cq('4px', '1cqi') } },
+        variations: { dense: { gap: cq('4px', '1cqi') } },
       })
     ).toThrow(/ScaleToken at "gap" disagrees with the base/);
   });
