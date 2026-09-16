@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@elastic/distillate"><img src="https://img.shields.io/npm/v/@elastic/distillate.svg" alt="npm version"></a>
   <a href="https://github.com/elastic/distillate/actions/workflows/ci.yml"><img src="https://github.com/elastic/distillate/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/elastic/distillate/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
+  <a href="https://github.com/elastic/distillate/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/License-Elastic%202.0-blue.svg" alt="License: Elastic License 2.0"></a>
 </p>
 <!-- markdownlint-enable MD033 -->
 
@@ -139,3 +139,4 @@ A second copy with a different identity token registers a console warning at imp
 - [Playground](https://elastic.github.io/distillate/playground/)
 - Runnable samples: [`docs/examples/`](https://github.com/elastic/distillate/tree/main/docs/examples)
 - Contributing: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Support: [`SUPPORT.md`](SUPPORT.md)
