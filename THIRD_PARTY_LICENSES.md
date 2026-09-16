@@ -16,10 +16,10 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 
 | Package | Version | SPDX | Path |
 | --- | --- | --- | --- |
-| `@actions/core` | 3.0.1 | MIT | `node_modules/.pnpm/@semantic-release+npm@13.1.5_semantic-release@25.0.9_typescript@5.9.3_/node_modules/@actions/core` |
-| `@actions/exec` | 3.0.0 | MIT | `node_modules/.pnpm/node_modules/@actions/exec` |
-| `@actions/http-client` | 4.0.1 | MIT | `node_modules/.pnpm/node_modules/@actions/http-client` |
-| `@actions/io` | 3.0.2 | MIT | `node_modules/.pnpm/node_modules/@actions/io` |
+| `@actions/core` | 3.0.1 | MIT | `node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core` |
+| `@actions/exec` | 3.0.0 | MIT | `node_modules/.pnpm/@actions+exec@3.0.0/node_modules/@actions/exec` |
+| `@actions/http-client` | 4.0.1 | MIT | `node_modules/.pnpm/@actions+http-client@4.0.1/node_modules/@actions/http-client` |
+| `@actions/io` | 3.0.2 | MIT | `node_modules/.pnpm/@actions+io@3.0.2/node_modules/@actions/io` |
 | `@babel/code-frame` | 7.29.7 | MIT | `node_modules/.pnpm/@babel+code-frame@7.29.7/node_modules/@babel/code-frame` |
 | `@babel/helper-string-parser` | 7.29.7 | MIT | `node_modules/.pnpm/@babel+helper-string-parser@7.29.7/node_modules/@babel/helper-string-parser` |
 | `@babel/helper-validator-identifier` | 7.29.7 | MIT | `node_modules/.pnpm/@babel+helper-validator-identifier@7.29.7/node_modules/@babel/helper-validator-identifier` |
@@ -48,17 +48,15 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@eslint-community/regexpp` | 4.12.2 | MIT | `node_modules/.pnpm/@eslint-community+regexpp@4.12.2/node_modules/@eslint-community/regexpp` |
 | `@eslint/config-array` | 0.21.2 | Apache-2.0 | `node_modules/.pnpm/@eslint+config-array@0.21.2/node_modules/@eslint/config-array` |
 | `@eslint/config-helpers` | 0.4.2 | Apache-2.0 | `node_modules/.pnpm/@eslint+config-helpers@0.4.2/node_modules/@eslint/config-helpers` |
-| `@eslint/core` | 0.17.0 | Apache-2.0 | `node_modules/.pnpm/@eslint+config-helpers@0.4.2/node_modules/@eslint/core` |
-| `@eslint/core` | 0.17.0 | Apache-2.0 | `node_modules/.pnpm/eslint@9.39.5_jiti@2.6.1/node_modules/@eslint/core` |
-| `@eslint/core` | 0.17.0 | Apache-2.0 | `node_modules/.pnpm/@eslint+plugin-kit@0.4.1/node_modules/@eslint/core` |
+| `@eslint/core` | 0.17.0 | Apache-2.0 | `node_modules/.pnpm/@eslint+core@0.17.0/node_modules/@eslint/core` |
 | `@eslint/eslintrc` | 3.3.7 | MIT | `node_modules/.pnpm/@eslint+eslintrc@3.3.7/node_modules/@eslint/eslintrc` |
 | `@eslint/js` | 9.39.5 | MIT | `node_modules/.pnpm/@eslint+js@9.39.5/node_modules/@eslint/js` |
 | `@eslint/object-schema` | 2.1.7 | Apache-2.0 | `node_modules/.pnpm/@eslint+object-schema@2.1.7/node_modules/@eslint/object-schema` |
 | `@eslint/plugin-kit` | 0.4.1 | Apache-2.0 | `node_modules/.pnpm/@eslint+plugin-kit@0.4.1/node_modules/@eslint/plugin-kit` |
 | `@gar/promise-retry` | 1.0.3 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/@gar/promise-retry` |
 | `@gerrit0/mini-shiki` | 3.23.0 | MIT | `node_modules/.pnpm/@gerrit0+mini-shiki@3.23.0/node_modules/@gerrit0/mini-shiki` |
-| `@humanfs/core` | 0.19.2 | Apache-2.0 | `node_modules/.pnpm/node_modules/@humanfs/core` |
-| `@humanfs/node` | 0.16.8 | Apache-2.0 | `node_modules/.pnpm/eslint@9.39.5_jiti@2.6.1/node_modules/@humanfs/node` |
+| `@humanfs/core` | 0.19.2 | Apache-2.0 | `node_modules/.pnpm/@humanfs+core@0.19.2/node_modules/@humanfs/core` |
+| `@humanfs/node` | 0.16.8 | Apache-2.0 | `node_modules/.pnpm/@humanfs+node@0.16.8/node_modules/@humanfs/node` |
 | `@humanfs/types` | 0.15.0 | Apache-2.0 | `node_modules/.pnpm/@humanfs+types@0.15.0/node_modules/@humanfs/types` |
 | `@humanwhocodes/module-importer` | 1.0.1 | Apache-2.0 | `node_modules/.pnpm/@humanwhocodes+module-importer@1.0.1/node_modules/@humanwhocodes/module-importer` |
 | `@humanwhocodes/retry` | 0.4.3 | Apache-2.0 | `node_modules/.pnpm/@humanwhocodes+retry@0.4.3/node_modules/@humanwhocodes/retry` |
@@ -125,7 +123,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@sigstore/sign` | 4.1.1 | Apache-2.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/@sigstore/sign` |
 | `@sigstore/tuf` | 4.0.2 | Apache-2.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/@sigstore/tuf` |
 | `@sigstore/verify` | 3.1.1 | Apache-2.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/@sigstore/verify` |
-| `@simple-libs/stream-utils` | 1.2.0 | MIT | `node_modules/.pnpm/node_modules/@simple-libs/stream-utils` |
+| `@simple-libs/stream-utils` | 1.2.0 | MIT | `node_modules/.pnpm/@simple-libs+stream-utils@1.2.0/node_modules/@simple-libs/stream-utils` |
 | `@sindresorhus/is` | 4.6.0 | MIT | `node_modules/.pnpm/@sindresorhus+is@4.6.0/node_modules/@sindresorhus/is` |
 | `@sindresorhus/merge-streams` | 4.0.0 | MIT | `node_modules/.pnpm/@sindresorhus+merge-streams@4.0.0/node_modules/@sindresorhus/merge-streams` |
 | `@standard-schema/spec` | 1.1.0 | MIT | `node_modules/.pnpm/@standard-schema+spec@1.1.0/node_modules/@standard-schema/spec` |
@@ -240,13 +238,10 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `conventional-changelog-angular` | 7.0.0 | ISC | `node_modules/.pnpm/conventional-changelog-angular@7.0.0/node_modules/conventional-changelog-angular` |
 | `conventional-changelog-angular` | 8.3.1 | ISC | `node_modules/.pnpm/conventional-changelog-angular@8.3.1/node_modules/conventional-changelog-angular` |
 | `conventional-changelog-conventionalcommits` | 7.0.2 | ISC | `node_modules/.pnpm/conventional-changelog-conventionalcommits@7.0.2/node_modules/conventional-changelog-conventionalcommits` |
-| `conventional-changelog-writer` | 8.4.0 | MIT | `node_modules/.pnpm/@semantic-release+commit-analyzer@13.0.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/conventional-changelog-writer` |
-| `conventional-changelog-writer` | 8.4.0 | MIT | `node_modules/.pnpm/@semantic-release+release-notes-generator@14.1.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/conventional-changelog-writer` |
-| `conventional-commits-filter` | 5.0.0 | MIT | `node_modules/.pnpm/@semantic-release+commit-analyzer@13.0.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/conventional-commits-filter` |
-| `conventional-commits-filter` | 5.0.0 | MIT | `node_modules/.pnpm/@semantic-release+release-notes-generator@14.1.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/conventional-commits-filter` |
+| `conventional-changelog-writer` | 8.4.0 | MIT | `node_modules/.pnpm/conventional-changelog-writer@8.4.0/node_modules/conventional-changelog-writer` |
+| `conventional-commits-filter` | 5.0.0 | MIT | `node_modules/.pnpm/conventional-commits-filter@5.0.0/node_modules/conventional-commits-filter` |
 | `conventional-commits-parser` | 5.0.0 | MIT | `node_modules/.pnpm/conventional-commits-parser@5.0.0/node_modules/conventional-commits-parser` |
-| `conventional-commits-parser` | 6.4.0 | MIT | `node_modules/.pnpm/@semantic-release+commit-analyzer@13.0.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/conventional-commits-parser` |
-| `conventional-commits-parser` | 6.4.0 | MIT | `node_modules/.pnpm/@semantic-release+release-notes-generator@14.1.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/conventional-commits-parser` |
+| `conventional-commits-parser` | 6.4.0 | MIT | `node_modules/.pnpm/conventional-commits-parser@6.4.0/node_modules/conventional-commits-parser` |
 | `convert-hrtime` | 5.0.0 | MIT | `node_modules/.pnpm/convert-hrtime@5.0.0/node_modules/convert-hrtime` |
 | `convert-source-map` | 2.0.0 | MIT | `node_modules/.pnpm/convert-source-map@2.0.0/node_modules/convert-source-map` |
 | `core-util-is` | 1.0.3 | MIT | `node_modules/.pnpm/core-util-is@1.0.3/node_modules/core-util-is` |
@@ -651,7 +646,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `safe-buffer` | 5.1.2 | MIT | `node_modules/.pnpm/safe-buffer@5.1.2/node_modules/safe-buffer` |
 | `safer-buffer` | 2.1.2 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/safer-buffer` |
 | `semantic-release` | 25.0.9 | MIT | `node_modules/.pnpm/semantic-release@25.0.9_typescript@5.9.3/node_modules/semantic-release` |
-| `semver` | 6.3.1 | ISC | `node_modules/.pnpm/semver@6.3.1/node_modules/semver` |
 | `semver` | 7.8.5 | ISC | `node_modules/.pnpm/semver@7.8.5/node_modules/semver` |
 | `semver` | 7.8.5 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/semver` |
 | `semver-regex` | 4.0.5 | MIT | `node_modules/.pnpm/semver-regex@4.0.5/node_modules/semver-regex` |
@@ -708,7 +702,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `supports-color` | 7.2.0 | MIT | `node_modules/.pnpm/supports-color@7.2.0/node_modules/supports-color` |
 | `supports-hyperlinks` | 3.2.0 | MIT | `node_modules/.pnpm/supports-hyperlinks@3.2.0/node_modules/supports-hyperlinks` |
 | `synckit` | 0.11.13 | MIT | `node_modules/.pnpm/synckit@0.11.13/node_modules/synckit` |
-| `tagged-tag` | 1.0.0 | MIT | `node_modules/.pnpm/node_modules/tagged-tag` |
+| `tagged-tag` | 1.0.0 | MIT | `node_modules/.pnpm/tagged-tag@1.0.0/node_modules/tagged-tag` |
 | `tar` | 7.5.22 | BlueOak-1.0.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/tar` |
 | `temp-dir` | 3.0.0 | MIT | `node_modules/.pnpm/temp-dir@3.0.0/node_modules/temp-dir` |
 | `tempy` | 3.2.0 | MIT | `node_modules/.pnpm/tempy@3.2.0/node_modules/tempy` |
@@ -736,8 +730,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `type-fest` | 1.4.0 | (MIT OR CC0-1.0) | `node_modules/.pnpm/type-fest@1.4.0/node_modules/type-fest` |
 | `type-fest` | 2.19.0 | (MIT OR CC0-1.0) | `node_modules/.pnpm/type-fest@2.19.0/node_modules/type-fest` |
 | `type-fest` | 4.41.0 | (MIT OR CC0-1.0) | `node_modules/.pnpm/type-fest@4.41.0/node_modules/type-fest` |
-| `type-fest` | 5.9.0 | (MIT OR CC0-1.0) | `node_modules/.pnpm/read-pkg@10.1.0/node_modules/type-fest` |
-| `type-fest` | 5.9.0 | (MIT OR CC0-1.0) | `node_modules/.pnpm/read-package-up@12.0.0/node_modules/type-fest` |
+| `type-fest` | 5.9.0 | (MIT OR CC0-1.0) | `node_modules/.pnpm/type-fest@5.9.0/node_modules/type-fest` |
 | `typedoc` | 0.28.20 | Apache-2.0 | `node_modules/.pnpm/typedoc@0.28.20_typescript@5.9.3/node_modules/typedoc` |
 | `typedoc-plugin-markdown` | 4.13.0 | MIT | `node_modules/.pnpm/typedoc-plugin-markdown@4.13.0_typedoc@0.28.20_typescript@5.9.3_/node_modules/typedoc-plugin-markdown` |
 | `typescript` | 5.9.3 | Apache-2.0 | `node_modules/.pnpm/typescript@5.9.3/node_modules/typescript` |
@@ -745,13 +738,13 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `uc.micro` | 2.1.0 | MIT | `node_modules/.pnpm/uc.micro@2.1.0/node_modules/uc.micro` |
 | `uglify-js` | 3.19.3 | BSD-2-Clause | `node_modules/.pnpm/uglify-js@3.19.3/node_modules/uglify-js` |
 | `undici` | 6.28.0 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/undici` |
+| `undici` | 6.28.1 | MIT | `node_modules/.pnpm/undici@6.28.1/node_modules/undici` |
 | `undici` | 7.29.1 | MIT | `node_modules/.pnpm/undici@7.29.1/node_modules/undici` |
 | `undici-types` | 6.21.0 | MIT | `node_modules/.pnpm/undici-types@6.21.0/node_modules/undici-types` |
 | `unicode-emoji-modifier-base` | 1.0.0 | MIT | `node_modules/.pnpm/unicode-emoji-modifier-base@1.0.0/node_modules/unicode-emoji-modifier-base` |
 | `unicorn-magic` | 0.1.0 | MIT | `node_modules/.pnpm/unicorn-magic@0.1.0/node_modules/unicorn-magic` |
-| `unicorn-magic` | 0.3.0 | MIT | `node_modules/.pnpm/npm-run-path@6.0.0/node_modules/unicorn-magic` |
-| `unicorn-magic` | 0.4.0 | MIT | `node_modules/.pnpm/globby@16.2.2/node_modules/unicorn-magic` |
-| `unicorn-magic` | 0.4.0 | MIT | `node_modules/.pnpm/read-pkg@10.1.0/node_modules/unicorn-magic` |
+| `unicorn-magic` | 0.3.0 | MIT | `node_modules/.pnpm/unicorn-magic@0.3.0/node_modules/unicorn-magic` |
+| `unicorn-magic` | 0.4.0 | MIT | `node_modules/.pnpm/unicorn-magic@0.4.0/node_modules/unicorn-magic` |
 | `unique-string` | 3.0.0 | MIT | `node_modules/.pnpm/unique-string@3.0.0/node_modules/unique-string` |
 | `universal-user-agent` | 7.0.3 | ISC | `node_modules/.pnpm/universal-user-agent@7.0.3/node_modules/universal-user-agent` |
 | `universalify` | 2.0.1 | MIT | `node_modules/.pnpm/universalify@2.0.1/node_modules/universalify` |

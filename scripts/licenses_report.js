@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -113,8 +113,12 @@ const isPlatformPackage = (pkg) =>
   (Array.isArray(pkg.cpu) && pkg.cpu.length > 0);
 
 const walk = (name, fromDir, seen) => {
-  const dir = resolvePackageDir(name, fromDir);
-  if (dir === undefined || seen.has(dir)) {
+  const resolved = resolvePackageDir(name, fromDir);
+  if (resolved === undefined) {
+    return;
+  }
+  const dir = realpathSync(resolved);
+  if (seen.has(dir)) {
     return;
   }
 
