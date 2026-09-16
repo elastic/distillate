@@ -48,4 +48,4 @@ See [bind a library](/playbooks/bind-a-library.md).
 
 [^theme]: Theme derivation
 
-[^runtime]: renderStyles theme selection
+[^runtime]: renderStyles variation selection
