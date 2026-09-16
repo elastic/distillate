@@ -1,23 +1,11 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright
- * ownership. Elasticsearch B.V. licenses this file to you under
- * the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *	http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0; you may not use this file except in compliance with the Elastic License
+ * 2.0.
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -72,31 +60,52 @@ const readFirstExisting = (dir, names) => {
   return undefined;
 };
 
+const packageDirIfNamed = (dir, name) => {
+  if (!existsSync(join(dir, 'package.json'))) {
+    return undefined;
+  }
+  const pkg = readPackage(dir);
+  return pkg.name === name ? dir : undefined;
+};
+
+const findInNodeModules = (name, fromDir) => {
+  let dir = fromDir;
+  while (true) {
+    const match = packageDirIfNamed(join(dir, 'node_modules', name), name);
+    if (match !== undefined) {
+      return match;
+    }
+    const parent = dirname(dir);
+    if (parent === dir) {
+      return undefined;
+    }
+    dir = parent;
+  }
+};
+
 const resolvePackageDir = (name, fromDir) => {
   try {
     return dirname(
       require.resolve(`${name}/package.json`, { paths: [fromDir] })
     );
   } catch {
-    // Some packages hide package.json behind `exports`.
+    // Some packages hide `package.json` behind `exports`.
   }
 
   try {
     let dir = dirname(require.resolve(name, { paths: [fromDir] }));
     while (dir !== dirname(dir)) {
-      const candidate = join(dir, 'package.json');
-      if (existsSync(candidate)) {
-        const pkg = readPackage(dir);
-        if (pkg.name === name) {
-          return dir;
-        }
+      const match = packageDirIfNamed(dir, name);
+      if (match !== undefined) {
+        return match;
       }
       dir = dirname(dir);
     }
   } catch {
-    return undefined;
+    // Import-only `exports` also block `require.resolve` of the package root.
   }
-  return undefined;
+
+  return findInNodeModules(name, fromDir);
 };
 
 const isPlatformPackage = (pkg) =>
@@ -104,8 +113,12 @@ const isPlatformPackage = (pkg) =>
   (Array.isArray(pkg.cpu) && pkg.cpu.length > 0);
 
 const walk = (name, fromDir, seen) => {
-  const dir = resolvePackageDir(name, fromDir);
-  if (dir === undefined || seen.has(dir)) {
+  const resolved = resolvePackageDir(name, fromDir);
+  if (resolved === undefined) {
+    return;
+  }
+  const dir = realpathSync(resolved);
+  if (seen.has(dir)) {
     return;
   }
 
@@ -193,7 +206,7 @@ const noticeBlocks = runtimeRows.map((row) => {
 
 const notice = [
   'Distillate',
-  'Copyright Elastic Technologies Inc. and contributors',
+  'Copyright 2026 Elasticsearch B.V.',
   '',
   'This NOTICE includes the notices and license texts of runtime dependencies shipped alongside this product.',
   ...(noticeBlocks.length > 0

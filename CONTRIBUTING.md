@@ -1,8 +1,29 @@
 # Contributing to Distillate
 
+## Who maintains this
+
+Distillate is Elastic-maintained. [`CODEOWNERS`](CODEOWNERS) lists the reviewers. The roadmap follows Kibana and other Elastic hosts — not a community product SLA.
+
+Keeping this engine outside Kibana is intentional: one CSS package, several hosts. Releases and review happen here, not on the Kibana release train.
+
+## Support
+
+See [`SUPPORT.md`](SUPPORT.md). There is no SLA on this repository. Product bugs that only show up in Kibana or Cloud still go through those products. Engine bugs belong in this repo's GitHub issues.
+
+Security reports go through [Elastic's process](https://www.elastic.co/community/security), not a public GitHub issue.
+
+## What to contribute
+
+- **Elastic employees** — maintainers prioritize internal host needs first. If your change is not on that list, you can still send the PR.
+- **Community** — issues and PRs are accepted on a **best-effort** basis. Unsolicited API or architecture work may be declined.
+
+External PRs should start from an issue. Comment on the issue before you start. Prefer issues labelled `help wanted` when that label is present.
+
+Do not open drive-by PRs for large core work, design-system restyles, or high-impact public-API changes without an agreed issue.
+
 ## Development
 
-Prerequisites: Node.js 20 or later (see `.nvmrc`) and pnpm via Corepack.
+Prerequisites: Node.js 20 or later (see `.nvmrc`) and pnpm via Corepack. This repository uses pnpm; consumers may install the published package with npm, pnpm, or yarn.
 
 ```sh
 corepack enable
@@ -30,11 +51,13 @@ Useful individual scripts:
 
 ## License headers
 
-Source files carry:
+First-party source files carry:
 
 ```ts
-Copyright Elastic Technologies Inc. and contributors
-SPDX-License-Identifier: Apache-2.0
+Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+or more contributor license agreements. Licensed under the Elastic License
+2.0; you may not use this file except in compliance with the Elastic License
+2.0.
 ```
 
-`pnpm lint:fix` inserts a missing header. Do not stack a second one.
+Licensed under the Elastic License 2.0 (SPDX: `Elastic-2.0`). See [`LICENSE.txt`](LICENSE.txt). `pnpm lint:fix` inserts a missing header. Do not stack a second one.
