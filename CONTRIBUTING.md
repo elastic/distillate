@@ -2,7 +2,7 @@
 
 ## Who maintains this
 
-Distillate is Elastic-maintained. [`CODEOWNERS`](CODEOWNERS) lists the reviewers. The roadmap follows Adaptive UI / isomer, Kibana, and other Elastic hosts — not a community product SLA.
+Distillate is Elastic-maintained. [`CODEOWNERS`](CODEOWNERS) lists the reviewers. The roadmap follows Kibana and other Elastic hosts — not a community product SLA.
 
 Keeping this engine outside Kibana is intentional: one CSS package, several hosts. Releases and review happen here, not on the Kibana release train.
 

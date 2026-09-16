@@ -60,31 +60,52 @@ const readFirstExisting = (dir, names) => {
   return undefined;
 };
 
+const packageDirIfNamed = (dir, name) => {
+  if (!existsSync(join(dir, 'package.json'))) {
+    return undefined;
+  }
+  const pkg = readPackage(dir);
+  return pkg.name === name ? dir : undefined;
+};
+
+const findInNodeModules = (name, fromDir) => {
+  let dir = fromDir;
+  while (true) {
+    const match = packageDirIfNamed(join(dir, 'node_modules', name), name);
+    if (match !== undefined) {
+      return match;
+    }
+    const parent = dirname(dir);
+    if (parent === dir) {
+      return undefined;
+    }
+    dir = parent;
+  }
+};
+
 const resolvePackageDir = (name, fromDir) => {
   try {
     return dirname(
       require.resolve(`${name}/package.json`, { paths: [fromDir] })
     );
   } catch {
-    // Some packages hide package.json behind `exports`.
+    // Some packages hide `package.json` behind `exports`.
   }
 
   try {
     let dir = dirname(require.resolve(name, { paths: [fromDir] }));
     while (dir !== dirname(dir)) {
-      const candidate = join(dir, 'package.json');
-      if (existsSync(candidate)) {
-        const pkg = readPackage(dir);
-        if (pkg.name === name) {
-          return dir;
-        }
+      const match = packageDirIfNamed(dir, name);
+      if (match !== undefined) {
+        return match;
       }
       dir = dirname(dir);
     }
   } catch {
-    return undefined;
+    // Import-only `exports` also block `require.resolve` of the package root.
   }
-  return undefined;
+
+  return findInNodeModules(name, fromDir);
 };
 
 const isPlatformPackage = (pkg) =>
