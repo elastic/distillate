@@ -56,9 +56,8 @@ First-party source files carry:
 ```ts
 Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 or more contributor license agreements. Licensed under the Elastic License
-2.0 and the Server Side Public License, v 1; you may not use this file except
-in compliance with, at your election, the Elastic License 2.0 or the Server
-Side Public License, v 1.
+2.0; you may not use this file except in compliance with the Elastic License
+2.0.
 ```
 
-The default license is dual Elastic License 2.0 and Server Side Public License, v 1. See [`LICENSE.txt`](LICENSE.txt). `pnpm lint:fix` inserts a missing header. Do not stack a second one.
+Licensed under the Elastic License 2.0 (SPDX: `Elastic-2.0`). See [`LICENSE.txt`](LICENSE.txt). `pnpm lint:fix` inserts a missing header. Do not stack a second one.

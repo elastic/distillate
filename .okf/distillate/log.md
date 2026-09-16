@@ -2,8 +2,8 @@
 
 ## 2026-09-15
 
-- **Update**: Product license is dual Elastic License 2.0 and Server Side Public License, v 1, matching EUI. `CONTRIBUTING.md` and `SUPPORT.md` document Elastic-maintained, best-effort contributions and no product SLA.
-- **Update**: `reference/public-contract.md` now records the package contract for the dual-license distribution files, the supported `npm install @elastic/distillate` path from `registry.npmjs.org`, and release publishing's `NPM_TOKEN` / `NODE_AUTH_TOKEN` authentication requirement.
+- **Update**: `CONTRIBUTING.md` and `SUPPORT.md` document Elastic-maintained, best-effort contributions and no product SLA.
+- **Update**: `reference/public-contract.md` now records the package contract for the supported `npm install @elastic/distillate` path from `registry.npmjs.org`.
 
 ## 2026-09-12
 

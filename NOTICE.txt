@@ -1,5 +1,5 @@
 Distillate
-Copyright Elasticsearch B.V.
+Copyright 2026 Elasticsearch B.V.
 
 This NOTICE includes the notices and license texts of runtime dependencies shipped alongside this product.
 

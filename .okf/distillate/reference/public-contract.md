@@ -35,9 +35,9 @@ sources:
 - Nested `css` templates walk stylis `compile()` output pinned at **4.4.0**. `nesting_contract.test.ts` asserts the tree shape.[^nesting-contract]
 - Template interpolations are spliced into CSS verbatim. Never bind authored CSS to untrusted input.
 - Exactly one copy of the package may load. See [single-copy invariant](/concepts/single-copy.md).
-- Published package metadata uses `license: "SEE LICENSE IN LICENSE.txt"`, ships `LICENSE.txt`, `licenses/`, `NOTICE.txt`, and `THIRD_PARTY_LICENSES.md`, and targets Node `>=20`.[^package]
+- Published package metadata uses `license: "Elastic-2.0"`, ships `LICENSE.txt`, `NOTICE.txt`, and `THIRD_PARTY_LICENSES.md`, and targets Node `>=20`.[^package]
 - The supported consumer install contract is `npm install @elastic/distillate` from `registry.npmjs.org`.[^package][^post-release]
-- Release publishing runs only from `.github/workflows/release.yml`, verifies with `pnpm verify`, and requires an `NPM_TOKEN` repository secret. The workflow exports that token as both `NPM_TOKEN` and `NODE_AUTH_TOKEN` for registry authentication.[^release-workflow][^post-release]
+- Release publishing runs only from `.github/workflows/release.yml`, verifies with `pnpm verify`, and authenticates to npm via OIDC trusted publishing (`id-token: write`).[^release-workflow][^post-release]
 
 [^idents]: CSS identifier-segment check
 
