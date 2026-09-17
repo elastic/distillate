@@ -14,6 +14,7 @@ export {
   decls,
   globalStylesFromFlattened,
   isVariantMarked,
+  mapDomain,
   media,
   pendingHandleFromFlattened,
   rule,

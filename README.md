@@ -85,11 +85,11 @@ Collection is a side effect of rendering: resolving a handle pulls it in, which 
 
 ## Entry points
 
-| Import                        | What it is                                                                                                            |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `@elastic/distillate`         | Engine: `createDistillery`, authoring (`css`, `rule`, `media`, `container`, `variants`), tokens, collector, renderer. |
-| `@elastic/distillate/emotion` | `@emotion/css`-shaped `css` / `cx` / `injectGlobal` over the same registry, plus `createDomSink`.                     |
-| `@elastic/distillate/testing` | `assertVarRefsHaveDeclarations` / `findVarRefViolations`. No third-party dependency.                                  |
+| Import                        | What it is                                                                                                                         |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `@elastic/distillate`         | Engine: `createDistillery`, authoring (`css`, `rule`, `media`, `container`, `variants`, `mapDomain`), tokens, collector, renderer. |
+| `@elastic/distillate/emotion` | `@emotion/css`-shaped `css` / `cx` / `injectGlobal` over the same registry, plus `createDomSink`.                                  |
+| `@elastic/distillate/testing` | `assertVarRefsHaveDeclarations` / `findVarRefViolations`. No third-party dependency.                                               |
 
 `./testing` is the only entry that does not reach `stylis`. Nested `css` templates walk stylis `compile()` output; the pin is **4.4.0** exactly.
 

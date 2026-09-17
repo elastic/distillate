@@ -67,6 +67,7 @@ See [Distillate vs CSS-in-JS](guides/vs-emotion.md) for a side-by-side compariso
 - [Install](getting-started/installation.md) and [quick start](getting-started/quick-start.md)
 - [The output matrix](concepts/naming-and-output.md)
 - [Declare and select variations](guides/theming.md)
+- [Read values outside CSS](guides/non-css-surfaces.md)
 - [Integrate with a React renderer](guides/react-renderer.md)
 - [Playground](https://elastic.github.io/distillate/playground/)
 - [API reference](reference/index.md)

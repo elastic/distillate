@@ -2,6 +2,7 @@
 
 ## 2026-09-16
 
+- **Update**: `resolveThemeValues` / `distillery.resolveValues` expose a nested literal-value tree (`ValuesOf<T>`) for non-CSS surfaces. `mapDomain` is the collector-free mapping primitive behind `variants()`. New playbook [Read theme values](playbooks/read-theme-values.md). `pnpm okf:check` re-run after index.
 - **Update**: Theme vocabulary is now `variations` (declared diffs), `flatten` / `alternates` (render selection). `themes`, render-time `theme`, media-wrapper `tokens`, `ThemeDeclaration`, and `ResolvedThemeLayer` are gone. `ScaleToken` leaves still cannot vary. `pnpm okf:check` re-run after index.
 ## 2026-09-15
 

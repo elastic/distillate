@@ -24,7 +24,7 @@ sources:
 
 # Definition
 
-`createDistillery(options)` returns a destructure-safe `Distillery`: `environment`, `tokens`, `themeVars`, `registry`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`. Each call owns a private `StyleRegistry`. `environment` is the resolved form (derived `themeVars` and `tokens`).[^engine]
+`createDistillery(options)` returns a destructure-safe `Distillery`: `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`. Each call owns a private `StyleRegistry`. `environment` is the resolved form (derived `themeVars` and `tokens`). `resolveValues(scheme, variation?)` returns nested literal strings for one scheme.[^engine]
 
 # Schema
 

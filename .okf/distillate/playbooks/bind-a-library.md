@@ -16,7 +16,7 @@ sources:
 
 1. Author a `theme` tree with `lightDark`, strings, and `cq` / `scaleToken`. Optional `variations` are value-only diffs of that tree; they do not emit until named at `renderStyles`.
 2. Call `createDistillery` with `prefix`, `themeScope`, `theme`, and optional `sharedVars` / `variations`.[^fixture]
-3. Author modules with `createStyleModule`. Interpolate `tokens`.
+3. Author modules with `createStyleModule`. Interpolate `tokens`. For a non-CSS surface, `distillery.resolveValues(scheme, variation?)` returns the same tree as nested literal strings.
 4. Emit `stylesheetCollector()` for an app sheet, or `artifactCollector('compact')` for a payload.
 
 `prefix` must be a CSS identifier segment. One distillery per library so registries stay private. See [the distillery](/concepts/distillery.md).

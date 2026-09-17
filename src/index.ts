@@ -12,6 +12,7 @@ export {
   type ThemeVarDefinition,
 } from './environment';
 export {
+  resolveThemeValues,
   zipSchemes,
   type DeepPartialTheme,
   type MediaThemeVariation,
@@ -21,6 +22,7 @@ export {
   type ThemeTree,
   type ThemeVariation,
   type TokensOf,
+  type ValuesOf,
   type Zipped,
 } from './theme';
 export {
@@ -58,6 +60,7 @@ export {
   container,
   css,
   decls,
+  mapDomain,
   media,
   rule,
   StyleRegistry,

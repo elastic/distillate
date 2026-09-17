@@ -23,7 +23,11 @@ import type {
   StyleRule,
   StyleSelectorResolver,
 } from './styles';
-import { type ResolvedThemeVariation, serializedThemeValue } from './theme';
+import {
+  requireThemeVariation,
+  type ResolvedThemeVariation,
+  serializedThemeValue,
+} from './theme';
 
 /**
  * Emits collected CSS: theme block, then entries, minified.
@@ -129,18 +133,8 @@ const renderAlternate = (
 const themeVariation = (
   environment: DistilleryEnvironment<unknown>,
   name: string
-): ResolvedThemeVariation => {
-  const resolved = environment.variations?.[name];
-  if (!resolved) {
-    const declared = Object.keys(environment.variations ?? {});
-    const suffix =
-      declared.length > 0
-        ? ` Declared: ${declared.join(', ')}.`
-        : ' No variations were declared.';
-    throw new Error(`Unknown variation "${name}".${suffix}`);
-  }
-  return resolved;
-};
+): ResolvedThemeVariation =>
+  requireThemeVariation(environment.variations, name);
 
 const renderVarBlock = (
   ctx: RenderContext,

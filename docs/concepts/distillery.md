@@ -5,7 +5,7 @@ description: Bind prefix and a theme tree with createDistillery.
 
 # The distillery
 
-`createDistillery(options)` binds the engine to one component library. The returned object is destructure-safe (no `this`): `environment`, `tokens`, `themeVars`, `registry`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`.
+`createDistillery(options)` binds the engine to one component library. The returned object is destructure-safe (no `this`): `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`.
 
 ```ts
 import { createDistillery, cq, lightDark } from '@elastic/distillate';
@@ -39,7 +39,7 @@ Each distillery owns a private `StyleRegistry`. Two libraries in one process sho
 
 `prefix` is validated at construction. Theme-tree keys that contain `-` throw. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw.
 
-See [declare and select variations](../guides/theming.md) for render-time `flatten` and `alternates`.
+See [declare and select variations](../guides/theming.md) for render-time `flatten` and `alternates`. `resolveValues(scheme, variation?)` returns the same tree as nested literal strings for a non-CSS surface; see [read values outside CSS](../guides/non-css-surfaces.md).
 
 `primitiveStyles(name, factory)` is the same registry path as `createStyleModule`, with `factory` receiving `{ style, tokens }` instead of the full authoring API. Use it when a module only needs handles and tokens.
 
