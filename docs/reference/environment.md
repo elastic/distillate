@@ -30,7 +30,7 @@ Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. Hyphens are rejected so
 | `tokens`     | `TTokens`                                | Derived. Surfaced as `tokens` on the authoring API.            |
 | `variations` | `Record<string, ResolvedThemeVariation>` | Optional. Resolved variations; absent when none were declared. |
 
-`Distillery.tokens` and `Distillery.themeVars` alias the same objects.
+`Distillery.tokens` aliases `environment.tokens`. `Distillery.themeVars` aliases `environment.themeVars`. `Distillery.resolveValues(scheme, variation?)` reshapes the theme into a nested literal tree for one scheme. See [read values outside CSS](../guides/non-css-surfaces.md).
 
 ## `ThemeVarDefinition`
 

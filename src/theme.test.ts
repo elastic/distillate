@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createDistillery } from './engine';
 import { tokenTreeDts } from './testing';
-import { zipSchemes } from './theme';
+import { resolveThemeValues, zipSchemes } from './theme';
 import {
   cq,
   isCssToken,
@@ -164,6 +164,124 @@ describe('createDistillery theme derivation', () => {
         variations: { dense: { gap: cq('4px', '1cqi') } },
       })
     ).toThrow(/ScaleToken at "gap" disagrees with the base/);
+  });
+});
+
+describe('resolveThemeValues', () => {
+  it('resolves a flat theme per scheme', () => {
+    const theme = {
+      ink: lightDark('#111', '#eee'),
+      accent: '#06c',
+    } as const;
+    const { themeVars, resolveValues } = createDistillery({
+      prefix: 'eui',
+      themeScope: '.x',
+      theme,
+    });
+    expect(resolveThemeValues(theme, themeVars, 'light')).toEqual({
+      ink: '#111',
+      accent: '#06c',
+    });
+    expect(resolveValues('dark')).toEqual({
+      ink: '#eee',
+      accent: '#06c',
+    });
+  });
+
+  it('preserves nesting and inlines ScaleToken.value', () => {
+    const theme = {
+      colors: {
+        ink: lightDark('#111', '#eee'),
+        warning: '#FACB3D',
+      },
+      type: {
+        size: {
+          s: '12px',
+          m: '16px',
+        },
+      },
+      gap: cq('8px', '2cqi'),
+    } as const;
+    const { resolveValues } = createDistillery({
+      prefix: 'eui',
+      themeScope: '.x',
+      theme,
+    });
+    expect(resolveValues('light')).toEqual({
+      colors: { ink: '#111', warning: '#FACB3D' },
+      type: { size: { s: '12px', m: '16px' } },
+      gap: '8px',
+    });
+  });
+
+  it('applies a named variation diffs over the base', () => {
+    const theme = {
+      colors: {
+        ink: lightDark('#111', '#eee'),
+        accent: lightDark('#06c', '#8cf'),
+      },
+      gap: cq('8px', '2cqi'),
+    } as const;
+    const distillery = createDistillery({
+      prefix: 'eui',
+      themeScope: '.x',
+      theme,
+      variations: {
+        muted: { colors: { accent: '#0077cc' } },
+      },
+    });
+    expect(distillery.resolveValues('light')).toEqual({
+      colors: { ink: '#111', accent: '#06c' },
+      gap: '8px',
+    });
+    expect(distillery.resolveValues('light', 'muted')).toEqual({
+      colors: { ink: '#111', accent: '#0077cc' },
+      gap: '8px',
+    });
+    expect(distillery.resolveValues('dark', 'muted')).toEqual({
+      colors: { ink: '#eee', accent: '#0077cc' },
+      gap: '8px',
+    });
+    expect(() => distillery.resolveValues('light', 'missing')).toThrow(
+      /Unknown variation "missing"/
+    );
+    expect(() => distillery.resolveValues('light', 'toString')).toThrow(
+      /Unknown variation "toString"/
+    );
+  });
+
+  it('round-trips a __proto__ theme key', () => {
+    const theme = {
+      colors: JSON.parse('{"__proto__": "#111", "ink": "#222"}') as Record<
+        string,
+        string
+      >,
+    };
+    const distillery = createDistillery({
+      prefix: 'eui',
+      themeScope: '.x',
+      theme,
+      variations: {
+        muted: {
+          colors: JSON.parse('{"__proto__": "#000"}') as Record<string, string>,
+        },
+      },
+    });
+    const light = distillery.resolveValues('light');
+    expect(Object.hasOwn(light.colors, '__proto__')).toBe(true);
+    expect(light.colors).toEqual({
+      ['__proto__']: '#111',
+      ink: '#222',
+    });
+    expect(distillery.themeVars['colors/__proto__']).toMatchObject({
+      path: 'colors/__proto__',
+      light: '#111',
+      dark: '#111',
+    });
+    expect(distillery.resolveValues('light', 'muted').colors).toEqual({
+      ['__proto__']: '#000',
+      ink: '#222',
+    });
   });
 });
 

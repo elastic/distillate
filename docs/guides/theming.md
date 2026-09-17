@@ -79,7 +79,7 @@ That writes muted values into `themeScope`, then the high-contrast diff (compute
 
 `:host` composes as `:host(selector)`. Media variations may omit `selector`; the diffs wrap in `@media`. Flattening a media variation does **not** replace the primary block: the base still fills `themeScope`, and the diffs wrap in `@media`. That is byte-identical to listing the same name in `alternates`.
 
-`themeValueOverrides` still apply per render for values known only at request time. Declared variations are for values known when the distillery is created.
+`themeValueOverrides` still apply per render for values known only at request time. Declared variations are for values known when the distillery is created. A non-CSS consumer that needs those declared values calls `distillery.resolveValues(scheme, variation?)`; that walk does not apply `themeValueOverrides`. See [read values outside CSS](non-css-surfaces.md).
 
 ## What a variation cannot do
 

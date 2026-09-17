@@ -7,8 +7,8 @@ description: Generated map of the Distillate OKF concept graph.
 
 Generated from `.okf/distillate` by `pnpm okf:map`. Do not edit by hand.
 
-- Concepts: 18
-- Links: 27
+- Concepts: 19
+- Links: 29
 - Isolated concepts: 0
 
 ## Graph
@@ -28,6 +28,7 @@ flowchart LR
     playbooks_bind_a_library["Bind a library"]:::playbook
     playbooks_maintain_okf["Maintain OKF"]:::playbook
     playbooks_migrate_from_emotion["Migrate from Emotion"]:::playbook
+    playbooks_read_theme_values["Read theme values"]:::playbook
     playbooks_ship_an_artifact["Ship an artifact"]:::playbook
     playbooks_use_the_playground["Use the playground"]:::playbook
     playbooks_vs_emotion["Distillate vs CSS-in-JS"]:::playbook
@@ -51,6 +52,8 @@ flowchart LR
     playbooks_maintain_okf --> reference_public_contract
     playbooks_migrate_from_emotion --> entry_points_emotion
     playbooks_migrate_from_emotion --> playbooks_bind_a_library
+    playbooks_read_theme_values --> concepts_distillery
+    playbooks_read_theme_values --> concepts_tokens
     playbooks_ship_an_artifact --> concepts_naming
     playbooks_use_the_playground --> concepts_authoring
     playbooks_use_the_playground --> concepts_tokens
@@ -81,6 +84,7 @@ flowchart LR
 - Bind a library (Playbook): `playbooks/bind-a-library`
 - Maintain OKF (Playbook): `playbooks/maintain-okf`
 - Migrate from Emotion (Playbook): `playbooks/migrate-from-emotion`
+- Read theme values (Playbook): `playbooks/read-theme-values`
 - Ship an artifact (Playbook): `playbooks/ship-an-artifact`
 - Use the playground (Playbook): `playbooks/use-the-playground`
 - Distillate vs CSS-in-JS (Playbook): `playbooks/vs-emotion`

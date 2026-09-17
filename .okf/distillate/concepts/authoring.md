@@ -25,7 +25,7 @@ A style module is a named group of entries produced by `createStyleModule`. The 
 
 `t.css` / `css` builds a handle. Nested `&` and `@media` flatten into sibling rules via stylis `compile()`, pinned at 4.4.0.[^nesting] `rule`, `media`, and `container` are explicit factories. `@container` inside a `css` template is rejected.
 
-`variants(keys, factory)` marks each value so `collector.use(module)` skips it. Name variant handles with `useHandles`.
+`variants(keys, factory)` marks each value so `collector.use(module)` skips it. Name variant handles with `useHandles`. `mapDomain(keys, factory)` is the same mapping with no collector side effect; `variants` calls it internally.
 
 # Examples
 

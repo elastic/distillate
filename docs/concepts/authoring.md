@@ -75,6 +75,7 @@ What you get back is not a class name. A **handle** carries a `key`, a `readable
 | `media(query, rules)`             | `@media` block.                                                                                                      |
 | `container(query, rules)`         | `@container` block. Same collector rank as `media`.                                                                  |
 | `variants(keys, factory)`         | One entry per key, marked `variant` so `collector.use(module)` skips it.                                             |
+| `mapDomain(keys, factory)`        | Same mapping as `variants`, with no collector side effect. Use it on non-CSS surfaces.                               |
 
 `@container` inside a `css` template is rejected; use the `container(...)` factory. `@supports` and `keyframes` are not supported. Object styles (`css({ color: 'red' })`) are not supported on the emotion entry.
 

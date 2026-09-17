@@ -1,6 +1,6 @@
 ---
 navigation_title: Guides
-description: When to use Distillate, theming, compact artifacts, React, Emotion migration, testing, and name collisions.
+description: When to use Distillate, theming, non-CSS surfaces, compact artifacts, React, Emotion migration, testing, and name collisions.
 ---
 
 # Guides
@@ -9,6 +9,7 @@ Task-oriented pages. Concepts live under [Concepts](../concepts/index.md).
 
 - [Distillate vs CSS-in-JS](vs-emotion.md) — when Distillate is the right tool
 - [Declare and select variations](theming.md) — named diffs, `{ flatten }`, `{ alternates }`
+- [Read values outside CSS](non-css-surfaces.md) — literal theme values for SVG and other non-CSS surfaces
 - [Ship a compact artifact](compact-artifacts.md) — tree-shaken CSS for HTML that leaves the app
 - [Integrate with a React renderer](react-renderer.md) — collect handles while rendering
 - [Migrate from Emotion](emotion-migration.md) — `createEmotion` over the same registry

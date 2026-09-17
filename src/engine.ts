@@ -31,19 +31,30 @@ import {
 } from './styles';
 import {
   deriveTheme,
+  requireThemeVariation,
+  resolveThemeValues,
   resolveThemeVariations,
   type ThemeTree,
   type TokensOf,
+  type ValuesOf,
 } from './theme';
 
 /** One component library's binding: environment, registry, and pre-bound operations. Destructure-safe (no `this`). */
-export interface Distillery<TTokens = unknown> {
+export interface Distillery<
+  TTokens = unknown,
+  TTheme extends ThemeTree = ThemeTree,
+> {
   /** Resolved environment (tokens, prefix, derived theme vars). */
   readonly environment: DistilleryEnvironment<TTokens>;
   /** Derived token tree, same object as `environment.tokens`. */
   readonly tokens: TTokens;
   /** Derived theme-var registry, same object as `environment.themeVars`. */
   readonly themeVars: Readonly<Record<string, ThemeVarDefinition>>;
+  /** Nested literal values for one scheme. Optional `variation` is a name from `variations`. */
+  readonly resolveValues: (
+    scheme: 'light' | 'dark',
+    variation?: string
+  ) => ValuesOf<TTheme>;
   /** The module registry accumulating collected handles and rules. */
   readonly registry: StyleRegistry;
   /** Named handle tree plus tokens. */
@@ -80,7 +91,7 @@ export interface Distillery<TTokens = unknown> {
  */
 export const createDistillery = <const TTheme extends ThemeTree>(
   options: DistilleryOptions<TTheme>
-): Distillery<TokensOf<TTheme>> => {
+): Distillery<TokensOf<TTheme>, TTheme> => {
   const {
     prefix,
     themeScope,
@@ -119,6 +130,15 @@ export const createDistillery = <const TTheme extends ThemeTree>(
     environment,
     tokens,
     themeVars: environment.themeVars,
+    resolveValues: (scheme, variation) =>
+      resolveThemeValues(
+        theme,
+        themeVars,
+        scheme,
+        variation === undefined
+          ? undefined
+          : requireThemeVariation(environment.variations, variation)
+      ),
     registry,
     createStyleModule: (name, factory) =>
       createStyleModuleWithEnvironment(environment, registry, name, factory),

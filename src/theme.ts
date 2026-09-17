@@ -42,6 +42,15 @@ export type TokensOf<T> = T extends ScaleToken
       ? { readonly [K in keyof T]: TokensOf<T[K]> }
       : never;
 
+/** Literal-value tree for one scheme. {@link ScaleToken} leaves use `.value`. */
+export type ValuesOf<T> = T extends ScaleToken
+  ? string
+  : T extends SchemePair | string
+    ? string
+    : T extends object
+      ? { readonly [K in keyof T]: ValuesOf<T[K]> }
+      : never;
+
 /** Slash-delimited theme-var paths (excludes {@link ScaleToken} leaves). */
 export type PathsOf<T, Prefix extends string = ''> = T extends ScaleToken
   ? never
@@ -117,9 +126,49 @@ export const deriveTheme = <T extends ThemeTree>(
   prefix: string,
   theme: T
 ): { tokens: TokensOf<T>; themeVars: Record<string, ThemeVarDefinition> } => {
-  const themeVars: Record<string, ThemeVarDefinition> = {};
+  const themeVars = dict<ThemeVarDefinition>();
   const tokens = walk(theme, '', prefix, themeVars) as TokensOf<T>;
   return { tokens, themeVars };
+};
+
+/**
+ * Nested literal values for one scheme. Walks `theme` so {@link ScaleToken} leaves resolve to `.value`.
+ *
+ * @param theme Authoring tree that produced `themeVars`.
+ * @param themeVars Base registry from {@link Distillery.themeVars}.
+ * @param scheme Which side of each {@link ThemeVarDefinition} to read.
+ * @param variation When set, overridden paths come from `variation.diffs`; everything else stays on `themeVars`.
+ */
+export const resolveThemeValues = <T extends ThemeTree>(
+  theme: T,
+  themeVars: Readonly<Record<string, ThemeVarDefinition>>,
+  scheme: 'light' | 'dark',
+  variation?: ResolvedThemeVariation
+): ValuesOf<T> => {
+  const vars = variation
+    ? Object.assign(dict<ThemeVarDefinition>(), themeVars, variation.diffs)
+    : themeVars;
+  return walkValues(theme, '', vars, scheme) as ValuesOf<T>;
+};
+
+/** Looks up a declared variation. @throws If `name` is not in `variations`. */
+export const requireThemeVariation = (
+  variations: Readonly<Record<string, ResolvedThemeVariation>> | undefined,
+  name: string
+): ResolvedThemeVariation => {
+  const resolved =
+    variations && Object.hasOwn(variations, name)
+      ? variations[name]
+      : undefined;
+  if (!resolved) {
+    const declared = Object.keys(variations ?? {});
+    const suffix =
+      declared.length > 0
+        ? ` Declared: ${declared.join(', ')}.`
+        : ' No variations were declared.';
+    throw new Error(`Unknown variation "${name}".${suffix}`);
+  }
+  return resolved;
 };
 
 /** Serialized `light` / `light-dark(light, dark)` form used in emission and diffs. */
@@ -143,12 +192,12 @@ export const resolveThemeVariations = (
   if (!variations) {
     return {};
   }
-  const out: Record<string, ResolvedThemeVariation> = {};
+  const out = dict<ResolvedThemeVariation>();
   for (const [name, declaration] of Object.entries(variations)) {
     const { media, variation } = unwrapThemeVariation(declaration, name);
     const merged = applyVariation(base, variation, name, '') as ThemeTree;
     const { themeVars } = deriveTheme(prefix, merged);
-    const diffs: Record<string, ThemeVarDefinition> = {};
+    const diffs = dict<ThemeVarDefinition>();
     for (const [path, definition] of Object.entries(themeVars)) {
       const baseDefinition = baseVars[path];
       if (
@@ -233,7 +282,7 @@ const applyVariation = (
     return variation;
   }
   if (isThemeGroup(variation) && isThemeGroup(base)) {
-    const out: Record<string, unknown> = { ...base };
+    const out = Object.assign(dict<unknown>(), base);
     for (const [key, child] of Object.entries(variation)) {
       if (!Object.hasOwn(base, key)) {
         throw new Error(
@@ -257,6 +306,37 @@ const applyVariation = (
 const isThemeGroup = (value: unknown): value is Record<string, unknown> =>
   isPlainObject(value) && !isSchemePair(value) && !isScaleToken(value);
 
+const walkValues = (
+  node: unknown,
+  path: string,
+  themeVars: Readonly<Record<string, ThemeVarDefinition>>,
+  scheme: 'light' | 'dark'
+): unknown => {
+  if (isScaleToken(node)) {
+    assertNotRoot(path);
+    return node.value;
+  }
+  if (isSchemePair(node) || typeof node === 'string') {
+    assertNotRoot(path);
+    const definition = themeVars[path];
+    if (!definition) {
+      throw new Error(`No theme var for "${path}".`);
+    }
+    return definition[scheme];
+  }
+  if (isPlainObject(node)) {
+    const out = dict<unknown>();
+    for (const [key, child] of Object.entries(node)) {
+      out[key] = walkValues(child, childPath(path, key), themeVars, scheme);
+    }
+    return Object.freeze(out);
+  }
+  const label = path === '' ? 'theme root' : `"${path}"`;
+  throw new Error(
+    `Theme leaf at ${label} must be a string, lightDark(...), or ScaleToken.`
+  );
+};
+
 const walk = (
   node: unknown,
   path: string,
@@ -276,7 +356,7 @@ const walk = (
     return registerCssToken(path, prefix, node, node, themeVars);
   }
   if (isPlainObject(node)) {
-    const out: Record<string, unknown> = {};
+    const out = dict<unknown>();
     for (const [key, child] of Object.entries(node)) {
       assertThemeKey(key);
       const childPath = path === '' ? key : `${path}/${key}`;
@@ -339,7 +419,7 @@ const zipNode = (light: unknown, dark: unknown, path: string): unknown => {
         );
       }
     }
-    const out: Record<string, unknown> = {};
+    const out = dict<unknown>();
     for (const key of Object.keys(light)) {
       out[key] = zipNode(light[key], dark[key], childPath(path, key));
     }
@@ -366,6 +446,9 @@ const assertThemeKey = (key: string): void => {
     );
   }
 };
+
+const dict = <T>(): Record<string, T> =>
+  Object.create(null) as Record<string, T>;
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);

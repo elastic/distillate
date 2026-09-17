@@ -15,4 +15,4 @@ How Distillate turns tagged templates into CSS, in engine order: bind, author, c
 - [Ordering and specificity](ordering.md) — base rules before at-rules
 - [Single-copy invariant](single-copy.md) — one loaded copy of the package
 
-Named variations are a guide: [Declare and select variations](../guides/theming.md).
+Named variations are a guide: [Declare and select variations](../guides/theming.md). Literal values for non-CSS surfaces: [Read values outside CSS](../guides/non-css-surfaces.md).

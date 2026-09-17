@@ -15,7 +15,7 @@ sources:
 
 # Definition
 
-The default export map. Notable symbols: `createDistillery`, `cssVarName`, `lightDark`, `cq`, `zipSchemes`, `themeToken`, `scaleToken`, `contextualVar`, `css`, `decls`, `rule`, `media`, `container`, `variants`, `combineClassNames`, `StylesCollector`, `renderStyles`, `createStyleNameResolver`. Render selection types: `RenderStylesOptions`, `ThemeAlternate`, `ThemeVariation`.[^barrel]
+The default export map. Notable symbols: `createDistillery`, `cssVarName`, `lightDark`, `cq`, `zipSchemes`, `resolveThemeValues`, `themeToken`, `scaleToken`, `contextualVar`, `css`, `decls`, `rule`, `media`, `container`, `variants`, `mapDomain`, `combineClassNames`, `StylesCollector`, `renderStyles`, `createStyleNameResolver`. Render selection types: `RenderStylesOptions`, `ThemeAlternate`, `ThemeVariation`. Value-tree types: `TokensOf`, `ValuesOf`.[^barrel]
 
 This entry reaches `stylis`. Sibling: [emotion](/entry-points/emotion.md), [testing](/entry-points/testing.md).
 

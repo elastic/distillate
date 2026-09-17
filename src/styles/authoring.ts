@@ -163,6 +163,21 @@ const markVariant = (value: unknown): void => {
 };
 
 /**
+ * Builds a record keyed by `domain`. No CSS-collection side effect.
+ *
+ * @param domain All valid keys (e.g. `['primary', 'secondary']`).
+ * @param factory Called once per key.
+ */
+export const mapDomain = <TKey extends string, TValue>(
+  domain: readonly TKey[],
+  factory: (value: TKey) => TValue
+): Record<TKey, TValue> =>
+  Object.fromEntries(domain.map((key) => [key, factory(key)])) as Record<
+    TKey,
+    TValue
+  >;
+
+/**
  * Builds a record of styles keyed by `domain`. Each value is marked `variant` so {@link index.StylesCollector#use | StylesCollector.use} skips it.
  *
  * @param domain All valid variant keys (e.g. `['primary', 'secondary']`).
@@ -172,9 +187,7 @@ export const variants = <TKey extends string, TValue>(
   domain: readonly TKey[],
   factory: (value: TKey) => TValue
 ): Record<TKey, TValue> => {
-  const record = Object.fromEntries(
-    domain.map((value) => [value, factory(value)])
-  ) as Record<TKey, TValue>;
+  const record = mapDomain(domain, factory);
   for (const value of Object.values(record)) {
     markVariant(value);
   }

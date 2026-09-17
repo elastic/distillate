@@ -25,16 +25,18 @@ import {
 | `cssVarName` | runtime | `--${prefix}-${path}` with `/` joined on `-`; strips a leading `vars/`. |
 | `lightDark` / `cq` | runtime | Theme-tree leaves. `cq` aliases `scaleToken`. |
 | `zipSchemes` | runtime | Fold two per-scheme trees. Differing strings become `lightDark`. |
+| `resolveThemeValues` | runtime | Nested literal values for one scheme. Prefer `distillery.resolveValues`. |
 | `themeToken` / `scaleToken` / `contextualVar` | runtime | Token factories. Derivation calls `themeToken` / `scaleToken`. |
 | `isCssToken` / `isScaleToken` / `isContextualCssVar` / `isContextualCssVarName` | runtime | Type guards. |
-| `css` / `decls` / `rule` / `media` / `container` / `variants` | runtime | Authoring helpers (also on the `createStyleModule` factory argument). |
+| `css` / `decls` | runtime | Handle and declaration templates. Also on the `createStyleModule` factory argument. |
+| `rule` / `media` / `container` / `variants` / `mapDomain` | runtime | Root-entry authoring helpers. `mapDomain` has no collector side effect. |
 | `combineClassNames` | runtime | `context.resolveClassName(...handles)`. |
 | `StylesCollector` | runtime | Class; `artifactCollector` / `stylesheetCollector` return instances. |
 | `renderStyles` | runtime | Unbound renderer; prefer `distillery.renderStyles`. |
 | `createStyleNameResolver` | runtime | Standalone compact/readable name map. |
 | `StyleRegistry` | runtime | Module registry class. |
 | `Distillery` / `DistilleryOptions` / `DistilleryEnvironment` / `ThemeVarDefinition` | type | Bindings. |
-| `TokensOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
+| `TokensOf` / `ValuesOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
 | `StyleHandle` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. |
 
 ### Key signatures
@@ -42,7 +44,9 @@ import {
 ```ts
 createDistillery<const TTheme extends ThemeTree>(
   options: DistilleryOptions<TTheme>
-): Distillery<TokensOf<TTheme>>;
+): Distillery<TokensOf<TTheme>, TTheme>;
+
+distillery.resolveValues(scheme: 'light' | 'dark', variation?: string): ValuesOf<TTheme>;
 
 distillery.createStyleModule(name, ({ css, tokens }) => ({ ... }));
 distillery.artifactCollector(names: 'compact' | 'readable'): StylesCollector;
