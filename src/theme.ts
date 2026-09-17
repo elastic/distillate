@@ -135,7 +135,7 @@ export const deriveTheme = <T extends ThemeTree>(
  * Nested literal values for one scheme. Walks `theme` so {@link ScaleToken} leaves resolve to `.value`.
  *
  * @param theme Authoring tree that produced `themeVars`.
- * @param themeVars Base registry from {@link deriveTheme}.
+ * @param themeVars Base registry from {@link Distillery.themeVars}.
  * @param scheme Which side of each {@link ThemeVarDefinition} to read.
  * @param variation When set, overridden paths come from `variation.diffs`; everything else stays on `themeVars`.
  */

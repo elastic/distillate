@@ -35,6 +35,7 @@ toc:
       - file: index.md
       - file: vs-emotion.md
       - file: theming.md
+      - file: non-css-surfaces.md
       - file: compact-artifacts.md
       - file: react-renderer.md
       - file: emotion-migration.md
