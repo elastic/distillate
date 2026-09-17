@@ -54,9 +54,9 @@ export class StyleRegistry {
   }
 
   /**
-   * True when some rule or nested `&` / `@media` entry targets `key`.
+   * True when some rule, or some inner rule of an `@media` / `@container` block, reads `key` in its selector.
    *
-   * Nested `&` rules set `dependsOn` to an empty set, so they are discovered by the `/&/` key prefix instead.
+   * A nested `&` rule records its owning handle through `recordRuleDeps`, so a handle with an empty self block but real nested rules is targeted. A rule-less nested block targets nothing.
    */
   targetsHandle(key: string): boolean {
     return this.targetedHandleKeys().has(key);
@@ -75,10 +75,6 @@ export class StyleRegistry {
           for (const inner of entry.rules) {
             inner.dependsOn.forEach((dep) => keys.add(dep));
           }
-        }
-        const nestedAt = entry.key.indexOf('/&/');
-        if (nestedAt >= 0) {
-          keys.add(entry.key.slice(0, nestedAt));
         }
       }
     }

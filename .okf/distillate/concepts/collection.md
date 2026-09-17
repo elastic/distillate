@@ -36,7 +36,7 @@ Prefer `distillery.artifactCollector(names)` (empty) and `distillery.stylesheetC
 
 Call `createResolver()` after collection is complete; compact names are assigned from the sorted collected key set.
 
-A handle whose declarations are empty and that no rule targets is a no-op. Compact collectors drop it from collection. Warnings fire only when `createDistillery({ dev: true })`; `dev` defaults to `false`. `{ warn }` on a collector overrides the sink. Empty blocks never ship. Readable collectors keep the class name. Nested `&` entries are discovered by a `/&/` key prefix because they set `dependsOn` empty. A local-var marker counts as content.[^collector][^runtime][^distillery-tests]
+A handle whose declarations are empty and that no rule targets is a no-op. Compact collectors drop it from collection. Warnings fire only when `createDistillery({ dev: true })`; `dev` defaults to `false`. `{ warn }` on a collector overrides the sink. Empty blocks never ship. Readable collectors keep the class name. Targeting reads `dependsOn`, which `recordRuleDeps` fills for nested `&` rules; a rule-less `@media (...) {}` targets nothing. A local-var marker counts as content.[^collector][^runtime][^distillery-tests]
 
 [^collector]: StylesCollector
 

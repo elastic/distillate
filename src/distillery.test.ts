@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from 'vitest';
 
+import type { StylesCollectorOptions } from './collector';
 import { createDistillery } from './engine';
 import type { DistilleryOptions } from './environment';
 import { container, media, rule, variants } from './styles';
@@ -1207,6 +1208,51 @@ describe('no-op handle pruning', () => {
     expect(distillery.renderStyles(collector)).toContain('.a{color:red}');
     expect(distillery.renderStyles(collector)).not.toContain('blue');
     expect(distillery.renderStyles(collector)).not.toMatch(/\{\}/);
+  });
+
+  it('prunes a handle whose only nested block has no rules inside it', () => {
+    const distillery = createDevDistillery();
+    const demo = distillery.createStyleModule('shell', (t) => ({
+      root: t.css`
+        @media (min-width: 600px) {
+        }
+      `,
+      ink: t.css`
+        color: red;
+      `,
+    }));
+    const { warnings, warn } = collectWarnings();
+    const collector = distillery.artifactCollector('compact', { warn });
+    expect(collector.useHandles([demo.handles.root, demo.handles.ink])).toEqual(
+      [demo.handles.ink]
+    );
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('"root"');
+    const resolver = collector.createResolver();
+    expect(resolver.className(demo.handles.ink.key)).toBe('a');
+    expect(distillery.renderStyles(collector)).toBe('.a{color:red}');
+  });
+
+  it('ignores a collector options bag that tries to override distillery config', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('sealed', (t) => ({
+      empty: t.css``,
+      root: t.css`
+        color: red;
+      `,
+    }));
+    const { warnings, warn } = collectWarnings();
+    const smuggled = { warn, dev: true, names: 'readable' } as Pick<
+      StylesCollectorOptions,
+      'warn'
+    >;
+    const collector = distillery.artifactCollector('compact', smuggled);
+
+    expect(collector.names).toBe('compact');
+    expect(
+      collector.useHandles([demo.handles.empty, demo.handles.root])
+    ).toEqual([demo.handles.root]);
+    expect(warnings).toEqual([]);
   });
 
   it('does not emit a comment-only handle as an empty block', () => {

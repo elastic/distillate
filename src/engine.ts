@@ -167,7 +167,7 @@ export const createDistillery = <const TTheme extends ThemeTree>(
         registry,
         prefix,
         dev,
-        ...options,
+        ...(options?.warn ? { warn: options.warn } : {}),
       }),
     stylesheetCollector: (names = 'readable', options) => {
       const collector = new StylesCollector({
@@ -176,7 +176,7 @@ export const createDistillery = <const TTheme extends ThemeTree>(
         registry,
         prefix,
         dev,
-        ...options,
+        ...(options?.warn ? { warn: options.warn } : {}),
       });
       for (const module of registry.modules) {
         collector.useAllEntries(module);
