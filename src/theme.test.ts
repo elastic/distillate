@@ -249,6 +249,40 @@ describe('resolveThemeValues', () => {
       /Unknown variation "toString"/
     );
   });
+
+  it('round-trips a __proto__ theme key', () => {
+    const theme = {
+      colors: JSON.parse('{"__proto__": "#111", "ink": "#222"}') as Record<
+        string,
+        string
+      >,
+    };
+    const distillery = createDistillery({
+      prefix: 'eui',
+      themeScope: '.x',
+      theme,
+      variations: {
+        muted: {
+          colors: JSON.parse('{"__proto__": "#000"}') as Record<string, string>,
+        },
+      },
+    });
+    const light = distillery.resolveValues('light');
+    expect(Object.hasOwn(light.colors, '__proto__')).toBe(true);
+    expect(light.colors).toEqual({
+      ['__proto__']: '#111',
+      ink: '#222',
+    });
+    expect(distillery.themeVars['colors/__proto__']).toMatchObject({
+      path: 'colors/__proto__',
+      light: '#111',
+      dark: '#111',
+    });
+    expect(distillery.resolveValues('light', 'muted').colors).toEqual({
+      ['__proto__']: '#000',
+      ink: '#222',
+    });
+  });
 });
 
 describe('tokenTreeDts', () => {

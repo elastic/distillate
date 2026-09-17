@@ -23,7 +23,7 @@ const distillery = createDistillery({
 });
 ```
 
-`environment` is the **resolved** environment: derived `themeVars` and `tokens`, plus `prefix` and `themeScope`. `distillery.tokens` and `distillery.themeVars` are the same objects. Input is `DistilleryOptions`.
+`environment` is the **resolved** environment: derived `themeVars` and `tokens`, plus `prefix` and `themeScope`. `distillery.tokens` aliases `environment.tokens`; `distillery.themeVars` aliases `environment.themeVars`. Input is `DistilleryOptions`.
 
 Each distillery owns a private `StyleRegistry`. Two libraries in one process should each call `createDistillery` with their own prefix so readable names cannot collide across brands. A second brand that can diverge structurally is a second distillery, not a [variation](../guides/theming.md#when-not-to-use-a-variation).
 
