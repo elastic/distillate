@@ -54,15 +54,15 @@ const demoBind = {
   prefix: 'dstl',
   themeScope: ':host',
   theme: demoTheme,
-  themes: {
-    amsterdam: {
+  variations: {
+    muted: {
       color: {
         accent: '#0077cc',
       },
     },
     highContrast: {
       media: '(prefers-contrast: more)',
-      tokens: {
+      variation: {
         color: {
           text: lightDark('#000', '#fff'),
           surface: lightDark('#fff', '#000'),

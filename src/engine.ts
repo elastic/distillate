@@ -31,7 +31,7 @@ import {
 } from './styles';
 import {
   deriveTheme,
-  resolveThemeLayers,
+  resolveThemeVariations,
   type ThemeTree,
   type TokensOf,
 } from './theme';
@@ -76,7 +76,7 @@ export interface Distillery<TTokens = unknown> {
  * Binds the engine to one library's prefix and theme tree.
  *
  * @param options Brand prefix, theme scope, and authoring theme tree.
- * @throws If `prefix` is not a CSS identifier segment, if a theme key contains a hyphen, if a `lightDark` value is not a CSS `<color>`, if a named theme disagrees with the base, or if `themeVars` / `sharedVars` claim the same readable custom-property name.
+ * @throws If `prefix` is not a CSS identifier segment, if a theme key contains a hyphen, if a `lightDark` value is not a CSS `<color>`, if a named variation disagrees with the base, or if `themeVars` / `sharedVars` claim the same readable custom-property name.
  */
 export const createDistillery = <const TTheme extends ThemeTree>(
   options: DistilleryOptions<TTheme>
@@ -86,22 +86,27 @@ export const createDistillery = <const TTheme extends ThemeTree>(
     themeScope,
     theme,
     sharedVars: sharedVarList,
-    themes,
+    variations,
   } = options;
   assertCssIdentSegment(prefix, 'Distillery prefix');
   const { tokens, themeVars } = deriveTheme(prefix, theme);
   const sharedVars = sharedVarList
     ? Object.freeze(new Set(sharedVarList))
     : undefined;
-  const resolvedThemes = resolveThemeLayers(prefix, theme, themeVars, themes);
+  const resolvedVariations = resolveThemeVariations(
+    prefix,
+    theme,
+    themeVars,
+    variations
+  );
   const environment: DistilleryEnvironment<TokensOf<TTheme>> = {
     prefix,
     themeScope,
     themeVars: Object.freeze(themeVars),
     tokens,
     ...(sharedVars ? { sharedVars } : {}),
-    ...(Object.keys(resolvedThemes).length > 0
-      ? { themes: resolvedThemes }
+    ...(Object.keys(resolvedVariations).length > 0
+      ? { variations: resolvedVariations }
       : {}),
   };
   const registry = new StyleRegistry(

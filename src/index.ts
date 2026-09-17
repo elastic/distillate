@@ -14,12 +14,12 @@ export {
 export {
   zipSchemes,
   type DeepPartialTheme,
-  type MediaThemeDeclaration,
+  type MediaThemeVariation,
   type PathsOf,
-  type ResolvedThemeLayer,
+  type ResolvedThemeVariation,
   type SchemeValueTree,
-  type ThemeDeclaration,
   type ThemeTree,
+  type ThemeVariation,
   type TokensOf,
   type Zipped,
 } from './theme';

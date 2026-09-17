@@ -104,18 +104,18 @@ This is the payload target: emails, SVG, exported HTML, agent replies. Compact n
 
 ```ts
 distillery.renderStyles(collector, resolver, {
-  theme: 'amsterdam', <1>
+  flatten: 'muted', <1>
   alternates: [
-    { theme: 'amsterdam', selector: '[data-eui-theme="amsterdam"]' }, <2>
+    { variation: 'muted', selector: '[data-eui-theme="muted"]' }, <2>
   ],
   themeValueOverrides: { 'colors/ink': '#000' }, <3>
 });
 ```
 
-1. Flatten this overlay into `themeScope`. Same declaration count as the base; values change.
-2. Emit only this overlay's diff under a selector the consuming page supplies.
-3. Replaces the light/dark pair with a single value. Wins over the selected theme.
+1. Flatten this variation into `themeScope`. Same declaration count as the base; values change. A media variation does not replace the primary block.
+2. Emit only this variation's diff under a selector the consuming page supplies.
+3. Replaces the light/dark pair with a single value. Wins over the flattened variation.
 
 Custom-property names always follow `cssVarName(prefix, path)`: `--${prefix}-${path}` with `/` joined on `-` and a leading `vars/` stripped.
 
-See [declare and select themes](../guides/theming.md).
+See [declare and select variations](../guides/theming.md).

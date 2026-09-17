@@ -58,4 +58,4 @@ collector.use(demo.handles.root); // unused handles and tokens drop out
 distillery.renderStyles(collector); // compact: .a, --a
 ```
 
-Those outputs are asserted in [`docs/examples/`](https://github.com/elastic/distillate/tree/main/docs/examples). Next: [your first stylesheet](your-first-stylesheet.md), [declare and select themes](../guides/theming.md), or skip to [naming and output](../concepts/naming-and-output.md).
+Those outputs are asserted in [`docs/examples/`](https://github.com/elastic/distillate/tree/main/docs/examples). Next: [your first stylesheet](your-first-stylesheet.md), [declare and select variations](../guides/theming.md), or skip to [naming and output](../concepts/naming-and-output.md).

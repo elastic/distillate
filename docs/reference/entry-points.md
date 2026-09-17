@@ -34,7 +34,7 @@ import {
 | `createStyleNameResolver` | runtime | Standalone compact/readable name map. |
 | `StyleRegistry` | runtime | Module registry class. |
 | `Distillery` / `DistilleryOptions` / `DistilleryEnvironment` / `ThemeVarDefinition` | type | Bindings. |
-| `TokensOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeDeclaration` / `ResolvedThemeLayer` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
+| `TokensOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
 | `StyleHandle` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. |
 
 ### Key signatures

@@ -22,9 +22,9 @@ Target (`artifact` | `stylesheet`) is how much CSS ships. Name mode (`readable` 
 
 Readable classes are `${moduleName}-${path}`. Readable custom properties are `cssVarName(prefix, path)`: `--${prefix}-${path}` with `/` joined on `-` and a leading `vars/` stripped. Compact classes are `a`, `b`, … assigned from sorted keys. Compact names are not stable across different collected sets; HTML and CSS must come from the same collector.
 
-`createDistillery` throws if a theme-tree key contains a hyphen, if a `lightDark` value is not a CSS `<color>`, if a named theme disagrees with the base, or if two paths hyphenate to the same property.
+`createDistillery` throws if a theme-tree key contains a hyphen, if a `lightDark` value is not a CSS `<color>`, if a named variation disagrees with the base, or if two paths hyphenate to the same property.
 
-`renderStyles` may select a declared theme (`{ theme }`) or emit overlay diffs (`{ alternates }`). See [the distillery](/concepts/distillery.md).
+`renderStyles` may flatten a declared variation (`{ flatten }`) or emit variation diffs (`{ alternates }`). See [the distillery](/concepts/distillery.md).
 
 # Examples
 

@@ -25,7 +25,7 @@ const distillery = createDistillery({
 
 `environment` is the **resolved** environment: derived `themeVars` and `tokens`, plus `prefix` and `themeScope`. `distillery.tokens` and `distillery.themeVars` are the same objects. Input is `DistilleryOptions`.
 
-Each distillery owns a private `StyleRegistry`. Two libraries in one process should each call `createDistillery` with their own prefix so readable names cannot collide across brands.
+Each distillery owns a private `StyleRegistry`. Two libraries in one process should each call `createDistillery` with their own prefix so readable names cannot collide across brands. A second brand that can diverge structurally is a second distillery, not a [variation](../guides/theming.md#when-not-to-use-a-variation).
 
 ## Options
 
@@ -35,11 +35,11 @@ Each distillery owns a private `StyleRegistry`. Two libraries in one process sho
 | `themeScope` | Selector wrapping the emitted theme-variable block (`.eui-view`, `:host`, …).                                                                    |
 | `theme`      | Nested value tree. Strings and `lightDark` leaves become theme vars; `cq` / `scaleToken` leaves inline. Keys match `/^[A-Za-z_][A-Za-z0-9_]*$/`. |
 | `sharedVars` | Optional cross-module contextual-var paths. Names derive via `cssVarName`. Module-local `vars(...)` groups are not listed here.                  |
-| `themes`     | Optional named overlays of `theme`. Declaring a theme does not emit it. See [theming](../guides/theming.md).                                     |
+| `variations` | Optional named value-only diffs of `theme`. Declaring a variation does not emit it. See [theming](../guides/theming.md).                         |
 
-`prefix` is validated at construction. Theme-tree keys that contain `-` throw. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw. `lightDark` values that are not CSS `<color>` throw. Named `themes` overlays that introduce unknown paths or disagree on leaf kind throw.
+`prefix` is validated at construction. Theme-tree keys that contain `-` throw. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw.
 
-See [declare and select themes](../guides/theming.md) for render-time `theme` and `alternates`.
+See [declare and select variations](../guides/theming.md) for render-time `flatten` and `alternates`.
 
 `primitiveStyles(name, factory)` is the same registry path as `createStyleModule`, with `factory` receiving `{ style, tokens }` instead of the full authoring API. Use it when a module only needs handles and tokens.
 

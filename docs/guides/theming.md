@@ -1,15 +1,17 @@
 ---
-navigation_title: Declare and select themes
-description: Named overlays, render-time selection, and alternate selector blocks.
+navigation_title: Declare and select variations
+description: Named variations, render-time flatten and alternates, and when not to use a variation.
 ---
 
-# Declare and select themes
+# Declare and select variations
 
-Declaring a theme says what its values are. Selecting one says which blocks a given render emits. Distillate keeps those apart so unused themes cost nothing.
+`theme` is the default tree you ship. If you only ship one brand, that brand is `theme`, not a variation.
+
+`variations` are named, value-only diffs of that same tree. Declaring one does not emit it. Name it at `renderStyles` with `{ flatten }` or `{ alternates }` so unused variations cost nothing.
 
 ## Declare
 
-Named layers are partial overlays of the base `theme`. They cannot introduce new paths. `ScaleToken` leaves must match the base because they inline at authoring time.
+Named variations cannot introduce new paths. They do not chain: each is resolved against the base, not against another variation. `media` is the query only (`'(prefers-contrast: more)'`), not `@media (...)`.
 
 ```ts
 const distillery = createDistillery({
@@ -20,14 +22,15 @@ const distillery = createDistillery({
       ink: lightDark('#111', '#eee'),
       accent: lightDark('#06c', '#8cf'),
     },
+    gap: cq('8px', '2cqi'),
   },
-  themes: {
-    amsterdam: {
-      colors: { accent: '#0077cc' }, // overlay; flatten with { theme: 'amsterdam' }
+  variations: {
+    muted: {
+      colors: { accent: '#0077cc' }, // flatten with { flatten: 'muted' }
     },
     highContrast: {
-      media: '(prefers-contrast: more)', // intrinsic; diffs wrap in @media
-      tokens: {
+      media: '(prefers-contrast: more)',
+      variation: {
         colors: { ink: lightDark('#000', '#fff') },
       },
     },
@@ -35,20 +38,22 @@ const distillery = createDistillery({
 });
 ```
 
-A selector is the consuming page's DOM contract, so it is supplied per render rather than on the layer.
+A selector is the consuming page's DOM contract, so it is supplied per render rather than on the variation.
+
+`cq()` / `ScaleToken` leaves inline at authoring time and cannot change in a variation. Spacing authored with `cq('8px', '2cqi')` is fixed; a `dense` variation that tried to swap `cq('4px', '1cqi')` throws. Making density selectable means authoring that size as a string leaf so it becomes a theme var, and giving up inlining.
 
 ## Select
 
-Base only is the default, and byte-for-byte what a distillery without `themes` emits:
+Base only is the default, and byte-for-byte what a distillery without `variations` emits:
 
 ```ts
 distillery.renderStyles(collector);
 ```
 
-Flatten one non-media theme into `themeScope`. Same declaration count as the base; values change:
+Flatten one non-media variation into `themeScope`. Same declaration count as the base; values change:
 
 ```ts
-distillery.renderStyles(collector, undefined, { theme: 'amsterdam' });
+distillery.renderStyles(collector, undefined, { flatten: 'muted' });
 ```
 
 Runtime switching: the base fills `themeScope`, each alternate emits only its diff:
@@ -56,11 +61,41 @@ Runtime switching: the base fills `themeScope`, each alternate emits only its di
 ```ts
 distillery.renderStyles(collector, undefined, {
   alternates: [
-    { theme: 'amsterdam', selector: '[data-eui-theme="amsterdam"]' }, // diff under this selector
+    { variation: 'muted', selector: '[data-eui-theme="muted"]' },
   ],
 });
 ```
 
-`:host` composes as `:host(selector)`. Media layers may omit `selector`; the diffs wrap in `@media`.
+Independent paths compose through the cascade. Flatten `muted` and list `highContrast` as an alternate:
 
-`themeValueOverrides` still apply per render for values known only at request time. Declared themes are for values known when the distillery is created.
+```ts
+distillery.renderStyles(collector, undefined, {
+  flatten: 'muted',
+  alternates: [{ variation: 'highContrast' }],
+});
+```
+
+That writes muted values into `themeScope`, then the high-contrast diff (computed against the base, not against muted) inside `@media (prefers-contrast: more)`. Colliding paths do not merge: the media block's value wins inside the query. A combined variation is only needed if the high-contrast values themselves depend on which flattenable variation is selected.
+
+`:host` composes as `:host(selector)`. Media variations may omit `selector`; the diffs wrap in `@media`. Flattening a media variation does **not** replace the primary block: the base still fills `themeScope`, and the diffs wrap in `@media`. That is byte-identical to listing the same name in `alternates`.
+
+`themeValueOverrides` still apply per render for values known only at request time. Declared variations are for values known when the distillery is created.
+
+## What a variation cannot do
+
+A variation changes values for token paths that are already collected. It never changes which declarations exist. A structural response to `prefers-contrast` — replacing `box-shadow` with a border, hiding a decorative rule — belongs in the module via [`media()`](../concepts/authoring.md):
+
+```ts
+media('(prefers-contrast: more)', [
+  rule(
+    (h) => h.root,
+    decls`box-shadow: none; border: 1px solid ${tokens.colors.ink};`
+  ),
+]);
+```
+
+## When not to use a variation
+
+Anything that can diverge structurally over time — a second brand, a second product — is a second distillery with its own base tree. One distillery per library keeps registries private; see [the distillery](../concepts/distillery.md).
+
+The engine will not stop you from growing `theme` with paths that exist only so one variation can touch them. That is token feature-flagging. If a difference needs new paths or different leaf kinds, it is not a variation.

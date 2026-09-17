@@ -67,7 +67,7 @@ export type Zipped<T> = T extends ScaleToken
       ? { readonly [K in keyof T]: Zipped<T[K]> }
       : never;
 
-/** Partial overlay of a {@link ThemeTree}. Leaves may change kind between `string` and {@link SchemePair}. */
+/** Partial variation of a {@link ThemeTree}. Leaves may change kind between `string` and {@link SchemePair}. */
 export type DeepPartialTheme<T> = T extends ScaleToken
   ? ScaleToken
   : T extends SchemePair | string
@@ -76,25 +76,25 @@ export type DeepPartialTheme<T> = T extends ScaleToken
       ? { readonly [K in keyof T]?: DeepPartialTheme<T[K]> }
       : never;
 
-/** Media-conditioned layer. `media` is intrinsic; it is not a selector. */
-export interface MediaThemeDeclaration<T extends ThemeTree = ThemeTree> {
-  /** Media query wrapping this layer's emitted diffs. */
+/** Media-conditioned variation. `media` is intrinsic; it is not a selector. */
+export interface MediaThemeVariation<T extends ThemeTree = ThemeTree> {
+  /** Media query wrapping this variation's emitted diffs. */
   readonly media: string;
-  /** Partial overlay of the base theme. */
-  readonly tokens: DeepPartialTheme<T>;
+  /** Partial variation of the base theme. */
+  readonly variation: DeepPartialTheme<T>;
 }
 
-/** Named theme: a partial overlay, or a media-conditioned overlay. */
-export type ThemeDeclaration<T extends ThemeTree = ThemeTree> =
-  DeepPartialTheme<T> | MediaThemeDeclaration<T>;
+/** Named variation: a partial of the base, or a media-conditioned partial. */
+export type ThemeVariation<T extends ThemeTree = ThemeTree> =
+  DeepPartialTheme<T> | MediaThemeVariation<T>;
 
-/** One named layer resolved against the base at construction. */
-export interface ResolvedThemeLayer {
-  /** Name passed in `themes`. */
+/** One named variation resolved against the base at construction. */
+export interface ResolvedThemeVariation {
+  /** Name passed in `variations`. */
   readonly name: string;
   /** Intrinsic media query, when declared. */
   readonly media?: string;
-  /** Base theme vars with this overlay applied. */
+  /** Base theme vars with this variation applied. */
   readonly themeVars: Readonly<Record<string, ThemeVarDefinition>>;
   /** Paths whose serialized value differs from the base. */
   readonly diffs: Readonly<Record<string, ThemeVarDefinition>>;
@@ -130,23 +130,23 @@ export const serializedThemeValue = ({
   light === dark ? light : `light-dark(${light},${dark})`;
 
 /**
- * Resolves named `themes` overlays against `base`. Layers extend the base only (no chains).
+ * Resolves named `variations` against `base`. Variations extend the base only (no chains).
  *
- * @throws If a layer introduces an unknown path, a leaf-kind mismatch, or a diverging {@link ScaleToken}.
+ * @throws If a variation introduces an unknown path, a leaf-kind mismatch, or a diverging {@link ScaleToken}.
  */
-export const resolveThemeLayers = (
+export const resolveThemeVariations = (
   prefix: string,
   base: ThemeTree,
   baseVars: Readonly<Record<string, ThemeVarDefinition>>,
-  themes: Readonly<Record<string, ThemeDeclaration>> | undefined
-): Readonly<Record<string, ResolvedThemeLayer>> => {
-  if (!themes) {
+  variations: Readonly<Record<string, ThemeVariation>> | undefined
+): Readonly<Record<string, ResolvedThemeVariation>> => {
+  if (!variations) {
     return {};
   }
-  const out: Record<string, ResolvedThemeLayer> = {};
-  for (const [name, declaration] of Object.entries(themes)) {
-    const { media, overlay } = unwrapThemeDeclaration(declaration, name);
-    const merged = overlayThemeTree(base, overlay, name, '') as ThemeTree;
+  const out: Record<string, ResolvedThemeVariation> = {};
+  for (const [name, declaration] of Object.entries(variations)) {
+    const { media, variation } = unwrapThemeVariation(declaration, name);
+    const merged = applyVariation(base, variation, name, '') as ThemeTree;
     const { themeVars } = deriveTheme(prefix, merged);
     const diffs: Record<string, ThemeVarDefinition> = {};
     for (const [path, definition] of Object.entries(themeVars)) {
@@ -169,86 +169,88 @@ export const resolveThemeLayers = (
   return Object.freeze(out);
 };
 
-const unwrapThemeDeclaration = (
-  declaration: ThemeDeclaration,
+const unwrapThemeVariation = (
+  declaration: ThemeVariation,
   name: string
-): { media?: string; overlay: DeepPartialTheme<ThemeTree> } => {
-  if (!isMediaThemeDeclaration(declaration)) {
-    return { overlay: declaration };
+): { media?: string; variation: DeepPartialTheme<ThemeTree> } => {
+  if (!isMediaThemeVariation(declaration)) {
+    return { variation: declaration };
   }
   const extra = Object.keys(declaration).filter(
-    (key) => key !== 'media' && key !== 'tokens'
+    (key) => key !== 'media' && key !== 'variation'
   );
   if (extra.length > 0) {
     throw new Error(
-      `Theme "${name}" media declaration cannot include keys ${extra.map((key) => `"${key}"`).join(', ')}.`
+      `Variation "${name}" media declaration cannot include keys ${extra.map((key) => `"${key}"`).join(', ')}.`
     );
   }
   if (declaration.media.trim().length === 0) {
-    throw new Error(`Theme "${name}" has an empty media query.`);
+    throw new Error(`Variation "${name}" has an empty media query.`);
   }
-  return { media: declaration.media, overlay: declaration.tokens };
+  return { media: declaration.media, variation: declaration.variation };
 };
 
-const isMediaThemeDeclaration = (
-  value: ThemeDeclaration
-): value is MediaThemeDeclaration => {
+const isMediaThemeVariation = (
+  value: ThemeVariation
+): value is MediaThemeVariation => {
   if (!isPlainObject(value)) {
     return false;
   }
   const candidate = value;
-  return typeof candidate.media === 'string' && isPlainObject(candidate.tokens);
+  return (
+    typeof candidate.media === 'string' && isPlainObject(candidate.variation)
+  );
 };
 
-const overlayThemeTree = (
+const applyVariation = (
   base: unknown,
-  overlay: unknown,
-  themeName: string,
+  variation: unknown,
+  variationName: string,
   path: string
 ): unknown => {
-  if (overlay === undefined) {
+  if (variation === undefined) {
     return base;
   }
-  if (isScaleToken(base) || isScaleToken(overlay)) {
-    if (!isScaleToken(base) || !isScaleToken(overlay)) {
+  if (isScaleToken(base) || isScaleToken(variation)) {
+    if (!isScaleToken(base) || !isScaleToken(variation)) {
       throw new Error(
-        `Theme "${themeName}": "${path}" is a ScaleToken in one tree and not the other.`
+        `Variation "${variationName}": "${path}" is a ScaleToken in one tree and not the other.`
       );
     }
-    if (base.value !== overlay.value || base.cq !== overlay.cq) {
+    if (base.value !== variation.value || base.cq !== variation.cq) {
       throw new Error(
-        `Theme "${themeName}": ScaleToken at "${path}" disagrees with the base (scale tokens inline and cannot vary by theme).`
+        `Variation "${variationName}": ScaleToken at "${path}" disagrees with the base (scale tokens inline and cannot vary by variation).`
       );
     }
     return base;
   }
-  if (isSchemePair(overlay) || typeof overlay === 'string') {
+  if (isSchemePair(variation) || typeof variation === 'string') {
     if (typeof base !== 'string' && !isSchemePair(base)) {
       throw new Error(
-        `Theme "${themeName}": "${path}" is a leaf in the overlay and a group in the base.`
+        `Variation "${variationName}": "${path}" is a leaf in the variation and a group in the base.`
       );
     }
-    return overlay;
+    return variation;
   }
-  if (isThemeGroup(overlay) && isThemeGroup(base)) {
+  if (isThemeGroup(variation) && isThemeGroup(base)) {
     const out: Record<string, unknown> = { ...base };
-    for (const [key, child] of Object.entries(overlay)) {
+    for (const [key, child] of Object.entries(variation)) {
       if (!Object.hasOwn(base, key)) {
         throw new Error(
-          `Theme "${themeName}": unknown path "${childPath(path, key)}".`
+          `Variation "${variationName}": unknown path "${childPath(path, key)}".`
         );
       }
-      out[key] = overlayThemeTree(
+      out[key] = applyVariation(
         base[key],
         child,
-        themeName,
+        variationName,
         childPath(path, key)
       );
     }
     return out;
   }
   throw new Error(
-    `Theme "${themeName}": "${path || '(root)'}" overlay is not a valid layer.`
+    `Variation "${variationName}": "${path || '(root)'}" is not a valid partial.`
   );
 };
 

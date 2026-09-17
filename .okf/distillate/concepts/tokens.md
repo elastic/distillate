@@ -38,7 +38,7 @@ Author a nested value tree. `createDistillery` derives `CssToken` / `ScaleToken`
 
 `zipSchemes(light, dark)` folds two per-scheme trees into the authoring form. Equal strings stay bare; differing strings become `lightDark`; `ScaleToken` leaves must agree.[^theme]
 
-Named overlays go on `themes` in `createDistillery`. Declaring a theme does not emit it; name it at `renderStyles` with `{ theme }` or `{ alternates }`. Layers extend the base only. `ScaleToken` leaves must match the base. See [the distillery](/concepts/distillery.md).
+Named variations go on `variations` in `createDistillery`. Declaring a variation does not emit it; name it at `renderStyles` with `{ flatten }` or `{ alternates }`. Variations extend the base only. `ScaleToken` leaves must match the base because they inline and cannot vary. See [the distillery](/concepts/distillery.md).
 
 `t.vars(group, defaults)` returns a module-local group. `${group}` emits defaults, `${group.key}` reads, `${group.set({...})}` overrides. Override entries emit after defaults. Unreferenced default keys are pruned.[^local-vars]
 

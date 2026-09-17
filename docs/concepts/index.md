@@ -15,4 +15,4 @@ How Distillate turns tagged templates into CSS, in engine order: bind, author, c
 - [Ordering and specificity](ordering.md) — base rules before at-rules
 - [Single-copy invariant](single-copy.md) — one loaded copy of the package
 
-Named overlays are a guide: [Declare and select themes](../guides/theming.md).
+Named variations are a guide: [Declare and select variations](../guides/theming.md).

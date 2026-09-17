@@ -39,7 +39,7 @@ A rule that reads two handles (`button + other`) does not auto-collect when only
 
 The emitted body CSS is not consulted. A collected path still ships if no remaining rule writes a textual `var(...)` for it. `useThemeVar` is the supported way to force a theme declaration that the body does not read.
 
-Named theme layers, media themes, and `{ alternates }` still render through `renderThemeVars`. They change which values and extra blocks are written for the already-collected paths; they do not decide reachability.
+Named variations, media variations, and `{ alternates }` still render through `renderThemeVars`. They change which values and extra blocks are written for the already-collected paths; they do not decide reachability.
 
 ## Per-handle default narrowing
 
