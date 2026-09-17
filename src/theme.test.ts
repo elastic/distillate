@@ -245,6 +245,9 @@ describe('resolveThemeValues', () => {
     expect(() => distillery.resolveValues('light', 'missing')).toThrow(
       /Unknown variation "missing"/
     );
+    expect(() => distillery.resolveValues('light', 'toString')).toThrow(
+      /Unknown variation "toString"/
+    );
   });
 });
 

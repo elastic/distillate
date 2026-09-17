@@ -154,7 +154,10 @@ export const requireThemeVariation = (
   variations: Readonly<Record<string, ResolvedThemeVariation>> | undefined,
   name: string
 ): ResolvedThemeVariation => {
-  const resolved = variations?.[name];
+  const resolved =
+    variations && Object.hasOwn(variations, name)
+      ? variations[name]
+      : undefined;
   if (!resolved) {
     const declared = Object.keys(variations ?? {});
     const suffix =

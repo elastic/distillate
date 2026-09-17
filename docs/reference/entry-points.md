@@ -28,7 +28,8 @@ import {
 | `resolveThemeValues` | runtime | Nested literal values for one scheme. Prefer `distillery.resolveValues`. |
 | `themeToken` / `scaleToken` / `contextualVar` | runtime | Token factories. Derivation calls `themeToken` / `scaleToken`. |
 | `isCssToken` / `isScaleToken` / `isContextualCssVar` / `isContextualCssVarName` | runtime | Type guards. |
-| `css` / `decls` / `rule` / `media` / `container` / `variants` / `mapDomain` | runtime | Authoring helpers (also on the `createStyleModule` factory argument). `mapDomain` has no collector side effect. |
+| `css` / `decls` | runtime | Handle and declaration templates. Also on the `createStyleModule` factory argument. |
+| `rule` / `media` / `container` / `variants` / `mapDomain` | runtime | Root-entry authoring helpers. `mapDomain` has no collector side effect. |
 | `combineClassNames` | runtime | `context.resolveClassName(...handles)`. |
 | `StylesCollector` | runtime | Class; `artifactCollector` / `stylesheetCollector` return instances. |
 | `renderStyles` | runtime | Unbound renderer; prefer `distillery.renderStyles`. |
