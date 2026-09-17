@@ -24,7 +24,7 @@ sources:
 
 # Definition
 
-`createDistillery(options)` returns a destructure-safe `Distillery`: `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`. Each call owns a private `StyleRegistry`. `environment` is the resolved form (derived `themeVars` and `tokens`). `resolveValues(scheme, variation?)` returns nested literal strings for one scheme.[^engine]
+`createDistillery(options)` returns a destructure-safe `Distillery`: `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `dev`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`. Each call owns a private `StyleRegistry`. `environment` is the resolved form (derived `themeVars` and `tokens`). `resolveValues(scheme, variation?)` returns nested literal strings for one scheme.[^engine]
 
 # Schema
 
@@ -35,6 +35,7 @@ sources:
 | `theme`      | yes      | Nested value tree. Strings and `lightDark` become theme vars; `cq` / `scaleToken` inline.   |
 | `variations` | no       | Named value-only diffs of `theme`. Declaring a variation does not emit it; name it at `renderStyles`. |
 | `sharedVars` | no       | Cross-module contextual-var paths. Names derive via `cssVarName`.                            |
+| `dev`        | no       | When `true`, collectors warn about no-op handles. Default `false`. Does not affect the single-copy guard. |
 
 Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw at construction. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw. `renderStyles` selects a declared variation with `{ flatten }` or `{ alternates }`.[^environment][^theme][^runtime]
 

@@ -12,6 +12,8 @@ Two independent axes. **Target** is how much CSS you want. **Name mode** is how 
 | **`stylesheet`** | Public sheet. `.demo-root`, `--eui-colors-ink`.   | Minified names for the full sheet. Unusual.                    |
 | **`artifact`**   | Readable names, tree-shaken to collected handles. | Minimal payload. `.a`, `--b`. HTML and CSS must ship together. |
 
+Empty declaration blocks never ship in any quadrant. In the two `compact` quadrants, a handle that is empty and untargeted is also dropped from collection, so it consumes no compact name and is omitted from `useHandles`'s return value. Readable collectors keep the class name so external selectors can still target it.
+
 Same module for every quadrant:
 
 ```ts

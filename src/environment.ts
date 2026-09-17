@@ -35,6 +35,8 @@ export interface DistilleryOptions<TTheme extends ThemeTree = ThemeTree> {
   readonly variations?: Readonly<Record<string, ThemeVariation<TTheme>>>;
   /** Cross-module contextual-var paths. Names are `cssVarName(prefix, path)`. Module-local `vars(...)` groups are not listed here. */
   readonly sharedVars?: readonly `vars/${string}`[];
+  /** When `true`, collectors warn about no-op handles. Default `false`. Does not affect the single-copy guard. */
+  readonly dev?: boolean;
 }
 
 /** Resolved environment: derived `themeVars` / `tokens` plus the bind-time prefix and scope. */

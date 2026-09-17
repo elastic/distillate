@@ -49,8 +49,14 @@ createDistillery<const TTheme extends ThemeTree>(
 distillery.resolveValues(scheme: 'light' | 'dark', variation?: string): ValuesOf<TTheme>;
 
 distillery.createStyleModule(name, ({ css, tokens }) => ({ ... }));
-distillery.artifactCollector(names: 'compact' | 'readable'): StylesCollector;
-distillery.stylesheetCollector(names?: 'compact' | 'readable'): StylesCollector;
+distillery.artifactCollector(
+  names: 'compact' | 'readable',
+  options?: { warn?: (message: string) => void }
+): StylesCollector;
+distillery.stylesheetCollector(
+  names?: 'compact' | 'readable',
+  options?: { warn?: (message: string) => void }
+): StylesCollector;
 distillery.renderStyles(
   collector: StylesCollector,
   resolver?: StyleNameResolver,
@@ -58,7 +64,7 @@ distillery.renderStyles(
 ): string;
 
 collector.use(module | entry | entries): void;
-collector.useHandles(handles: readonly StyleHandle[]): void;
+collector.useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[];
 collector.createResolver(): StyleNameResolver;
 ```
 

@@ -46,10 +46,10 @@ const panel = distillery.createStyleModule('panel', ({ css, tokens }) => ({
 
 const collector = distillery.artifactCollector('compact');
 const used = [panel.handles.root, panel.handles.tone.loud]; // include the variant; use(panel) skips it
-collector.useHandles(used);
+const retained = collector.useHandles(used);
 
 const resolver = collector.createResolver(); // after collection; compact ids depend on the full set
-const className = used
+const className = retained
   .map((handle) => resolver.className(handle.key, handle.readableName))
   .join(' ');
 const css = distillery.renderStyles(collector, resolver);
@@ -63,7 +63,7 @@ Compact class names depend on the **full** collected set. If you print class nam
 
 1. Walk the tree. For every style you would apply, `collector.useHandles([...])`. Do not read compact names yet.
 2. `const resolver = collector.createResolver()`.
-3. Walk again (or serialize from a recorded list). Write `resolver.className(handle.key, handle.readableName)` onto each element.
+3. Walk again (or serialize from a recorded list). Write `resolver.className(handle.key, handle.readableName)` only for handles `useHandles` retained.
 4. `distillery.renderStyles(collector, resolver)` and inline the CSS.
 
 A readable artifact (`artifactCollector('readable')`) can skip the second pass because `handle.readableName` does not depend on the collected set. Compact is cheaper on the wire; readable is easier to debug.
@@ -78,6 +78,7 @@ The playground CSS pane shows the same comparison live: full stylesheet versus c
 
 - Unnamed variant entries
 - Handles the walk never named
+- Empty untargeted handles (no-op templates). `useHandles` omits them from its return value; resolve only that list.
 - Local-var defaults that no collected declaration reads. Per-handle, `reachableDefaults` keeps only keys referenced by that handle or by a collected rule whose selector targets it. Rule-level default markers have no host handle and emit every listed key. See [reachability collection](../concepts/collection.md).
 - Theme tokens whose paths were never collected (not interpolated into a collected declaration, not a surviving default-marker value dep, and not marked with `useThemeVar`). A collected path still emits even if the body does not textually contain `var(...)`.
 

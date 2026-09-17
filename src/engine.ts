@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { StylesCollector } from './collector';
+import { StylesCollector, type StylesCollectorOptions } from './collector';
 import type {
   DistilleryEnvironment,
   DistilleryOptions,
@@ -57,6 +57,8 @@ export interface Distillery<
   ) => ValuesOf<TTheme>;
   /** The module registry accumulating collected handles and rules. */
   readonly registry: StyleRegistry;
+  /** When `true`, collectors warn about no-op handles. */
+  readonly dev: boolean;
   /** Named handle tree plus tokens. */
   readonly createStyleModule: <TStyles extends StylesObject>(
     name: string,
@@ -67,10 +69,16 @@ export interface Distillery<
     name: string,
     factory: (api: PrimitiveStyleAuthoringApi<TTokens>) => TStyles
   ) => StylesModule<ResolvedStyles<TStyles>>;
-  /** Collector for one render. Class-name resolution collects as a side effect. */
-  readonly artifactCollector: (names: StyleNameMode) => StylesCollector;
-  /** Collector preloaded with every registered module. */
-  readonly stylesheetCollector: (names?: StyleNameMode) => StylesCollector;
+  /** Collector for one render. Class-name resolution collects as a side effect. No-op warnings require `dev: true`; pass `{ warn }` to capture them. */
+  readonly artifactCollector: (
+    names: StyleNameMode,
+    options?: Pick<StylesCollectorOptions, 'warn'>
+  ) => StylesCollector;
+  /** Collector preloaded with every registered module. No-op warnings require `dev: true`; pass `{ warn }` to capture them. */
+  readonly stylesheetCollector: (
+    names?: StyleNameMode,
+    options?: Pick<StylesCollectorOptions, 'warn'>
+  ) => StylesCollector;
   /** Emits collected CSS for this environment. */
   readonly renderStyles: (
     collector: StylesCollector,
@@ -98,6 +106,7 @@ export const createDistillery = <const TTheme extends ThemeTree>(
     theme,
     sharedVars: sharedVarList,
     variations,
+    dev = false,
   } = options;
   assertCssIdentSegment(prefix, 'Distillery prefix');
   const { tokens, themeVars } = deriveTheme(prefix, theme);
@@ -140,6 +149,7 @@ export const createDistillery = <const TTheme extends ThemeTree>(
           : requireThemeVariation(environment.variations, variation)
       ),
     registry,
+    dev,
     createStyleModule: (name, factory) =>
       createStyleModuleWithEnvironment(environment, registry, name, factory),
     primitiveStyles: (name, factory) =>
@@ -150,14 +160,23 @@ export const createDistillery = <const TTheme extends ThemeTree>(
         ({ css: style, tokens: moduleTokens }) =>
           factory({ style, tokens: moduleTokens })
       ),
-    artifactCollector: (names) =>
-      new StylesCollector({ target: 'artifact', names, registry, prefix }),
-    stylesheetCollector: (names = 'readable') => {
+    artifactCollector: (names, options) =>
+      new StylesCollector({
+        target: 'artifact',
+        names,
+        registry,
+        prefix,
+        dev,
+        ...(options?.warn ? { warn: options.warn } : {}),
+      }),
+    stylesheetCollector: (names = 'readable', options) => {
       const collector = new StylesCollector({
         target: 'stylesheet',
         names,
         registry,
         prefix,
+        dev,
+        ...(options?.warn ? { warn: options.warn } : {}),
       });
       for (const module of registry.modules) {
         collector.useAllEntries(module);

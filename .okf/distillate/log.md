@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-09-17
+
+- **Update**: Empty declaration blocks no longer emit. Compact collectors also drop empty untargeted handles from collection and `useHandles`. No-op warnings require `createDistillery({ dev: true })` (`dev` defaults to `false`). `{ warn }` on a collector overrides the sink.
+
 ## 2026-09-16
 
 - **Update**: `resolveThemeValues` / `distillery.resolveValues` expose a nested literal-value tree (`ValuesOf<T>`) for non-CSS surfaces. `mapDomain` is the collector-free mapping primitive behind `variants()`. New playbook [Read theme values](playbooks/read-theme-values.md). `pnpm okf:check` re-run after index.

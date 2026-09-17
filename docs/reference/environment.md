@@ -16,6 +16,7 @@ description: DistilleryOptions, DistilleryEnvironment, and ThemeVarDefinition fi
 | `theme`      | `ThemeTree`                      | yes      | Nested value tree. Strings and `lightDark` become theme vars; `cq` / `scaleToken` inline.                       |
 | `variations` | `Record<string, ThemeVariation>` | no       | Named value-only diffs of `theme`. Declaring a variation does not emit it. See [theming](../guides/theming.md). |
 | `sharedVars` | `readonly \`vars/${string}\`[]`  | no       | Cross-module contextual-var paths. Names follow `cssVarName`.                                                   |
+| `dev`        | `boolean`                        | no       | When `true`, collectors warn about no-op handles. Default `false`. Does not affect the single-copy guard.       |
 
 Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. Hyphens are rejected so hyphen-joined custom properties reverse uniquely.
 

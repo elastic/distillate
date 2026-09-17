@@ -252,3 +252,12 @@ export const isOpaque = (span: CssSpan): boolean =>
   span.kind === 'string' ||
   span.kind === 'url' ||
   span.kind === 'escape';
+
+/** True when `value` has no declarations left after comments, whitespace, and bare `;` are ignored. */
+export const isBlankCss = (value: string): boolean =>
+  scanCss(value).every(
+    (span) =>
+      span.kind === 'comment' ||
+      span.kind === 'whitespace' ||
+      (span.kind === 'structural' && span.text === ';')
+  );

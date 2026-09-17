@@ -54,6 +54,7 @@ const demoBind = {
   prefix: 'dstl',
   themeScope: ':host',
   theme: demoTheme,
+  dev: true,
   variations: {
     muted: {
       color: {

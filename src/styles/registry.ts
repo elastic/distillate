@@ -21,6 +21,7 @@ import type {
  */
 export class StyleRegistry {
   private readonly modulesByName = new Map<string, StylesModule>();
+  private targetedKeys: Set<string> | undefined;
 
   constructor(
     private readonly prefix: string,
@@ -49,6 +50,36 @@ export class StyleRegistry {
       module
     );
     this.modulesByName.set(module.name, module);
+    this.targetedKeys = undefined;
+  }
+
+  /**
+   * True when some rule, or some inner rule of an `@media` / `@container` block, reads `key` in its selector.
+   *
+   * A nested `&` rule records its owning handle through `recordRuleDeps`, so a handle with an empty self block but real nested rules is targeted. A rule-less nested block targets nothing.
+   */
+  targetsHandle(key: string): boolean {
+    return this.targetedHandleKeys().has(key);
+  }
+
+  private targetedHandleKeys(): Set<string> {
+    if (this.targetedKeys) {
+      return this.targetedKeys;
+    }
+    const keys = new Set<string>();
+    for (const module of this.modulesByName.values()) {
+      for (const entry of module.entries) {
+        if (entry.kind === 'rule') {
+          entry.dependsOn.forEach((dep) => keys.add(dep));
+        } else if (entry.kind === 'media') {
+          for (const inner of entry.rules) {
+            inner.dependsOn.forEach((dep) => keys.add(dep));
+          }
+        }
+      }
+    }
+    this.targetedKeys = keys;
+    return keys;
   }
 
   /** Registered modules, sorted by name. */
