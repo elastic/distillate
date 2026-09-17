@@ -20,7 +20,7 @@ sources:
 1. `const collector = distillery.artifactCollector('compact')`.
 2. Walk the view. For every handle you would apply, `collector.useHandles([...])`. Do not read compact names yet.
 3. `const resolver = collector.createResolver()`.
-4. Walk again. Write `resolver.className(handle.key, handle.readableName)` onto each element.
+4. Walk again. Write `resolver.className(handle.key, handle.readableName)` only for handles `useHandles` retained.
 5. Inline `distillery.renderStyles(collector, resolver)` next to the HTML.[^artifact]
 
 Compact names depend on the collected set and are not stable across renders. Variants must be named; `use(module)` skips them. `docs/examples/06-payload.ts` measures the full readable stylesheet against that compact artifact from one render.[^payload] See [naming and output](/concepts/naming.md).

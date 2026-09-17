@@ -42,6 +42,16 @@ describe('isEmptyDeclarations', () => {
     expect(isEmptyDeclarations(decls`color: red;`)).toBe(false);
   });
 
+  it('is true when the block is only comments and semicolons', () => {
+    expect(isEmptyDeclarations(decls`/* keep */`)).toBe(true);
+    expect(isEmptyDeclarations(decls`/* a */; /* b */`)).toBe(true);
+  });
+
+  it('is false when a comment sits next to a declaration or inside a string', () => {
+    expect(isEmptyDeclarations(decls`color: red; /* x */`)).toBe(false);
+    expect(isEmptyDeclarations(decls`content: " /* x */ ";`)).toBe(false);
+  });
+
   it('is false when the block contains a local-var marker', () => {
     const look = createLocalVarGroup('eui', 'chip', 'look', { bg: 'red' });
     expect(isEmptyDeclarations(decls`${look}`)).toBe(false);

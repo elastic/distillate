@@ -5,6 +5,7 @@
  * 2.0.
  */
 
+import { isBlankCss } from '../css_scan';
 import { isLocalVarMarker, isLocalVarRef } from '../local_vars';
 import { isHandleLike } from '../nesting';
 import {
@@ -150,9 +151,9 @@ export const stringifyCssValue = (
   return String(value);
 };
 
-/** True when every segment is a whitespace-only string. A local-var marker counts as content. */
+/** True when every segment is comments, whitespace, or bare `;`. A local-var marker counts as content. */
 export const isEmptyDeclarations = ({ css }: Declarations): boolean =>
-  css.every((segment) => typeof segment === 'string' && segment.trim() === '');
+  css.every((segment) => typeof segment === 'string' && isBlankCss(segment));
 
 const assertDeclarationBlock = (
   segments: readonly DeclarationSegment[]

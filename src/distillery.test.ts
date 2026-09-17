@@ -1189,4 +1189,42 @@ describe('no-op handle pruning', () => {
     expect(artifactCss).not.toMatch(/\{\}/);
     expect(sheetCss).not.toMatch(/\{\}/);
   });
+
+  it('does not resolve a blank rule selector that names an uncollected handle', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('code', (t) => ({
+      root: t.css`
+        color: red;
+      `,
+      unused: t.css`
+        color: blue;
+      `,
+      pre: rule((selectors) => `${selectors.unused} pre`, t.decls``),
+    }));
+    const collector = distillery.artifactCollector('compact');
+    collector.use(demo.handles.root);
+    collector.use(demo.handles.pre);
+    expect(distillery.renderStyles(collector)).toContain('.a{color:red}');
+    expect(distillery.renderStyles(collector)).not.toContain('blue');
+    expect(distillery.renderStyles(collector)).not.toMatch(/\{\}/);
+  });
+
+  it('does not emit a comment-only handle as an empty block', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('note', (t) => ({
+      root: t.css`
+        /* keep */
+      `,
+      ink: t.css`
+        color: red;
+      `,
+    }));
+    const collector = distillery.artifactCollector('compact');
+    expect(collector.useHandles([demo.handles.root, demo.handles.ink])).toEqual(
+      [demo.handles.ink]
+    );
+    const css = distillery.renderStyles(collector);
+    expect(css).toContain('.a{color:red}');
+    expect(css).not.toMatch(/\{\}/);
+  });
 });

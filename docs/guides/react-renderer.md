@@ -120,7 +120,8 @@ export const renderArtifact = (
   // Pass 2: write class names now that the collected set is complete.
   const emitting: StyleContextValue = {
     resolveClassName: (...handles) =>
-      handles
+      collector
+        .useHandles(handles)
         .map((handle) => resolver.className(handle.key, handle.readableName))
         .join(' '),
   };

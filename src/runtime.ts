@@ -6,7 +6,7 @@
  */
 
 import type { StylesCollector } from './collector';
-import { isOpaque, scanCss } from './css_scan';
+import { isBlankCss, isOpaque, scanCss } from './css_scan';
 import type { DistilleryEnvironment, ThemeVarDefinition } from './environment';
 import {
   isLocalVarDefaultMarker,
@@ -192,7 +192,7 @@ const formatThemeValue = (
 
 const renderHandle = (handle: StyleHandle, ctx: RenderContext): string => {
   const body = renderDeclarations(handle.declarations, { handle }, ctx);
-  if (isBlankBody(body)) {
+  if (isBlankCss(body)) {
     return '';
   }
   const className = ctx.resolver.className(handle.key, handle.readableName);
@@ -200,20 +200,17 @@ const renderHandle = (handle: StyleHandle, ctx: RenderContext): string => {
 };
 
 const renderRule = (rule: StyleRule, ctx: RenderContext): string => {
-  const selector = rule.selector(createSelectorResolver(rule, ctx));
   // Rules don't have a host handle for per-handle reachability — default
   // markers in a rule's declaration emit every listed key. In practice
   // authors place default markers on handle declarations; this branch keeps
   // the runtime well-defined if a rule ever does carry one.
   const body = renderDeclarations(rule.declarations, {}, ctx);
-  if (isBlankBody(body)) {
+  if (isBlankCss(body)) {
     return '';
   }
+  const selector = rule.selector(createSelectorResolver(rule, ctx));
   return `${selector}{${body}}`;
 };
-
-const isBlankBody = (body: string): boolean =>
-  body.replace(/[\s;]+/g, '') === '';
 
 /** Host for default-marker emission: a handle enables per-handle reachability. */
 interface DeclarationHostContext {
