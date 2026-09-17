@@ -150,6 +150,10 @@ export const stringifyCssValue = (
   return String(value);
 };
 
+/** True when every segment is a whitespace-only string. A local-var marker counts as content. */
+export const isEmptyDeclarations = ({ css }: Declarations): boolean =>
+  css.every((segment) => typeof segment === 'string' && segment.trim() === '');
+
 const assertDeclarationBlock = (
   segments: readonly DeclarationSegment[]
 ): void => {

@@ -7,7 +7,10 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { isVariantMarked, mapDomain, variants } from './authoring';
+import { createLocalVarGroup } from '../local_vars';
+
+import { decls, isVariantMarked, mapDomain, variants } from './authoring';
+import { isEmptyDeclarations } from './declarations';
 
 describe('mapDomain', () => {
   it('maps each domain key through the factory', () => {
@@ -26,5 +29,21 @@ describe('variants', () => {
     });
     expect(isVariantMarked(record.calm)).toBe(true);
     expect(isVariantMarked(record.loud)).toBe(true);
+  });
+});
+
+describe('isEmptyDeclarations', () => {
+  it('is true when every segment is whitespace', () => {
+    expect(isEmptyDeclarations(decls``)).toBe(true);
+    expect(isEmptyDeclarations(decls`  \n  `)).toBe(true);
+  });
+
+  it('is false when the block has a declaration', () => {
+    expect(isEmptyDeclarations(decls`color: red;`)).toBe(false);
+  });
+
+  it('is false when the block contains a local-var marker', () => {
+    const look = createLocalVarGroup('eui', 'chip', 'look', { bg: 'red' });
+    expect(isEmptyDeclarations(decls`${look}`)).toBe(false);
   });
 });

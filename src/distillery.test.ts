@@ -8,6 +8,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createDistillery } from './engine';
+import type { DistilleryOptions } from './environment';
 import { container, media, rule, variants } from './styles';
 import { lightDark } from './tokens';
 import { contextualVar, cq } from './tokens';
@@ -23,11 +24,14 @@ const fixtureTheme = {
   gap: cq('8px', '2cqi'),
 };
 
-const createFixtureDistillery = () =>
+const createFixtureDistillery = (
+  options: Pick<DistilleryOptions, 'dev'> = {}
+) =>
   createDistillery({
     prefix: 'eui',
     themeScope: '.eui-view',
     theme: fixtureTheme,
+    ...options,
   });
 
 describe('createDistillery with a foreign environment', () => {
@@ -1000,5 +1004,189 @@ describe('theme variations', () => {
         alternates: [{ variation: 'muted' }],
       })
     ).toThrow(/needs a selector/);
+  });
+});
+
+const collectWarnings = () => {
+  const warnings: string[] = [];
+  return { warnings, warn: (message: string) => warnings.push(message) };
+};
+
+describe('no-op handle pruning', () => {
+  const createDevDistillery = () => createFixtureDistillery({ dev: true });
+
+  it('does not warn about no-op handles when `dev` is false', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('quiet', (t) => ({
+      empty: t.css``,
+      root: t.css`
+        color: red;
+      `,
+    }));
+    const { warnings, warn } = collectWarnings();
+    const compact = distillery.artifactCollector('compact', { warn });
+    expect(compact.useHandles([demo.handles.empty, demo.handles.root])).toEqual(
+      [demo.handles.root]
+    );
+    expect(warnings).toEqual([]);
+    expect(distillery.dev).toBe(false);
+  });
+
+  it('warns once per empty unreferenced handle and drops it only in compact mode', () => {
+    const distillery = createDevDistillery();
+    const demo = distillery.createStyleModule('frame', (t) => ({
+      content: t.css``,
+      title: t.css`
+        color: ${t.tokens.colors.ink};
+      `,
+    }));
+    const { warnings, warn } = collectWarnings();
+
+    const compact = distillery.artifactCollector('compact', { warn });
+    const compactKept = compact.useHandles([
+      demo.handles.content,
+      demo.handles.title,
+    ]);
+    expect(compactKept).toEqual([demo.handles.title]);
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('"frame"');
+    expect(warnings[0]).toContain('"content"');
+    const compactCss = distillery.renderStyles(compact);
+    expect(compactCss).not.toMatch(/\{\}/);
+    expect(compactCss).toContain('.a{color:var(--a)}');
+
+    const readable = distillery.artifactCollector('readable', { warn });
+    const readableKept = readable.useHandles([
+      demo.handles.content,
+      demo.handles.title,
+    ]);
+    expect(readableKept).toEqual([demo.handles.content, demo.handles.title]);
+    expect(warnings).toHaveLength(1);
+    const readableCss = distillery.renderStyles(readable);
+    expect(readableCss).not.toContain('.frame-content{');
+    expect(readableCss).toContain('.frame-title{color:var(--eui-colors-ink)}');
+  });
+
+  it('keeps an empty handle targeted by a rule and still drops the empty block', () => {
+    const distillery = createDevDistillery();
+    const demo = distillery.createStyleModule('code', (t) => ({
+      root: t.css``,
+      pre: rule(
+        (selectors) => `${selectors.root} pre`,
+        t.decls`
+          color: ${t.tokens.colors.ink};
+        `
+      ),
+    }));
+    const { warnings, warn } = collectWarnings();
+
+    const compact = distillery.artifactCollector('compact', { warn });
+    expect(compact.useHandles([demo.handles.root])).toEqual([
+      demo.handles.root,
+    ]);
+    expect(warnings).toEqual([]);
+    expect(distillery.renderStyles(compact)).toBe(
+      '.eui-view{--a:light-dark(#111,#eee)}.a pre{color:var(--a)}'
+    );
+
+    const readable = distillery.artifactCollector('readable', { warn });
+    expect(readable.useHandles([demo.handles.root])).toEqual([
+      demo.handles.root,
+    ]);
+    expect(warnings).toEqual([]);
+    expect(distillery.renderStyles(readable)).toBe(
+      '.eui-view{--eui-colors-ink:light-dark(#111,#eee)}.code-root pre{color:var(--eui-colors-ink)}'
+    );
+  });
+
+  it('keeps a handle with an empty self block and non-empty nested rules', () => {
+    const distillery = createDevDistillery();
+    const demo = distillery.createStyleModule('title', (t) => ({
+      hero: t.css`
+        & h2 {
+          font-size: 2rem;
+        }
+        & p {
+          color: ${t.tokens.colors.ink};
+        }
+      `,
+    }));
+    const { warnings, warn } = collectWarnings();
+    const collector = distillery.artifactCollector('readable', { warn });
+    expect(collector.useHandles([demo.handles.hero])).toEqual([
+      demo.handles.hero,
+    ]);
+    expect(warnings).toEqual([]);
+    const css = distillery.renderStyles(collector);
+    expect(css).not.toContain('.title-hero{');
+    expect(css).toContain('.title-hero h2{font-size:2rem}');
+    expect(css).toContain('.title-hero p{color:var(--eui-colors-ink)}');
+  });
+
+  it('never prunes a handle whose declarations are only a local-var marker', () => {
+    const distillery = createDevDistillery();
+    const demo = distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', { bg: t.tokens.colors.surface });
+      return {
+        root: t.css`
+          ${look}
+        `,
+      };
+    });
+    const { warnings, warn } = collectWarnings();
+    const collector = distillery.artifactCollector('compact', { warn });
+    expect(collector.useHandles([demo.handles.root])).toEqual([
+      demo.handles.root,
+    ]);
+    expect(warnings).toEqual([]);
+    expect(collector.createResolver().className(demo.handles.root.key)).toBe(
+      'a'
+    );
+  });
+
+  it('does not let a pruned handle consume a compact name', () => {
+    const distillery = createDevDistillery();
+    const demo = distillery.createStyleModule('pack', (t) => ({
+      empty: t.css``,
+      mid: t.css`
+        display: block;
+      `,
+      root: t.css`
+        color: red;
+      `,
+    }));
+    const { warn } = collectWarnings();
+    const collector = distillery.artifactCollector('compact', { warn });
+    collector.useHandles([
+      demo.handles.empty,
+      demo.handles.mid,
+      demo.handles.root,
+    ]);
+    const resolver = collector.createResolver();
+    expect(resolver.className(demo.handles.mid.key)).toBe('a');
+    expect(resolver.className(demo.handles.root.key)).toBe('b');
+  });
+
+  it('prunes the same handle from compact artifact and stylesheet collectors', () => {
+    const distillery = createDevDistillery();
+    const demo = distillery.createStyleModule('stack', (t) => ({
+      spacing: t.css``,
+      root: t.css`
+        color: red;
+      `,
+    }));
+    const { warnings, warn } = collectWarnings();
+    const artifact = distillery.artifactCollector('compact', { warn });
+    expect(
+      artifact.useHandles([demo.handles.spacing, demo.handles.root])
+    ).toEqual([demo.handles.root]);
+    const sheet = distillery.stylesheetCollector('compact', { warn });
+    expect(warnings).toHaveLength(1);
+    const artifactCss = distillery.renderStyles(artifact);
+    const sheetCss = distillery.renderStyles(sheet);
+    expect(artifactCss).toContain('.a{color:red}');
+    expect(sheetCss).toContain('.a{color:red}');
+    expect(artifactCss).not.toMatch(/\{\}/);
+    expect(sheetCss).not.toMatch(/\{\}/);
   });
 });

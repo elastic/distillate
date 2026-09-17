@@ -21,6 +21,7 @@ import type {
  */
 export class StyleRegistry {
   private readonly modulesByName = new Map<string, StylesModule>();
+  private targetedKeys: Set<string> | undefined;
 
   constructor(
     private readonly prefix: string,
@@ -49,6 +50,40 @@ export class StyleRegistry {
       module
     );
     this.modulesByName.set(module.name, module);
+    this.targetedKeys = undefined;
+  }
+
+  /**
+   * True when some rule or nested `&` / `@media` entry targets `key`.
+   *
+   * Nested `&` rules set `dependsOn` to an empty set, so they are discovered by the `/&/` key prefix instead.
+   */
+  targetsHandle(key: string): boolean {
+    return this.targetedHandleKeys().has(key);
+  }
+
+  private targetedHandleKeys(): Set<string> {
+    if (this.targetedKeys) {
+      return this.targetedKeys;
+    }
+    const keys = new Set<string>();
+    for (const module of this.modulesByName.values()) {
+      for (const entry of module.entries) {
+        if (entry.kind === 'rule') {
+          entry.dependsOn.forEach((dep) => keys.add(dep));
+        } else if (entry.kind === 'media') {
+          for (const inner of entry.rules) {
+            inner.dependsOn.forEach((dep) => keys.add(dep));
+          }
+        }
+        const nestedAt = entry.key.indexOf('/&/');
+        if (nestedAt >= 0) {
+          keys.add(entry.key.slice(0, nestedAt));
+        }
+      }
+    }
+    this.targetedKeys = keys;
+    return keys;
   }
 
   /** Registered modules, sorted by name. */

@@ -50,9 +50,12 @@ export const renderStyles = (
     if (entry.kind === 'rule') {
       return renderRule(entry, ctx);
     }
-    return `@${entry.atRule ?? 'media'} ${entry.query}{${entry.rules
+    const inner = entry.rules
       .map((rule) => renderRule(rule, ctx))
-      .join('')}}`;
+      .filter((fragment) => fragment.length > 0);
+    return inner.length > 0
+      ? `@${entry.atRule ?? 'media'} ${entry.query}{${inner.join('')}}`
+      : '';
   });
   const bodyCss = bodyFragments.join('');
   const fragments = [renderThemeVars(ctx), bodyCss];
@@ -188,8 +191,11 @@ const formatThemeValue = (
 ): string => override ?? serializedThemeValue(definition);
 
 const renderHandle = (handle: StyleHandle, ctx: RenderContext): string => {
-  const className = ctx.resolver.className(handle.key, handle.readableName);
   const body = renderDeclarations(handle.declarations, { handle }, ctx);
+  if (isBlankBody(body)) {
+    return '';
+  }
+  const className = ctx.resolver.className(handle.key, handle.readableName);
   return `.${className}{${body}}`;
 };
 
@@ -200,8 +206,14 @@ const renderRule = (rule: StyleRule, ctx: RenderContext): string => {
   // authors place default markers on handle declarations; this branch keeps
   // the runtime well-defined if a rule ever does carry one.
   const body = renderDeclarations(rule.declarations, {}, ctx);
+  if (isBlankBody(body)) {
+    return '';
+  }
   return `${selector}{${body}}`;
 };
+
+const isBlankBody = (body: string): boolean =>
+  body.replace(/[\s;]+/g, '') === '';
 
 /** Host for default-marker emission: a handle enables per-handle reachability. */
 interface DeclarationHostContext {

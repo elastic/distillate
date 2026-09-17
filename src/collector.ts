@@ -24,6 +24,9 @@ import type {
   StyleRule,
   StylesModule,
 } from './styles';
+import { isEmptyDeclarations } from './styles/declarations';
+
+const warnedHandles = new WeakSet<StyleHandle>();
 
 const dependentEntriesCache = new WeakMap<
   StylesModule,
@@ -88,6 +91,10 @@ export interface StylesCollectorOptions {
   registry: StyleRegistry;
   /** Brand prefix forwarded to the name resolver. */
   prefix: string;
+  /** When `true`, emit no-op-handle warnings through `warn`. Inherited from `createDistillery({ dev })`. */
+  dev?: boolean;
+  /** Warning sink for no-op handles. Used only when `dev` is `true`. Defaults to `console.warn`. */
+  warn?: (message: string) => void;
 }
 
 /** Reachable entries for one render or one stylesheet. */
@@ -100,16 +107,27 @@ export class StylesCollector {
   readonly registry: StyleRegistry;
   /** Emitted class name prefix. */
   readonly prefix: string;
+  private readonly dev: boolean;
+  private readonly warn: (message: string) => void;
   private readonly entries = new Map<string, StyleEntry>();
   private readonly handles = new Map<string, StyleHandle>();
   private readonly themeDeps = new Set<string>();
   private readonly varDeps = new Set<ContextualVarPath>();
 
-  constructor({ target, names, registry, prefix }: StylesCollectorOptions) {
+  constructor({
+    target,
+    names,
+    registry,
+    prefix,
+    dev = false,
+    warn = (message) => console.warn(message),
+  }: StylesCollectorOptions) {
     this.target = target;
     this.names = names;
     this.registry = registry;
     this.prefix = prefix;
+    this.dev = dev;
+    this.warn = warn;
   }
 
   /**
@@ -134,6 +152,9 @@ export class StylesCollector {
         if (entry.variant) {
           continue;
         }
+        if (entry.kind === 'handle' && !this.retainHandle(entry)) {
+          continue;
+        }
         this.entries.set(entryKey(entry), entry);
         if (entry.kind === 'handle' || entry.kind === 'rule') {
           this.addDeclarationDeps(entry.declarations);
@@ -145,6 +166,9 @@ export class StylesCollector {
       }
       for (const handle of value.handleList) {
         if (handle.variant) {
+          continue;
+        }
+        if (!this.retainHandle(handle)) {
           continue;
         }
         this.handles.set(handle.key, handle);
@@ -162,9 +186,15 @@ export class StylesCollector {
    */
   useAllEntries(module: StylesModule): void {
     for (const entry of module.entries) {
+      if (entry.kind === 'handle' && !this.retainHandle(entry)) {
+        continue;
+      }
       this.entries.set(entryKey(entry), entry);
     }
     for (const handle of module.handleList) {
+      if (!this.retainHandle(handle)) {
+        continue;
+      }
       this.handles.set(handle.key, handle);
     }
     module.themeDeps.forEach((path) => this.themeDeps.add(path));
@@ -177,9 +207,15 @@ export class StylesCollector {
    * Media blocks include only inner rules whose deps are met.
    *
    * @param handles Handles resolved during this render pass (e.g. from `resolveClassName`).
+   * @returns Handles that were retained. Empty untargeted handles are omitted in compact mode.
    */
-  useHandles(handles: readonly StyleHandle[]): void {
+  useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[] {
+    const retained: StyleHandle[] = [];
     for (const handle of handles) {
+      if (!this.retainHandle(handle)) {
+        continue;
+      }
+      retained.push(handle);
       if (this.handles.has(handle.key)) {
         continue;
       }
@@ -187,7 +223,7 @@ export class StylesCollector {
       this.handles.set(handle.key, handle);
       this.addDeclarationDeps(handle.declarations);
     }
-    for (const handle of handles) {
+    for (const handle of retained) {
       const module = this.registry.module(handle.moduleName);
       if (!module) {
         continue;
@@ -196,6 +232,7 @@ export class StylesCollector {
         this.tryActivateDependent(dependent);
       }
     }
+    return retained;
   }
 
   /** Collects `auto` rules on `module` whose every selector dependency is already collected. */
@@ -382,7 +419,26 @@ export class StylesCollector {
     return { theme, vars };
   }
 
+  private retainHandle(handle: StyleHandle): boolean {
+    if (!isEmptyDeclarations(handle.declarations)) {
+      return true;
+    }
+    if (this.registry.targetsHandle(handle.key)) {
+      return true;
+    }
+    if (this.dev && !warnedHandles.has(handle)) {
+      warnedHandles.add(handle);
+      this.warn(
+        `Style module "${handle.moduleName}" handle "${handle.localName}" has no declarations and no rule targets it; delete the empty template.`
+      );
+    }
+    return this.names !== 'compact';
+  }
+
   private addEntry(entry: StyleEntry): void {
+    if (entry.kind === 'handle' && !this.retainHandle(entry)) {
+      return;
+    }
     this.entries.set(entryKey(entry), entry);
     if (entry.kind === 'handle') {
       this.handles.set(entry.key, entry);

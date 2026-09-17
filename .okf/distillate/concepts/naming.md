@@ -20,7 +20,7 @@ sources:
 
 Target (`artifact` | `stylesheet`) is how much CSS ships. Name mode (`readable` | `compact`) is how classes and custom properties are spelled.[^names]
 
-Readable classes are `${moduleName}-${path}`. Readable custom properties are `cssVarName(prefix, path)`: `--${prefix}-${path}` with `/` joined on `-` and a leading `vars/` stripped. Compact classes are `a`, `b`, … assigned from sorted keys. Compact names are not stable across different collected sets; HTML and CSS must come from the same collector.
+Readable classes are `${moduleName}-${path}`. Readable custom properties are `cssVarName(prefix, path)`: `--${prefix}-${path}` with `/` joined on `-` and a leading `vars/` stripped. Compact classes are `a`, `b`, … assigned from sorted keys. Empty untargeted handles are omitted from the compact key set. Compact names are not stable across different collected sets; HTML and CSS must come from the same collector.
 
 `createDistillery` throws if a theme-tree key contains a hyphen, if a `lightDark` value is not a CSS `<color>`, if a named variation disagrees with the base, or if two paths hyphenate to the same property.
 

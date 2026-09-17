@@ -5,7 +5,7 @@ description: Bind prefix and a theme tree with createDistillery.
 
 # The distillery
 
-`createDistillery(options)` binds the engine to one component library. The returned object is destructure-safe (no `this`): `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`.
+`createDistillery(options)` binds the engine to one component library. The returned object is destructure-safe (no `this`): `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `dev`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`.
 
 ```ts
 import { createDistillery, cq, lightDark } from '@elastic/distillate';
@@ -36,6 +36,7 @@ Each distillery owns a private `StyleRegistry`. Two libraries in one process sho
 | `theme`      | Nested value tree. Strings and `lightDark` leaves become theme vars; `cq` / `scaleToken` leaves inline. Keys match `/^[A-Za-z_][A-Za-z0-9_]*$/`. |
 | `sharedVars` | Optional cross-module contextual-var paths. Names derive via `cssVarName`. Module-local `vars(...)` groups are not listed here.                  |
 | `variations` | Optional named value-only diffs of `theme`. Declaring a variation does not emit it. See [theming](../guides/theming.md).                         |
+| `dev`        | Optional. When `true`, collectors warn about no-op handles. Default `false`. Does not affect the single-copy guard.                              |
 
 `prefix` is validated at construction. Theme-tree keys that contain `-` throw. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw.
 

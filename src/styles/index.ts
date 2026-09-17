@@ -20,7 +20,11 @@ export {
   rule,
   variants,
 } from './authoring';
-export { computeValueDeps, stringifyCssValue } from './declarations';
+export {
+  computeValueDeps,
+  isEmptyDeclarations,
+  stringifyCssValue,
+} from './declarations';
 export { createStyleModuleWithEnvironment } from './module';
 export { readableVarOwnersFromEnvironment, StyleRegistry } from './registry';
 export type {
