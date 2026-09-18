@@ -37,7 +37,7 @@ sources:
 | `sharedVars` | no       | Cross-module contextual-var paths. Names derive via `cssVarName`.                            |
 | `dev`        | no       | When `true`, collectors warn about no-op handles. Default `false`. Does not affect the single-copy guard. |
 
-Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw at construction. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw. `renderStyles` selects a declared variation with `{ flatten }` or `{ alternates }`.[^environment][^theme][^runtime]
+Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw at construction. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw. `renderStyles` selects a declared variation with `{ flatten }` or `{ alternates }`, and may flatten `light-dark(...)` to one scheme with `{ scheme }`.[^environment][^theme][^runtime]
 
 # Examples
 

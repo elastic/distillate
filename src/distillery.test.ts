@@ -865,6 +865,7 @@ describe('theme variations', () => {
     colors: {
       ink: lightDark('#111', '#eee'),
       accent: lightDark('#06c', '#8cf'),
+      border: '#ccc',
     },
     gap: cq('8px', '2cqi'),
   };
@@ -886,6 +887,9 @@ describe('theme variations', () => {
             },
           },
         },
+        darkInk: {
+          colors: { ink: lightDark('#111', '#000') },
+        },
       },
     });
 
@@ -896,6 +900,7 @@ describe('theme variations', () => {
       root: t.css`
         color: ${t.tokens.colors.accent};
         background: ${t.tokens.colors.ink};
+        border-color: ${t.tokens.colors.border};
       `,
     }));
     return distillery.stylesheetCollector();
@@ -939,7 +944,7 @@ describe('theme variations', () => {
       ],
     });
     expect(css).toContain(
-      '.eui-view{--eui-colors-accent:light-dark(#06c,#8cf);--eui-colors-ink:light-dark(#111,#eee)}'
+      '.eui-view{--eui-colors-accent:light-dark(#06c,#8cf);--eui-colors-border:#ccc;--eui-colors-ink:light-dark(#111,#eee)}'
     );
     expect(css).toContain(
       '.eui-view[data-eui-theme="muted"]{--eui-colors-accent:#0077cc}'
@@ -965,7 +970,7 @@ describe('theme variations', () => {
       flatten: 'highContrast',
     });
     expect(selected).toContain(
-      '.eui-view{--eui-colors-accent:light-dark(#06c,#8cf);--eui-colors-ink:light-dark(#111,#eee)}'
+      '.eui-view{--eui-colors-accent:light-dark(#06c,#8cf);--eui-colors-border:#ccc;--eui-colors-ink:light-dark(#111,#eee)}'
     );
     expect(selected).toContain(
       '@media (prefers-contrast:more){.eui-view{--eui-colors-ink:light-dark(#000,#fff)}}'
@@ -1005,6 +1010,85 @@ describe('theme variations', () => {
         alternates: [{ variation: 'muted' }],
       })
     ).toThrow(/needs a selector/);
+  });
+
+  it('emits a scheme-varying token as a literal under scheme and as light-dark() without it', () => {
+    const distillery = createVariedDistillery('.eui-view');
+    const collector = collectAccent(distillery);
+    const base = distillery.renderStyles(collector);
+    const light = distillery.renderStyles(collector, undefined, {
+      scheme: 'light',
+    });
+    expect(base).toContain('--eui-colors-accent:light-dark(#06c,#8cf)');
+    expect(light).toContain('--eui-colors-accent:#06c');
+    expect(light).not.toContain('light-dark(');
+  });
+
+  it('emits a scheme-invariant token as the same bare value with or without scheme', () => {
+    const distillery = createVariedDistillery('.eui-view');
+    const collector = collectAccent(distillery);
+    const base = distillery.renderStyles(collector);
+    const light = distillery.renderStyles(collector, undefined, {
+      scheme: 'light',
+    });
+    const dark = distillery.renderStyles(collector, undefined, {
+      scheme: 'dark',
+    });
+    expect(base).toContain('--eui-colors-border:#ccc');
+    expect(light).toContain('--eui-colors-border:#ccc');
+    expect(dark).toContain('--eui-colors-border:#ccc');
+  });
+
+  it('flattens a variation path to that variation under scheme, not the base', () => {
+    const distillery = createVariedDistillery('.eui-view');
+    const css = distillery.renderStyles(collectAccent(distillery), undefined, {
+      scheme: 'light',
+      flatten: 'muted',
+    });
+    expect(css).toContain('--eui-colors-accent:#0077cc');
+    expect(css).not.toContain('#06c');
+  });
+
+  it('leaves an alternate block at the alternate value for the selected scheme', () => {
+    const distillery = createVariedDistillery('.eui-view');
+    const css = distillery.renderStyles(collectAccent(distillery), undefined, {
+      scheme: 'light',
+      alternates: [
+        { variation: 'muted', selector: '[data-eui-theme="muted"]' },
+      ],
+    });
+    expect(css).toContain(
+      '.eui-view{--eui-colors-accent:#06c;--eui-colors-border:#ccc;--eui-colors-ink:#111}'
+    );
+    expect(css).toContain(
+      '.eui-view[data-eui-theme="muted"]{--eui-colors-accent:#0077cc}'
+    );
+  });
+
+  it('lets themeValueOverrides win over scheme', () => {
+    const distillery = createVariedDistillery('.eui-view');
+    const css = distillery.renderStyles(collectAccent(distillery), undefined, {
+      scheme: 'light',
+      themeValueOverrides: { 'colors/accent': '#ff00ff' },
+    });
+    expect(css).toContain('--eui-colors-accent:#ff00ff');
+    expect(css).not.toContain('#06c');
+  });
+
+  it('still emits a diff that collapses to the primary value under scheme', () => {
+    const distillery = createVariedDistillery('.eui-view');
+    const css = distillery.renderStyles(collectAccent(distillery), undefined, {
+      scheme: 'light',
+      alternates: [
+        { variation: 'darkInk', selector: '[data-eui-theme="dark-ink"]' },
+      ],
+    });
+    expect(css).toContain(
+      '.eui-view{--eui-colors-accent:#06c;--eui-colors-border:#ccc;--eui-colors-ink:#111}'
+    );
+    expect(css).toContain(
+      '.eui-view[data-eui-theme="dark-ink"]{--eui-colors-ink:#111}'
+    );
   });
 });
 
