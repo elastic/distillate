@@ -5,6 +5,7 @@
     ".cursor/**",
     ".github/**",
     ".okf/**",
+    "CHANGELOG.md",
     "THIRD_PARTY_LICENSES.md",
     "docs/reference/api/**",
   ],
