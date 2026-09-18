@@ -1,6 +1,6 @@
 {
   "name": "@elastic/distillate",
-  "version": "0.1.0",
+  "version": "0.0.0-development",
   "description": "Theme-agnostic CSS style engine: typed authoring with dependency capture, render-driven reachability collection, and dual readable/compact output targets. One runtime dependency: stylis.",
   "license": "Elastic-2.0",
   "author": "Elastic",
