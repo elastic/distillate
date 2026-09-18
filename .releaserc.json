@@ -13,12 +13,6 @@
   ],
   "plugins": [
     [
-      "./scripts/semantic_release_first_version.js",
-      {
-        "version": "0.1.0"
-      }
-    ],
-    [
       "@semantic-release/commit-analyzer",
       {
         "preset": "angular",
