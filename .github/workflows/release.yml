@@ -40,9 +40,8 @@ jobs:
       - run: node -v && npm -v
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
-      # Nothing here writes to main. The changelog and version bump land first, through the pull
-      # request that `prepare-release.yml` opens; this tags, publishes to npm, and drafts the
-      # GitHub Release. `semantic_release_verify_version.js` fails the run if the two disagree.
+      # Nothing is committed back to main: git tags track the version and the notes live on the
+      # GitHub Release. See CHANGELOG.md.
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
