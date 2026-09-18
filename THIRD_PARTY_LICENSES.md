@@ -104,11 +104,8 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@pnpm/npm-conf` | 3.0.3 | MIT | `node_modules/.pnpm/@pnpm+npm-conf@3.0.3/node_modules/@pnpm/npm-conf` |
 | `@rmenke/css-tokenizer-tests` | 1.2.0 | MIT | `node_modules/.pnpm/@rmenke+css-tokenizer-tests@1.2.0/node_modules/@rmenke/css-tokenizer-tests` |
 | `@sec-ant/readable-stream` | 0.4.1 | MIT | `node_modules/.pnpm/@sec-ant+readable-stream@0.4.1/node_modules/@sec-ant/readable-stream` |
-| `@semantic-release/changelog` | 6.0.3 | MIT | `node_modules/.pnpm/@semantic-release+changelog@6.0.3_semantic-release@25.0.9_typescript@5.9.3_/node_modules/@semantic-release/changelog` |
 | `@semantic-release/commit-analyzer` | 13.0.1 | MIT | `node_modules/.pnpm/@semantic-release+commit-analyzer@13.0.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/@semantic-release/commit-analyzer` |
-| `@semantic-release/error` | 3.0.0 | MIT | `node_modules/.pnpm/@semantic-release+error@3.0.0/node_modules/@semantic-release/error` |
 | `@semantic-release/error` | 4.0.0 | MIT | `node_modules/.pnpm/@semantic-release+error@4.0.0/node_modules/@semantic-release/error` |
-| `@semantic-release/git` | 10.0.1 | MIT | `node_modules/.pnpm/@semantic-release+git@10.0.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/@semantic-release/git` |
 | `@semantic-release/github` | 12.0.9 | MIT | `node_modules/.pnpm/@semantic-release+github@12.0.9_semantic-release@25.0.9_typescript@5.9.3_/node_modules/@semantic-release/github` |
 | `@semantic-release/npm` | 13.1.5 | MIT | `node_modules/.pnpm/@semantic-release+npm@13.1.5_semantic-release@25.0.9_typescript@5.9.3_/node_modules/@semantic-release/npm` |
 | `@semantic-release/release-notes-generator` | 14.1.1 | MIT | `node_modules/.pnpm/@semantic-release+release-notes-generator@14.1.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/@semantic-release/release-notes-generator` |
@@ -166,7 +163,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `acorn-jsx` | 5.3.2 | MIT | `node_modules/.pnpm/acorn-jsx@5.3.2_acorn@8.18.0/node_modules/acorn-jsx` |
 | `agent-base` | 7.1.4 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/agent-base` |
 | `agent-base` | 9.0.0 | MIT | `node_modules/.pnpm/agent-base@9.0.0/node_modules/agent-base` |
-| `aggregate-error` | 3.1.0 | MIT | `node_modules/.pnpm/aggregate-error@3.1.0/node_modules/aggregate-error` |
 | `aggregate-error` | 5.0.0 | MIT | `node_modules/.pnpm/aggregate-error@5.0.0/node_modules/aggregate-error` |
 | `ajv` | 6.15.0 | MIT | `node_modules/.pnpm/ajv@6.15.0/node_modules/ajv` |
 | `ajv` | 8.20.0 | MIT | `node_modules/.pnpm/ajv@8.20.0/node_modules/ajv` |
@@ -213,7 +209,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `chownr` | 3.0.0 | BlueOak-1.0.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/chownr` |
 | `ci-info` | 4.4.0 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/ci-info` |
 | `cidr-regex` | 5.0.5 | BSD-2-Clause | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/cidr-regex` |
-| `clean-stack` | 2.2.0 | MIT | `node_modules/.pnpm/clean-stack@2.2.0/node_modules/clean-stack` |
 | `clean-stack` | 5.3.0 | MIT | `node_modules/.pnpm/clean-stack@5.3.0/node_modules/clean-stack` |
 | `cli-cursor` | 5.0.0 | MIT | `node_modules/.pnpm/cli-cursor@5.0.0/node_modules/cli-cursor` |
 | `cli-highlight` | 2.1.11 | ISC | `node_modules/.pnpm/cli-highlight@2.1.11/node_modules/cli-highlight` |
@@ -294,7 +289,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `estree-walker` | 3.0.3 | MIT | `node_modules/.pnpm/estree-walker@3.0.3/node_modules/estree-walker` |
 | `esutils` | 2.0.3 | BSD-2-Clause | `node_modules/.pnpm/esutils@2.0.3/node_modules/esutils` |
 | `eventemitter3` | 5.0.4 | MIT | `node_modules/.pnpm/eventemitter3@5.0.4/node_modules/eventemitter3` |
-| `execa` | 5.1.1 | MIT | `node_modules/.pnpm/execa@5.1.1/node_modules/execa` |
 | `execa` | 8.0.1 | MIT | `node_modules/.pnpm/execa@8.0.1/node_modules/execa` |
 | `execa` | 9.6.1 | MIT | `node_modules/.pnpm/execa@9.6.1/node_modules/execa` |
 | `expect-type` | 1.4.0 | Apache-2.0 | `node_modules/.pnpm/expect-type@1.4.0/node_modules/expect-type` |
@@ -356,7 +350,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `http-proxy-agent` | 9.1.0 | MIT | `node_modules/.pnpm/http-proxy-agent@9.1.0/node_modules/http-proxy-agent` |
 | `https-proxy-agent` | 7.0.6 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/https-proxy-agent` |
 | `https-proxy-agent` | 9.1.0 | MIT | `node_modules/.pnpm/https-proxy-agent@9.1.0/node_modules/https-proxy-agent` |
-| `human-signals` | 2.1.0 | Apache-2.0 | `node_modules/.pnpm/human-signals@2.1.0/node_modules/human-signals` |
 | `human-signals` | 5.0.0 | Apache-2.0 | `node_modules/.pnpm/human-signals@5.0.0/node_modules/human-signals` |
 | `human-signals` | 8.0.1 | Apache-2.0 | `node_modules/.pnpm/human-signals@8.0.1/node_modules/human-signals` |
 | `husky` | 9.1.7 | MIT | `node_modules/.pnpm/husky@9.1.7/node_modules/husky` |
@@ -368,7 +361,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `import-from-esm` | 2.0.0 | MIT | `node_modules/.pnpm/import-from-esm@2.0.0/node_modules/import-from-esm` |
 | `import-meta-resolve` | 4.2.0 | MIT | `node_modules/.pnpm/import-meta-resolve@4.2.0/node_modules/import-meta-resolve` |
 | `imurmurhash` | 0.1.4 | MIT | `node_modules/.pnpm/imurmurhash@0.1.4/node_modules/imurmurhash` |
-| `indent-string` | 4.0.0 | MIT | `node_modules/.pnpm/indent-string@4.0.0/node_modules/indent-string` |
 | `indent-string` | 5.0.0 | MIT | `node_modules/.pnpm/indent-string@5.0.0/node_modules/indent-string` |
 | `index-to-position` | 1.2.0 | MIT | `node_modules/.pnpm/index-to-position@1.2.0/node_modules/index-to-position` |
 | `inherits` | 2.0.4 | ISC | `node_modules/.pnpm/inherits@2.0.4/node_modules/inherits` |
@@ -392,7 +384,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `is-obj` | 2.0.0 | MIT | `node_modules/.pnpm/is-obj@2.0.0/node_modules/is-obj` |
 | `is-path-inside` | 4.0.0 | MIT | `node_modules/.pnpm/is-path-inside@4.0.0/node_modules/is-path-inside` |
 | `is-plain-obj` | 4.1.0 | MIT | `node_modules/.pnpm/is-plain-obj@4.1.0/node_modules/is-plain-obj` |
-| `is-stream` | 2.0.1 | MIT | `node_modules/.pnpm/is-stream@2.0.1/node_modules/is-stream` |
 | `is-stream` | 3.0.0 | MIT | `node_modules/.pnpm/is-stream@3.0.0/node_modules/is-stream` |
 | `is-stream` | 4.0.1 | MIT | `node_modules/.pnpm/is-stream@4.0.1/node_modules/is-stream` |
 | `is-text-path` | 2.0.0 | MIT | `node_modules/.pnpm/is-text-path@2.0.0/node_modules/is-text-path` |
@@ -448,7 +439,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `locate-path` | 2.0.0 | MIT | `node_modules/.pnpm/locate-path@2.0.0/node_modules/locate-path` |
 | `locate-path` | 6.0.0 | MIT | `node_modules/.pnpm/locate-path@6.0.0/node_modules/locate-path` |
 | `locate-path` | 7.2.0 | MIT | `node_modules/.pnpm/locate-path@7.2.0/node_modules/locate-path` |
-| `lodash` | 4.18.1 | MIT | `node_modules/.pnpm/lodash@4.18.1/node_modules/lodash` |
 | `lodash-es` | 4.18.1 | MIT | `node_modules/.pnpm/lodash-es@4.18.1/node_modules/lodash-es` |
 | `lodash.camelcase` | 4.3.0 | MIT | `node_modules/.pnpm/lodash.camelcase@4.3.0/node_modules/lodash.camelcase` |
 | `lodash.capitalize` | 4.2.1 | MIT | `node_modules/.pnpm/lodash.capitalize@4.2.1/node_modules/lodash.capitalize` |
@@ -511,7 +501,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `micromark-util-types` | 2.0.2 | MIT | `node_modules/.pnpm/micromark-util-types@2.0.2/node_modules/micromark-util-types` |
 | `micromatch` | 4.0.8 | MIT | `node_modules/.pnpm/micromatch@4.0.8/node_modules/micromatch` |
 | `mime` | 4.1.0 | MIT | `node_modules/.pnpm/mime@4.1.0/node_modules/mime` |
-| `mimic-fn` | 2.1.0 | MIT | `node_modules/.pnpm/mimic-fn@2.1.0/node_modules/mimic-fn` |
 | `mimic-fn` | 4.0.0 | MIT | `node_modules/.pnpm/mimic-fn@4.0.0/node_modules/mimic-fn` |
 | `mimic-function` | 5.0.1 | MIT | `node_modules/.pnpm/mimic-function@5.0.1/node_modules/mimic-function` |
 | `minimatch` | 10.2.5 | BlueOak-1.0.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/minimatch` |
@@ -553,13 +542,11 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `npm-pick-manifest` | 11.0.3 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/npm-pick-manifest` |
 | `npm-profile` | 12.0.2 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/npm-profile` |
 | `npm-registry-fetch` | 19.1.1 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/npm-registry-fetch` |
-| `npm-run-path` | 4.0.1 | MIT | `node_modules/.pnpm/npm-run-path@4.0.1/node_modules/npm-run-path` |
 | `npm-run-path` | 5.3.0 | MIT | `node_modules/.pnpm/npm-run-path@5.3.0/node_modules/npm-run-path` |
 | `npm-run-path` | 6.0.0 | MIT | `node_modules/.pnpm/npm-run-path@6.0.0/node_modules/npm-run-path` |
 | `npm-user-validate` | 4.0.0 | BSD-2-Clause | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/npm-user-validate` |
 | `object-assign` | 4.1.1 | MIT | `node_modules/.pnpm/object-assign@4.1.1/node_modules/object-assign` |
 | `obug` | 2.2.1 | MIT | `node_modules/.pnpm/obug@2.2.1/node_modules/obug` |
-| `onetime` | 5.1.2 | MIT | `node_modules/.pnpm/onetime@5.1.2/node_modules/onetime` |
 | `onetime` | 6.0.0 | MIT | `node_modules/.pnpm/onetime@6.0.0/node_modules/onetime` |
 | `onetime` | 7.0.0 | MIT | `node_modules/.pnpm/onetime@7.0.0/node_modules/onetime` |
 | `optionator` | 0.9.4 | MIT | `node_modules/.pnpm/optionator@0.9.4/node_modules/optionator` |
@@ -574,7 +561,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `p-locate` | 6.0.0 | MIT | `node_modules/.pnpm/p-locate@6.0.0/node_modules/p-locate` |
 | `p-map` | 7.0.4 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/p-map` |
 | `p-map` | 7.0.7 | MIT | `node_modules/.pnpm/p-map@7.0.7/node_modules/p-map` |
-| `p-reduce` | 2.1.0 | MIT | `node_modules/.pnpm/p-reduce@2.1.0/node_modules/p-reduce` |
 | `p-reduce` | 3.0.0 | MIT | `node_modules/.pnpm/p-reduce@3.0.0/node_modules/p-reduce` |
 | `p-timeout` | 6.1.4 | MIT | `node_modules/.pnpm/p-timeout@6.1.4/node_modules/p-timeout` |
 | `p-try` | 1.0.0 | MIT | `node_modules/.pnpm/p-try@1.0.0/node_modules/p-try` |
@@ -653,7 +639,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `shebang-command` | 2.0.0 | MIT | `node_modules/.pnpm/shebang-command@2.0.0/node_modules/shebang-command` |
 | `shebang-regex` | 3.0.0 | MIT | `node_modules/.pnpm/shebang-regex@3.0.0/node_modules/shebang-regex` |
 | `siginfo` | 2.0.0 | ISC | `node_modules/.pnpm/siginfo@2.0.0/node_modules/siginfo` |
-| `signal-exit` | 3.0.7 | ISC | `node_modules/.pnpm/signal-exit@3.0.7/node_modules/signal-exit` |
 | `signal-exit` | 4.1.0 | ISC | `node_modules/.pnpm/signal-exit@4.1.0/node_modules/signal-exit` |
 | `signal-exit` | 4.1.0 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/signal-exit` |
 | `signale` | 1.4.0 | MIT | `node_modules/.pnpm/signale@1.4.0/node_modules/signale` |
@@ -692,7 +677,6 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `strip-ansi` | 6.0.1 | MIT | `node_modules/.pnpm/strip-ansi@6.0.1/node_modules/strip-ansi` |
 | `strip-ansi` | 7.2.0 | MIT | `node_modules/.pnpm/strip-ansi@7.2.0/node_modules/strip-ansi` |
 | `strip-bom` | 3.0.0 | MIT | `node_modules/.pnpm/strip-bom@3.0.0/node_modules/strip-bom` |
-| `strip-final-newline` | 2.0.0 | MIT | `node_modules/.pnpm/strip-final-newline@2.0.0/node_modules/strip-final-newline` |
 | `strip-final-newline` | 3.0.0 | MIT | `node_modules/.pnpm/strip-final-newline@3.0.0/node_modules/strip-final-newline` |
 | `strip-final-newline` | 4.0.0 | MIT | `node_modules/.pnpm/strip-final-newline@4.0.0/node_modules/strip-final-newline` |
 | `strip-json-comments` | 2.0.1 | MIT | `node_modules/.pnpm/strip-json-comments@2.0.1/node_modules/strip-json-comments` |
