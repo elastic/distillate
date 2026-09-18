@@ -1019,9 +1019,14 @@ describe('theme variations', () => {
     const light = distillery.renderStyles(collector, undefined, {
       scheme: 'light',
     });
+    const dark = distillery.renderStyles(collector, undefined, {
+      scheme: 'dark',
+    });
     expect(base).toContain('--eui-colors-accent:light-dark(#06c,#8cf)');
     expect(light).toContain('--eui-colors-accent:#06c');
+    expect(dark).toContain('--eui-colors-accent:#8cf');
     expect(light).not.toContain('light-dark(');
+    expect(dark).not.toContain('light-dark(');
   });
 
   it('emits a scheme-invariant token as the same bare value with or without scheme', () => {
