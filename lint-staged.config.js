@@ -5,11 +5,15 @@
  * 2.0.
  */
 
+import { resolve } from 'node:path';
+
+const changelogPath = resolve('CHANGELOG.md');
+
 export default {
   '*.{js,cjs,ts,tsx}': 'eslint',
   '**/*.md': (filenames) => {
     const lintable = filenames.filter(
-      (filename) => !filename.endsWith('CHANGELOG.md')
+      (filename) => resolve(filename) !== changelogPath
     );
     return lintable.length === 0
       ? []
