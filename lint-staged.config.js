@@ -7,5 +7,12 @@
 
 export default {
   '*.{js,cjs,ts,tsx}': 'eslint',
-  '**/*.md': 'markdownlint-cli2',
+  '**/*.md': (filenames) => {
+    const lintable = filenames.filter(
+      (filename) => !filename.endsWith('CHANGELOG.md')
+    );
+    return lintable.length === 0
+      ? []
+      : `markdownlint-cli2 ${lintable.join(' ')}`;
+  },
 };
