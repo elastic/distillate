@@ -27,7 +27,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@babel/types` | 7.29.8 | MIT | `node_modules/.pnpm/@babel+types@7.29.8/node_modules/@babel/types` |
 | `@bcoe/v8-coverage` | 1.0.2 | MIT | `node_modules/.pnpm/@bcoe+v8-coverage@1.0.2/node_modules/@bcoe/v8-coverage` |
 | `@colors/colors` | 1.5.0 | MIT | `node_modules/.pnpm/@colors+colors@1.5.0/node_modules/@colors/colors` |
-| `@commitlint/cli` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+cli@19.8.1_@types+node@22.20.2_typescript@5.9.3/node_modules/@commitlint/cli` |
+| `@commitlint/cli` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+cli@19.8.1_@types+node@24.13.5_typescript@5.9.3/node_modules/@commitlint/cli` |
 | `@commitlint/config-conventional` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+config-conventional@19.8.1/node_modules/@commitlint/config-conventional` |
 | `@commitlint/config-validator` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+config-validator@19.8.1/node_modules/@commitlint/config-validator` |
 | `@commitlint/ensure` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+ensure@19.8.1/node_modules/@commitlint/ensure` |
@@ -35,7 +35,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@commitlint/format` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+format@19.8.1/node_modules/@commitlint/format` |
 | `@commitlint/is-ignored` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+is-ignored@19.8.1/node_modules/@commitlint/is-ignored` |
 | `@commitlint/lint` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+lint@19.8.1/node_modules/@commitlint/lint` |
-| `@commitlint/load` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+load@19.8.1_@types+node@22.20.2_typescript@5.9.3/node_modules/@commitlint/load` |
+| `@commitlint/load` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+load@19.8.1_@types+node@24.13.5_typescript@5.9.3/node_modules/@commitlint/load` |
 | `@commitlint/message` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+message@19.8.1/node_modules/@commitlint/message` |
 | `@commitlint/parse` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+parse@19.8.1/node_modules/@commitlint/parse` |
 | `@commitlint/read` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+read@19.8.1/node_modules/@commitlint/read` |
@@ -139,6 +139,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@types/katex` | 0.16.8 | MIT | `node_modules/.pnpm/@types+katex@0.16.8/node_modules/@types/katex` |
 | `@types/ms` | 2.1.0 | MIT | `node_modules/.pnpm/@types+ms@2.1.0/node_modules/@types/ms` |
 | `@types/node` | 22.20.2 | MIT | `node_modules/.pnpm/@types+node@22.20.2/node_modules/@types/node` |
+| `@types/node` | 24.13.5 | MIT | `node_modules/.pnpm/@types+node@24.13.5/node_modules/@types/node` |
 | `@types/normalize-package-data` | 2.4.4 | MIT | `node_modules/.pnpm/@types+normalize-package-data@2.4.4/node_modules/@types/normalize-package-data` |
 | `@types/stylis` | 4.2.7 | MIT | `node_modules/.pnpm/@types+stylis@4.2.7/node_modules/@types/stylis` |
 | `@types/unist` | 2.0.11 | MIT | `node_modules/.pnpm/@types+unist@2.0.11/node_modules/@types/unist` |
@@ -154,7 +155,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@typescript-eslint/visitor-keys` | 8.70.0 | MIT | `node_modules/.pnpm/@typescript-eslint+visitor-keys@8.70.0/node_modules/@typescript-eslint/visitor-keys` |
 | `@vitest/coverage-v8` | 4.1.11 | MIT | `node_modules/.pnpm/@vitest+coverage-v8@4.1.11_vitest@4.1.11/node_modules/@vitest/coverage-v8` |
 | `@vitest/expect` | 4.1.11 | MIT | `node_modules/.pnpm/@vitest+expect@4.1.11/node_modules/@vitest/expect` |
-| `@vitest/mocker` | 4.1.11 | MIT | `node_modules/.pnpm/@vitest+mocker@4.1.11_vite@6.4.3_@types+node@22.20.2_jiti@2.6.1_yaml@2.9.0_/node_modules/@vitest/mocker` |
+| `@vitest/mocker` | 4.1.11 | MIT | `node_modules/.pnpm/@vitest+mocker@4.1.11_vite@6.4.3_@types+node@24.13.5_jiti@2.6.1_yaml@2.9.0_/node_modules/@vitest/mocker` |
 | `@vitest/pretty-format` | 4.1.11 | MIT | `node_modules/.pnpm/@vitest+pretty-format@4.1.11/node_modules/@vitest/pretty-format` |
 | `@vitest/runner` | 4.1.11 | MIT | `node_modules/.pnpm/@vitest+runner@4.1.11/node_modules/@vitest/runner` |
 | `@vitest/snapshot` | 4.1.11 | MIT | `node_modules/.pnpm/@vitest+snapshot@4.1.11/node_modules/@vitest/snapshot` |
@@ -246,7 +247,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `convert-source-map` | 2.0.0 | MIT | `node_modules/.pnpm/convert-source-map@2.0.0/node_modules/convert-source-map` |
 | `core-util-is` | 1.0.3 | MIT | `node_modules/.pnpm/core-util-is@1.0.3/node_modules/core-util-is` |
 | `cosmiconfig` | 9.0.2 | MIT | `node_modules/.pnpm/cosmiconfig@9.0.2_typescript@5.9.3/node_modules/cosmiconfig` |
-| `cosmiconfig-typescript-loader` | 6.3.0 | MIT | `node_modules/.pnpm/cosmiconfig-typescript-loader@6.3.0_@types+node@22.20.2_cosmiconfig@9.0.2_typescript@5.9.3__typescript@5.9.3/node_modules/cosmiconfig-typescript-loader` |
+| `cosmiconfig-typescript-loader` | 6.3.0 | MIT | `node_modules/.pnpm/cosmiconfig-typescript-loader@6.3.0_@types+node@24.13.5_cosmiconfig@9.0.2_typescript@5.9.3__typescript@5.9.3/node_modules/cosmiconfig-typescript-loader` |
 | `cross-spawn` | 7.0.6 | MIT | `node_modules/.pnpm/cross-spawn@7.0.6/node_modules/cross-spawn` |
 | `crypto-random-string` | 4.0.0 | MIT | `node_modules/.pnpm/crypto-random-string@4.0.0/node_modules/crypto-random-string` |
 | `cssesc` | 3.0.0 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/cssesc` |
@@ -741,6 +742,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `undici` | 6.28.1 | MIT | `node_modules/.pnpm/undici@6.28.1/node_modules/undici` |
 | `undici` | 7.29.1 | MIT | `node_modules/.pnpm/undici@7.29.1/node_modules/undici` |
 | `undici-types` | 6.21.0 | MIT | `node_modules/.pnpm/undici-types@6.21.0/node_modules/undici-types` |
+| `undici-types` | 7.18.2 | MIT | `node_modules/.pnpm/undici-types@7.18.2/node_modules/undici-types` |
 | `unicode-emoji-modifier-base` | 1.0.0 | MIT | `node_modules/.pnpm/unicode-emoji-modifier-base@1.0.0/node_modules/unicode-emoji-modifier-base` |
 | `unicorn-magic` | 0.1.0 | MIT | `node_modules/.pnpm/unicorn-magic@0.1.0/node_modules/unicorn-magic` |
 | `unicorn-magic` | 0.3.0 | MIT | `node_modules/.pnpm/unicorn-magic@0.3.0/node_modules/unicorn-magic` |
@@ -754,8 +756,8 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `util-deprecate` | 1.0.2 | MIT | `node_modules/.pnpm/util-deprecate@1.0.2/node_modules/util-deprecate` |
 | `validate-npm-package-license` | 3.0.4 | Apache-2.0 | `node_modules/.pnpm/validate-npm-package-license@3.0.4/node_modules/validate-npm-package-license` |
 | `validate-npm-package-name` | 7.0.2 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/validate-npm-package-name` |
-| `vite` | 6.4.3 | MIT | `node_modules/.pnpm/vite@6.4.3_@types+node@22.20.2_jiti@2.6.1_yaml@2.9.0/node_modules/vite` |
-| `vitest` | 4.1.11 | MIT | `node_modules/.pnpm/vitest@4.1.11_@types+node@22.20.2_@vitest+coverage-v8@4.1.11_vite@6.4.3_@types+node@22.20.2_jiti@2.6.1_yaml@2.9.0_/node_modules/vitest` |
+| `vite` | 6.4.3 | MIT | `node_modules/.pnpm/vite@6.4.3_@types+node@24.13.5_jiti@2.6.1_yaml@2.9.0/node_modules/vite` |
+| `vitest` | 4.1.11 | MIT | `node_modules/.pnpm/vitest@4.1.11_@types+node@24.13.5_@vitest+coverage-v8@4.1.11_vite@6.4.3_@types+node@24.13.5_jiti@2.6.1_yaml@2.9.0_/node_modules/vitest` |
 | `walk-up-path` | 4.0.0 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/walk-up-path` |
 | `web-worker` | 1.5.0 | Apache-2.0 | `node_modules/.pnpm/web-worker@1.5.0/node_modules/web-worker` |
 | `which` | 2.0.2 | ISC | `node_modules/.pnpm/which@2.0.2/node_modules/which` |

@@ -5,19 +5,22 @@
  * 2.0.
  */
 
-const DEFAULT_FIRST_VERSION = '0.1.0';
+export const DEFAULT_FIRST_VERSION = '0.1.0';
 
-/** semantic-release hardcodes the first tag as 1.0.0; override it for this package. */
-export const verifyRelease = (pluginConfig, context) => {
-  const { lastRelease, nextRelease, branch, options, logger } = context;
-  if (lastRelease.version || branch.type === 'prerelease') {
-    return;
+const FIRST_RELEASE_FALLBACK = ': FIRST_RELEASE;';
+
+/**
+ * semantic-release clones plugin context, so `verifyRelease` cannot change `nextRelease.version`.
+ * Rewrite the no-previous-release branch of `get-next-version.js` instead.
+ */
+export const patchGetNextVersionSource = (source) => {
+  if (!source.includes(FIRST_RELEASE_FALLBACK)) {
+    throw new Error(
+      'semantic-release get-next-version.js no longer contains the first-release fallback to patch'
+    );
   }
-
-  const version = pluginConfig.version ?? DEFAULT_FIRST_VERSION;
-  const tagFormat = options.tagFormat ?? 'v${version}';
-  nextRelease.version = version;
-  nextRelease.gitTag = tagFormat.replace('${version}', version);
-  nextRelease.name = nextRelease.gitTag;
-  logger.log('No previous release; next version is %s', version);
+  return source.replace(
+    FIRST_RELEASE_FALLBACK,
+    `: '${DEFAULT_FIRST_VERSION}';`
+  );
 };

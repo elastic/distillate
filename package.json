@@ -85,7 +85,7 @@
     "smoke:declarations": "node scripts/check_declarations.js",
     "licenses:report": "node scripts/licenses_report.js",
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm smoke:exports && pnpm smoke:declarations && pnpm licenses:report --check",
-    "semantic-release": "semantic-release",
+    "semantic-release": "node scripts/run_semantic_release.js",
     "prepare": "husky"
   },
   "dependencies": {
@@ -98,7 +98,7 @@
     "@rmenke/css-tokenizer-tests": "^1.2.0",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@types/node": "^22.15.3",
+    "@types/node": "^24.13.5",
     "@types/stylis": "^4.2.7",
     "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9.25.1",

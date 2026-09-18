@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-09-18
+
+- **Update**: First `main` release is `0.1.0` via `scripts/run_semantic_release.js`. Development toolchain is Node 24 (`.nvmrc`); published `engines.node` stays `>=20`.
+
 ## 2026-09-17
 
 - **Update**: Empty declaration blocks no longer emit. Compact collectors also drop empty untargeted handles from collection and `useHandles`. No-op warnings require `createDistillery({ dev: true })` (`dev` defaults to `false`). `{ warn }` on a collector overrides the sink.
