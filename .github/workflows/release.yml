@@ -45,3 +45,41 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUSKY: '0'
         run: pnpm semantic-release ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      # semantic-release writes CHANGELOG.md and the package.json version during `prepare`, but the
+      # org `Require a PR` ruleset rejects a push to main. Branch names under `release/*` are covered
+      # by that ruleset too, so the branch is `chore/release-v<version>`.
+      - name: Open the release pull request
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUSKY: '0'
+        run: |
+          # --porcelain, not `git diff`: on the first release CHANGELOG.md is untracked.
+          if [ -z "$(git status --porcelain -- CHANGELOG.md package.json)" ]; then
+            echo 'Nothing to propose: CHANGELOG.md and package.json are unchanged.'
+            exit 0
+          fi
+
+          version="$(node -p 'require("./package.json").version')"
+          branch="chore/release-v${version}"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git add CHANGELOG.md package.json
+          git commit -m "chore(release): ${version}"
+          git push --force \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
+            "HEAD:refs/heads/${branch}"
+
+          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
+            echo "A pull request for ${branch} is already open."
+            exit 0
+          fi
+
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "chore(release): ${version}" \
+            --body "Changelog and \`package.json\` version for [\`v${version}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/v${version}), which is already tagged and published to npm. Opened by [\`release.yml\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}). Merge it so the next release's changelog builds on this entry."
