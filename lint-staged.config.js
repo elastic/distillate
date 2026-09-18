@@ -13,6 +13,8 @@ export default {
     );
     return lintable.length === 0
       ? []
-      : `markdownlint-cli2 ${lintable.join(' ')}`;
+      : `markdownlint-cli2 ${lintable
+          .map((filename) => JSON.stringify(filename))
+          .join(' ')}`;
   },
 };
