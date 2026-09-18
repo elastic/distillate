@@ -7,20 +7,17 @@
 
 export const DEFAULT_FIRST_VERSION = '0.1.0';
 
-const FIRST_RELEASE_FALLBACK = ': FIRST_RELEASE;';
+const FIRST_RELEASE_CONSTANT = 'export const FIRST_RELEASE = "1.0.0";';
 
-/**
- * semantic-release clones plugin context, so `verifyRelease` cannot change `nextRelease.version`.
- * Rewrite the no-previous-release branch of `get-next-version.js` instead.
- */
-export const patchGetNextVersionSource = (source) => {
-  if (!source.includes(FIRST_RELEASE_FALLBACK)) {
+/** `FIRST_RELEASE` is both the first tag and `main`'s allowed range when there are no tags. */
+export const patchFirstReleaseConstant = (source) => {
+  if (!source.includes(FIRST_RELEASE_CONSTANT)) {
     throw new Error(
-      'semantic-release get-next-version.js no longer contains the first-release fallback to patch'
+      'semantic-release constants.js no longer contains FIRST_RELEASE = "1.0.0"'
     );
   }
   return source.replace(
-    FIRST_RELEASE_FALLBACK,
-    `: '${DEFAULT_FIRST_VERSION}';`
+    FIRST_RELEASE_CONSTANT,
+    `export const FIRST_RELEASE = "${DEFAULT_FIRST_VERSION}";`
   );
 };
