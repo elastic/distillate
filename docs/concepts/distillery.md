@@ -40,7 +40,7 @@ Each distillery owns a private `StyleRegistry`. Two libraries in one process sho
 
 `prefix` is validated at construction. Theme-tree keys that contain `-` throw. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw.
 
-See [declare and select variations](../guides/theming.md) for render-time `flatten` and `alternates`. `resolveValues(scheme, variation?)` returns the same tree as nested literal strings for a non-CSS surface; see [read values outside CSS](../guides/non-css-surfaces.md).
+See [declare and select variations](../guides/theming.md) for render-time `flatten`, `scheme`, and `alternates`. `resolveValues(scheme, variation?)` returns the same tree as nested literal strings for a non-CSS surface; `renderStyles({ scheme })` emits the stylesheet with that scheme already chosen. See [read values outside CSS](../guides/non-css-surfaces.md).
 
 `primitiveStyles(name, factory)` is the same registry path as `createStyleModule`, with `factory` receiving `{ style, tokens }` instead of the full authoring API. Use it when a module only needs handles and tokens.
 

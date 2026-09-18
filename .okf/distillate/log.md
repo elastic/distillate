@@ -2,6 +2,7 @@
 
 ## 2026-09-18
 
+- **Update**: `renderStyles({ scheme })` emits one scheme's literals instead of `light-dark(...)`. It applies to every var-block, so it composes with `{ flatten }` and `{ alternates }`. `themeValueOverrides` still wins. New tests pin a diff that collapses to the primary value under `scheme`.
 - **Update**: First `main` release is `0.1.0` via `scripts/run_semantic_release.js` (patches semantic-release `FIRST_RELEASE`, which is both the first tag and `main`'s allowed range). Development toolchain is Node 24 (`.nvmrc`); published `engines.node` stays `>=20`.
 
 ## 2026-09-17

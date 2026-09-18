@@ -48,11 +48,12 @@ Differing `light` / `dark` fold into `light-dark(light, dark)`.
 
 Passed as the third argument to `distillery.renderStyles` / `renderStyles`.
 
-| Field                 | Type                              | Notes                                                                                                                            |
-| --------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `flatten`             | `string`                          | Flatten this declared variation into `themeScope`. Default is the base. A media variation does not replace the primary block.    |
-| `alternates`          | `readonly ThemeAlternate[]`       | Extra blocks for runtime switching. Each entry emits only the variation's diff. `ThemeAlternate.variation` is the declared name. |
-| `themeValueOverrides` | `Partial<Record<string, string>>` | Replace a collected token's emitted value. Wins over the flattened variation.                                                    |
+| Field                 | Type                              | Notes                                                                                                                                         |
+| --------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `flatten`             | `string`                          | Flatten this declared variation into `themeScope`. Default is the base. A media variation does not replace the primary block.                 |
+| `scheme`              | `'light' \| 'dark'`               | Emit one scheme's literal instead of `light-dark(...)`. Applies to every emitted block. `themeValueOverrides` wins.                           |
+| `alternates`          | `readonly ThemeAlternate[]`       | Extra blocks for runtime switching. Each entry emits only the variation's diff. `ThemeAlternate.variation` is the declared name.              |
+| `themeValueOverrides` | `Partial<Record<string, string>>` | Replace a collected token's emitted value. Wins over the flattened variation and over `scheme`.                                               |
 
 A non-media alternate requires `selector`. A media-conditioned alternate may omit it and uses `themeScope`. See [declare and select variations](../guides/theming.md).
 

@@ -38,7 +38,7 @@ Named variations go on `variations` in `createDistillery`. Declaring a variation
 
 `themeToken(path, cssVar)` remains the constructor derivation calls. Paths are slash-delimited (`colors/ink`), matching `themeVars` keys.
 
-A surface that cannot resolve `var(--x)` (a headless SVG rasterizer, for example) should call `distillery.resolveValues(scheme, variation?)` instead of walking `themeVars` by hand. That walk returns nested literal strings for one scheme, including `ScaleToken.value`. See [read values outside CSS](../guides/non-css-surfaces.md).
+A surface that cannot resolve `var(--x)` (a headless SVG rasterizer, for example) should call `distillery.resolveValues(scheme, variation?)` instead of walking `themeVars` by hand. That walk returns nested literal strings for one scheme, including `ScaleToken.value`. A surface that still wants the stylesheet, but has no color scheme for `light-dark()` to resolve against, passes `{ scheme }` to `renderStyles`. See [read values outside CSS](../guides/non-css-surfaces.md).
 
 The `chip` module below uses `tokens.colors.surface` from the [quick start](../getting-started/quick-start.md) token tree.
 

@@ -63,10 +63,16 @@ export const renderStyles = (
   return minifyCss(fragments.join(''));
 };
 
-/** Per-render variation selection, alternate blocks, and value overrides. */
+/** Per-render variation selection, scheme flatten, alternate blocks, and value overrides. */
 export interface RenderStylesOptions {
   /** Flatten this declared variation into `themeScope`. Default is the base. A media variation does not replace the primary block; it wraps its diffs in `@media`. */
   flatten?: string;
+  /**
+   * Emit one scheme's literal instead of `light-dark(...)`.
+   *
+   * For a target with no color scheme to resolve the function against — an image or PDF backend, email HTML, an older browser.
+   */
+  scheme?: 'light' | 'dark';
   /** Extra blocks for runtime switching. Each entry emits only the variation's diff. */
   alternates?: readonly ThemeAlternate[];
   /** Override a theme token's emitted value. */
@@ -154,7 +160,8 @@ const renderVarBlock = (
       return [
         `${ctx.resolver.cssVar(path)}:${formatThemeValue(
           definition,
-          ctx.options.themeValueOverrides?.[path]
+          ctx.options.themeValueOverrides?.[path],
+          ctx.options.scheme
         )}`,
       ];
     });
@@ -187,8 +194,10 @@ export const composeThemeSelector = (
 
 const formatThemeValue = (
   definition: ThemeVarDefinition,
-  override: string | undefined
-): string => override ?? serializedThemeValue(definition);
+  override: string | undefined,
+  scheme: 'light' | 'dark' | undefined
+): string =>
+  override ?? (scheme ? definition[scheme] : serializedThemeValue(definition));
 
 const renderHandle = (handle: StyleHandle, ctx: RenderContext): string => {
   const body = renderDeclarations(handle.declarations, { handle }, ctx);

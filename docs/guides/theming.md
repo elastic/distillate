@@ -56,6 +56,12 @@ Flatten one non-media variation into `themeScope`. Same declaration count as the
 distillery.renderStyles(collector, undefined, { flatten: 'muted' });
 ```
 
+`{ scheme: 'light' | 'dark' }` is the same idea for the built-in color scheme: emit one side's literal instead of `light-dark(...)`. It applies to every emitted block, including `alternates`. See [read values outside CSS](non-css-surfaces.md).
+
+```ts
+distillery.renderStyles(collector, undefined, { scheme: 'light' });
+```
+
 Runtime switching: the base fills `themeScope`, each alternate emits only its diff:
 
 ```ts
@@ -79,7 +85,7 @@ That writes muted values into `themeScope`, then the high-contrast diff (compute
 
 `:host` composes as `:host(selector)`. Media variations may omit `selector`; the diffs wrap in `@media`. Flattening a media variation does **not** replace the primary block: the base still fills `themeScope`, and the diffs wrap in `@media`. That is byte-identical to listing the same name in `alternates`.
 
-`themeValueOverrides` still apply per render for values known only at request time. Declared variations are for values known when the distillery is created. A non-CSS consumer that needs those declared values calls `distillery.resolveValues(scheme, variation?)`; that walk does not apply `themeValueOverrides`. See [read values outside CSS](non-css-surfaces.md).
+`themeValueOverrides` still apply per render for values known only at request time. They win over both `flatten` and `scheme`. Declared variations are for values known when the distillery is created. A non-CSS consumer that needs those declared values calls `distillery.resolveValues(scheme, variation?)`; that walk does not apply `themeValueOverrides`. A CSS-consuming surface that cannot resolve `light-dark()` uses `renderStyles({ scheme })` instead. See [read values outside CSS](non-css-surfaces.md).
 
 ## What a variation cannot do
 

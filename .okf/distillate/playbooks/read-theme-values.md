@@ -1,7 +1,7 @@
 ---
 type: Playbook
 title: Read theme values
-description: Resolve nested literal theme values for surfaces that cannot use CSS custom properties.
+description: Resolve nested literal theme values, or emit a single-scheme stylesheet, for surfaces that cannot use CSS custom properties or `light-dark()`.
 tags: [distillate, playbook, theme]
 status: stable
 stale_after: 2027-03-16
@@ -13,6 +13,9 @@ sources:
   - id: engine
     resource: https://github.com/elastic/distillate/blob/main/src/engine.ts
     title: Distillery.resolveValues
+  - id: runtime
+    resource: https://github.com/elastic/distillate/blob/main/src/runtime.ts
+    title: renderStyles scheme flatten
   - id: authoring
     resource: https://github.com/elastic/distillate/blob/main/src/styles/authoring.ts
     title: mapDomain and variants
@@ -25,13 +28,16 @@ sources:
 
 1. Author the usual `theme` tree (`lightDark`, strings, `cq`). Bind with `createDistillery`.
 2. Call `distillery.resolveValues('light' | 'dark', variation?)` for a nested literal tree. `ScaleToken` leaves are `.value`; other leaves are the scheme side of `themeVars`. Pass a declared variation name to apply its diffs.
-3. On a non-CSS surface, map enums with `mapDomain` instead of rewriting `variants`.[^theme][^engine][^authoring]
+3. For a CSS-consuming surface that has no color scheme to resolve `light-dark()` against, pass `{ scheme: 'light' | 'dark' }` to `renderStyles`. That composes with `{ flatten }` and `{ alternates }`; `themeValueOverrides` still wins.[^runtime]
+4. On a non-CSS surface, map enums with `mapDomain` instead of rewriting `variants`.[^theme][^engine][^authoring]
 
 The engine does not strip units. Related: [tokens and vars](/concepts/tokens.md), [the distillery](/concepts/distillery.md).[^guide]
 
 [^theme]: resolveThemeValues and ValuesOf
 
 [^engine]: Distillery.resolveValues
+
+[^runtime]: renderStyles scheme flatten
 
 [^authoring]: mapDomain and variants
 
