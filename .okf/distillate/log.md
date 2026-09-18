@@ -4,7 +4,7 @@
 
 - **Update**: `renderStyles({ scheme })` emits one scheme's literals instead of `light-dark(...)`. It applies to every var-block, so it composes with `{ flatten }` and `{ alternates }`. `themeValueOverrides` still wins. New tests pin a diff that collapses to the primary value under `scheme`.
 - **Update**: First `main` release is `0.1.0` via `scripts/run_semantic_release.js` (patches semantic-release `FIRST_RELEASE`, which is both the first tag and `main`'s allowed range). Development toolchain is Node 24 (`.nvmrc`); published `engines.node` stays `>=20`.
-- **Update**: Releases no longer push to `main`. `@semantic-release/git` is gone; `release.yml` opens a `chore(release): <version>` pull request with `CHANGELOG.md` and the `package.json` version on a `chore/release-v<version>` branch.
+- **Update**: Releasing is now `prepare-release.yml` then `release.yml`, with a reviewed `chore(release): <version>` pull request between them. Nothing pushes to `main`; `@semantic-release/git` and `@semantic-release/changelog` are gone.
 
 ## 2026-09-17
 

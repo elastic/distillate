@@ -47,7 +47,7 @@
       }
     ],
     "@semantic-release/release-notes-generator",
-    "@semantic-release/changelog",
+    "./scripts/semantic_release_verify_version.js",
     "@semantic-release/npm",
     [
       "@semantic-release/github",
