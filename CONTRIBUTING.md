@@ -44,7 +44,7 @@ Useful individual scripts:
 
 ## Pull requests
 
-- Use [conventional commits](https://www.conventionalcommits.org/). `feat:` and `fix:` drive the next release version.
+- Use [conventional commits](https://www.conventionalcommits.org/). `feat:` and `fix:` drive the next release version. Do not bump `version` in `package.json` or edit `CHANGELOG.md`: releases are tracked by git tags, and the notes are published to [GitHub Releases](https://github.com/elastic/distillate/releases).
 - Add tests for behavioral changes.
 - Run `pnpm verify` before opening a PR.
 - Keep documentation updates in the same PR when the public API changes.

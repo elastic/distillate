@@ -1,6 +1,6 @@
 {
   "name": "@elastic/distillate",
-  "version": "0.1.0",
+  "version": "0.0.0-development",
   "description": "Theme-agnostic CSS style engine: typed authoring with dependency capture, render-driven reachability collection, and dual readable/compact output targets. One runtime dependency: stylis.",
   "license": "Elastic-2.0",
   "author": "Elastic",
@@ -96,8 +96,6 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.25.1",
     "@rmenke/css-tokenizer-tests": "^1.2.0",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "@types/node": "^24.13.5",
     "@types/stylis": "^4.2.7",
     "@vitest/coverage-v8": "^4.1.11",

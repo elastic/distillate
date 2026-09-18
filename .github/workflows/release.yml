@@ -40,8 +40,9 @@ jobs:
       - run: node -v && npm -v
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
+      # Nothing is committed back to main: git tags track the version and the notes live on the
+      # GitHub Release. See CHANGELOG.md.
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HUSKY: '0'
         run: pnpm semantic-release ${{ inputs.dry_run && '--dry-run' || '' }}
