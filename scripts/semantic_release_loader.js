@@ -5,9 +5,9 @@
  * 2.0.
  */
 
-import { patchGetNextVersionSource } from './semantic_release_first_version.js';
+import { patchFirstReleaseConstant } from './semantic_release_first_version.js';
 
-const TARGET = /semantic-release\/lib\/get-next-version\.js$/;
+const TARGET = /semantic-release\/lib\/definitions\/constants\.js$/;
 
 export const load = async (url, context, nextLoad) => {
   const result = await nextLoad(url, context);
@@ -17,7 +17,7 @@ export const load = async (url, context, nextLoad) => {
   const { source: raw } = result;
   if (raw == null) {
     throw new Error(
-      'semantic-release get-next-version source unavailable to patch'
+      'semantic-release constants.js source unavailable to patch'
     );
   }
   const text =
@@ -25,6 +25,6 @@ export const load = async (url, context, nextLoad) => {
   return {
     format: result.format ?? 'module',
     shortCircuit: true,
-    source: patchGetNextVersionSource(text),
+    source: patchFirstReleaseConstant(text),
   };
 };

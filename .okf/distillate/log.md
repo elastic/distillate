@@ -2,7 +2,7 @@
 
 ## 2026-09-18
 
-- **Update**: First `main` release is `0.1.0` via `scripts/run_semantic_release.js`. Development toolchain is Node 24 (`.nvmrc`); published `engines.node` stays `>=20`.
+- **Update**: First `main` release is `0.1.0` via `scripts/run_semantic_release.js` (patches semantic-release `FIRST_RELEASE`, which is both the first tag and `main`'s allowed range). Development toolchain is Node 24 (`.nvmrc`); published `engines.node` stays `>=20`.
 
 ## 2026-09-17
 
