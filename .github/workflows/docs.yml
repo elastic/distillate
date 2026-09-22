@@ -28,10 +28,11 @@ jobs:
       - run: pnpm docs:api
       - name: Build docs
         uses: elastic/docs-builder@main
+        with:
+          prefix: distillate
       - name: Build playground
         run: pnpm playground:build
         env:
-          # Relative paths work on both the unique private host and elastic.github.io/distillate/.
           PLAYGROUND_BASE: ./
       - name: Copy playground into docs output
         run: |
