@@ -40,9 +40,41 @@ jobs:
       - run: node -v && npm -v
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
+      - name: Capture previous tag
+        id: prev_tag
+        run: echo "tag=$(git describe --tags --abbrev=0 || echo none)" >> "$GITHUB_OUTPUT"
       # Nothing is committed back to main: git tags track the version and the notes live on the
       # GitHub Release. See CHANGELOG.md.
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm semantic-release ${{ inputs.dry_run && '--dry-run' || '' }}
+      # Marks every PR released in this run so "pending release" is just:
+      # is:pr is:merged base:main -label:released
+      - name: Label released PRs
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREV_TAG: ${{ steps.prev_tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          NEW_TAG="$(git describe --tags --abbrev=0)"
+          if [ "$NEW_TAG" = "$PREV_TAG" ]; then
+            echo "No new release published; skipping PR labeling."
+            exit 0
+          fi
+          gh label create released --color 6f42c1 \
+            --description "Included in a published release" --force
+          RANGE="HEAD"
+          if [ "$PREV_TAG" != "none" ]; then
+            RANGE="$PREV_TAG..$NEW_TAG"
+          fi
+          PR_NUMBERS="$(git log "$RANGE" --pretty=%s | grep -oE '\(#[0-9]+\)$' | grep -oE '[0-9]+' || true)"
+          if [ -z "$PR_NUMBERS" ]; then
+            echo "No merged PR numbers found in $RANGE."
+            exit 0
+          fi
+          for pr in $PR_NUMBERS; do
+            echo "Labeling PR #$pr as released ($NEW_TAG)"
+            gh pr edit "$pr" --add-label released
+          done
