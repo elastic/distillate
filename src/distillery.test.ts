@@ -280,6 +280,80 @@ describe('createDistillery with a foreign environment', () => {
     );
   });
 
+  describe('media rules collected before a handle activates the block', () => {
+    const createModule = () => {
+      const distillery = createFixtureDistillery();
+      const box = distillery.createStyleModule('box', (t) => ({
+        root: t.css`
+          color: red;
+        `,
+        other: t.css`
+          color: green;
+        `,
+        compact: media('(max-width: 400px)', [
+          rule(
+            (h) => `${h.root}`,
+            t.decls`
+              color: blue;
+            `
+          ),
+          rule(
+            (h) => `${h.root}:focus`,
+            t.decls`
+              outline: none;
+            `,
+            { auto: false }
+          ),
+          rule(
+            (h) => `${h.root} + ${h.other}`,
+            t.decls`
+              margin: 0;
+            `
+          ),
+        ]),
+      }));
+      return { distillery, box };
+    };
+
+    it('keeps rules collected by use(module)', () => {
+      const { distillery, box } = createModule();
+      const collector = distillery.artifactCollector('readable');
+      collector.use(box);
+      const before = distillery.renderStyles(collector);
+
+      collector.useHandles([box.handles.root]);
+
+      expect(distillery.renderStyles(collector)).toBe(before);
+      expect(before).toContain('.box-root:focus{outline:none}');
+      expect(before).toContain('.box-root + .box-other{margin:0}');
+    });
+
+    it('keeps rules collected by stylesheetCollector', () => {
+      const { distillery, box } = createModule();
+      const collector = distillery.stylesheetCollector();
+      const before = distillery.renderStyles(collector);
+
+      collector.useHandles([box.handles.root]);
+
+      expect(distillery.renderStyles(collector)).toBe(before);
+    });
+
+    it('adds newly live rules in authored order', () => {
+      const { distillery, box } = createModule();
+      const collector = distillery.artifactCollector('readable');
+      collector.useHandles([box.handles.root]);
+      expect(distillery.renderStyles(collector)).toContain(
+        '@media (max-width:400px){.box-root{color:blue}}'
+      );
+
+      collector.useHandles([box.handles.other]);
+
+      expect(distillery.renderStyles(collector)).toContain(
+        '@media (max-width:400px){.box-root{color:blue}.box-root + .box-other{margin:0}}'
+      );
+    });
+  });
+
   it('names module-local var groups with the environment prefix and prunes unreachable defaults', () => {
     const distillery = createFixtureDistillery();
     const demo = distillery.createStyleModule('chip', (t) => {

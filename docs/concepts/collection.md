@@ -23,7 +23,7 @@ const css = distillery.renderStyles(collector);
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `use(module)`           | Non-variant entries on the module. Variants stay out.                                                                                        |
 | `use(entry)`            | One handle, rule, or media block.                                                                                                            |
-| `useHandles(handles)`   | Those handles, then any `auto` rule or media-inner-rule whose selector deps are all present. Media blocks include only the live inner rules. |
+| `useHandles(handles)`   | Those handles, then any `auto` rule or media-inner-rule whose deps are all present. Media blocks keep inner rules collected earlier.         |
 | `useAllEntries(module)` | Every entry, including variants. Used by the stylesheet target.                                                                              |
 | `useThemeVar(path)`     | Marks a theme token path reachable even if no collected declaration reads it.                                                                |
 

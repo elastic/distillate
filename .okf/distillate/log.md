@@ -2,6 +2,7 @@
 
 ## 2026-09-25
 
+- **Update**: `useHandles` no longer narrows a media block that `use(module)` or `useAllEntries` already collected. It adds newly live inner rules and keeps the rest, so `auto: false` rules and rules with unmet deps survive a later handle. Regression tests cover `use(module)`, `stylesheetCollector`, and change notification.
 - **Update**: `distillery.liveCollection({ sink?, render?, warn? })` collects a readable stylesheet during one live render (#22). `StylesCollector.subscribe` notifies once per outermost mutation that grows the collection, including auto rules and theme vars; the live collection invalidates its sink from it. `createDomSink` takes `parent` (e.g. a `ShadowRoot`) and, with `StyleSink` and its DOM types, is now also exported from the root entry. The React guide covers the shadow-root case.
 
 ## 2026-09-18

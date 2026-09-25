@@ -214,7 +214,7 @@ export class StylesCollector {
   /**
    * Collects handles and auto-includes rules whose selector deps are all present.
    *
-   * Media blocks include only inner rules whose deps are met.
+   * Media blocks gain inner rules whose deps are met and keep rules already collected.
    *
    * @param handles Handles resolved during this render pass (e.g. from `resolveClassName`).
    * @returns Handles that were retained. Empty untargeted handles are omitted in compact mode.
@@ -294,18 +294,22 @@ export class StylesCollector {
       return;
     }
     if (entry.kind === 'media') {
-      const liveRules = entry.rules.filter(
-        (rule) => rule.auto && this.allDepsMet(rule.dependsOn)
+      // Add newly live rules; keep rules already collected (e.g. by `use`).
+      const existing = this.entries.get(entryKey(entry));
+      const collected = new Set<StyleRule>(
+        existing?.kind === 'media' ? existing.rules : []
       );
-      if (liveRules.length === 0) {
+      const rules = entry.rules.filter(
+        (rule) =>
+          collected.has(rule) || (rule.auto && this.allDepsMet(rule.dependsOn))
+      );
+      if (rules.length === collected.size) {
         return;
       }
       const filtered: StyleMedia =
-        liveRules.length === entry.rules.length
-          ? entry
-          : { ...entry, rules: liveRules };
+        rules.length === entry.rules.length ? entry : { ...entry, rules };
       this.setEntry(filtered);
-      for (const rule of liveRules) {
+      for (const rule of rules) {
         this.addDeclarationDeps(rule.declarations);
       }
     }
@@ -503,7 +507,7 @@ export class StylesCollector {
     }
   }
 
-  // A media entry changes when its live inner rules change.
+  // A media entry changes when it gains inner rules.
   private setEntry(entry: StyleEntry): void {
     const key = entryKey(entry);
     const existing = this.entries.get(key);

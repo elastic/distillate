@@ -32,7 +32,7 @@ Prefer `distillery.artifactCollector(names)` (empty) and `distillery.stylesheetC
 | Method                  | Effect                                                               |
 | ----------------------- | -------------------------------------------------------------------- |
 | `use(module)`           | Non-variant entries.                                                 |
-| `useHandles(handles)`   | Named handles plus `auto` rules whose selector deps are all present. Media blocks keep only live inner rules. Returns retained handles; compact mode omits empty untargeted ones. |
+| `useHandles(handles)`   | Named handles plus `auto` rules whose selector deps are all present. Media blocks add live inner rules and keep rules already collected by `use(module)` or `useAllEntries`. Returns retained handles; compact mode omits empty untargeted ones. |
 | `useAllEntries(module)` | Every entry, including variants. Compact mode skips empty untargeted handles. |
 | `useThemeVar(path)`     | Slash-delimited `themeVars` key, e.g. `colors/ink`.                  |
 | `subscribe(listener)`   | Calls `listener` after a mutation adds an entry, handle, theme var, or contextual var, including auto rules and a widened media block. Once per outermost call: `use([a, b])` notifies once. Returns an unsubscribe function. |
