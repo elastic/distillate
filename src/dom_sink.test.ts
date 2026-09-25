@@ -5,15 +5,17 @@
  * 2.0.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 
 import {
   createDomSink,
   type DocumentLike,
   type StyleElementLike,
+  type StyleParentLike,
 } from './dom_sink';
 import { createEmotion } from './emotion';
 import { createDistillery } from './engine';
+import type { StyleSink } from './sink';
 
 const stubDocument = (): {
   document: DocumentLike;
@@ -103,5 +105,36 @@ describe('createDomSink', () => {
     await new Promise<void>((resolve) => queueMicrotask(resolve));
 
     expect(elements[0]?.textContent).toBe('hello{}');
+  });
+
+  it('appends to the given parent instead of document.head', () => {
+    const { document, elements } = stubDocument();
+    const headChildren: StyleElementLike[] = [];
+    const parentChildren: StyleElementLike[] = [];
+    const sink = createDomSink({
+      document: {
+        ...document,
+        head: { appendChild: (node) => headChildren.push(node) },
+      },
+      parent: { appendChild: (node) => parentChildren.push(node) },
+      schedule: (flush) => flush(),
+    });
+
+    sink.invalidate(() => 'A{}');
+    sink.invalidate(() => 'B{}');
+
+    expect(headChildren).toHaveLength(0);
+    expect(parentChildren).toEqual(elements);
+    expect(parentChildren[0]?.textContent).toBe('B{}');
+  });
+
+  it('accepts a DOM ShadowRoot and document.head as parents', () => {
+    expectTypeOf<ShadowRoot>().toExtend<StyleParentLike>();
+    expectTypeOf<HTMLHeadElement>().toExtend<StyleParentLike>();
+    expectTypeOf<Document>().toExtend<DocumentLike>();
+
+    const attach = (root: ShadowRoot): StyleSink =>
+      createDomSink({ document: root.ownerDocument, parent: root });
+    expectTypeOf(attach).returns.toEqualTypeOf<StyleSink>();
   });
 });

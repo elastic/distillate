@@ -17,11 +17,11 @@ The primary build is ESM (`"type": "module"`), reached through the `import` expo
 
 ## Entry points
 
-| Specifier                     | Use                                              |
-| ----------------------------- | ------------------------------------------------ |
-| `@elastic/distillate`         | Engine, authoring, tokens, collector, renderer.  |
-| `@elastic/distillate/emotion` | `createEmotion`, `createDomSink`.                |
-| `@elastic/distillate/testing` | Var-invariant helpers. Does not import `stylis`. |
+| Specifier                     | Use                                                              |
+| ----------------------------- | ---------------------------------------------------------------- |
+| `@elastic/distillate`         | Engine, authoring, tokens, collector, renderer, `createDomSink`. |
+| `@elastic/distillate/emotion` | `createEmotion`, `createDomSink`.                                |
+| `@elastic/distillate/testing` | Var-invariant helpers. Does not import `stylis`.                 |
 
 The root and emotion entries both reach `stylis@4.4.0`. Do not hoist a different stylis version; nested templates walk a pinned `compile()` tree shape.
 

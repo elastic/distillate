@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-09-25
+
+- **Update**: `distillery.liveCollection({ sink?, render?, warn? })` collects a readable stylesheet during one live render (#22). `StylesCollector.subscribe` notifies once per outermost mutation that grows the collection, including auto rules and theme vars; the live collection invalidates its sink from it. `createDomSink` takes `parent` (e.g. a `ShadowRoot`) and, with `StyleSink` and its DOM types, is now also exported from the root entry. The React guide covers the shadow-root case.
+
 ## 2026-09-18
 
 - **Update**: `renderStyles({ scheme })` emits one scheme's literals instead of `light-dark(...)`. It applies to every var-block, so it composes with `{ flatten }` and `{ alternates }`. `themeValueOverrides` still wins. New tests pin a diff that collapses to the primary value under `scheme`.

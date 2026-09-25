@@ -19,12 +19,14 @@ import {
   type StyleNameResolverOptions,
 } from './names';
 import { renderStyles, type RenderStylesOptions } from './runtime';
+import type { StyleSink } from './sink';
 import {
   createStyleModuleWithEnvironment,
   type PrimitiveStyleAuthoringApi,
   readableVarOwnersFromEnvironment,
   type ResolvedStyles,
   type StyleAuthoringApi,
+  type StyleHandle,
   StyleRegistry,
   type StylesModule,
   type StylesObject,
@@ -38,6 +40,30 @@ import {
   type TokensOf,
   type ValuesOf,
 } from './theme';
+
+/** Sink, render options, and warning sink for {@link Distillery.liveCollection}. */
+export interface LiveCollectionOptions {
+  /** Invalidated whenever the collection grows. Nothing is written before the first handle. */
+  sink?: StyleSink;
+  /** Options forwarded to `renderStyles` by `css()`. */
+  render?: RenderStylesOptions;
+  /** Warning sink for no-op handles. Used only when the distillery has `dev: true`. */
+  warn?: (message: string) => void;
+}
+
+/**
+ * Readable collection filled by one live render.
+ *
+ * Readable only: compact names depend on the complete collected set and need two passes.
+ */
+export interface LiveCollection {
+  /** Underlying readable artifact collector. Mutations here (e.g. `use(globalModule)`, `useThemeVar`) also invalidate the sink. */
+  readonly collector: StylesCollector;
+  /** Collects `handles` and returns their readable class names, space-separated. */
+  readonly resolveClassName: (...handles: StyleHandle[]) => string;
+  /** Renders the CSS collected so far. */
+  readonly css: () => string;
+}
 
 /** One component library's binding: environment, registry, and pre-bound operations. Destructure-safe (no `this`). */
 export interface Distillery<
@@ -79,6 +105,8 @@ export interface Distillery<
     names?: StyleNameMode,
     options?: Pick<StylesCollectorOptions, 'warn'>
   ) => StylesCollector;
+  /** Readable collection for one live render; keeps `sink` current as handles resolve. */
+  readonly liveCollection: (options?: LiveCollectionOptions) => LiveCollection;
   /** Emits collected CSS for this environment. */
   readonly renderStyles: (
     collector: StylesCollector,
@@ -135,6 +163,19 @@ export const createDistillery = <const TTheme extends ThemeTree>(
     sharedVars ?? new Set()
   );
 
+  const artifactCollector = (
+    names: StyleNameMode,
+    collectorOptions?: Pick<StylesCollectorOptions, 'warn'>
+  ): StylesCollector =>
+    new StylesCollector({
+      target: 'artifact',
+      names,
+      registry,
+      prefix,
+      dev,
+      ...(collectorOptions?.warn ? { warn: collectorOptions.warn } : {}),
+    });
+
   return {
     environment,
     tokens,
@@ -160,15 +201,7 @@ export const createDistillery = <const TTheme extends ThemeTree>(
         ({ css: style, tokens: moduleTokens }) =>
           factory({ style, tokens: moduleTokens })
       ),
-    artifactCollector: (names, options) =>
-      new StylesCollector({
-        target: 'artifact',
-        names,
-        registry,
-        prefix,
-        dev,
-        ...(options?.warn ? { warn: options.warn } : {}),
-      }),
+    artifactCollector,
     stylesheetCollector: (names = 'readable', options) => {
       const collector = new StylesCollector({
         target: 'stylesheet',
@@ -182,6 +215,23 @@ export const createDistillery = <const TTheme extends ThemeTree>(
         collector.useAllEntries(module);
       }
       return collector;
+    },
+    liveCollection: ({ sink, render, warn } = {}) => {
+      const collector = artifactCollector('readable', warn ? { warn } : {});
+      const css = (): string =>
+        renderStyles(environment, collector, undefined, render);
+      if (sink) {
+        collector.subscribe(() => sink.invalidate(css));
+      }
+      return {
+        collector,
+        resolveClassName: (...handles) =>
+          collector
+            .useHandles(handles)
+            .map((handle) => handle.readableName)
+            .join(' '),
+        css,
+      };
     },
     renderStyles: (collector, resolver, renderOptions) =>
       renderStyles(environment, collector, resolver, renderOptions),
