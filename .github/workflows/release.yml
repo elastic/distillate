@@ -49,6 +49,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm semantic-release ${{ inputs.dry_run && '--dry-run' || '' }}
+      # semantic-release/github creates the tag via the GitHub API, so it doesn't exist in this
+      # checkout yet. persist-credentials is false, so authenticate before fetching it.
+      - name: Fetch newly created tag
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh auth setup-git
+          git fetch origin --tags --force
       # Marks every PR released in this run so "pending release" is just:
       # is:pr is:merged base:main -label:released
       - name: Label released PRs
