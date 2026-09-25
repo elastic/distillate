@@ -56,6 +56,13 @@ const createFixture = () => {
           display: block;
         `
       ),
+      rule(
+        (h) => `${h.first}:focus-visible`,
+        t.decls`
+          outline: none;
+        `,
+        { auto: false }
+      ),
     ]),
   }));
   return { distillery, demo };
@@ -104,6 +111,16 @@ describe('StylesCollector.subscribe', () => {
 
     // Re-activation rebuilds the filtered media entry without changing it.
     collector.useHandles([demo.handles.first]);
+    collector.useHandles([demo.handles.first]);
+    expect(notifications.count()).toBe(0);
+  });
+
+  it('does not notify when a handle activates a media block use() already collected', () => {
+    const { distillery, demo } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+    collector.use(demo);
+    const notifications = countNotifications(collector);
+
     collector.useHandles([demo.handles.first]);
     expect(notifications.count()).toBe(0);
   });
