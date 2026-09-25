@@ -113,6 +113,9 @@ export class StylesCollector {
   private readonly handles = new Map<string, StyleHandle>();
   private readonly themeDeps = new Set<string>();
   private readonly varDeps = new Set<ContextualVarPath>();
+  private readonly listeners = new Set<() => void>();
+  private depth = 0;
+  private dirty = false;
 
   constructor({
     target,
@@ -138,6 +141,12 @@ export class StylesCollector {
    * @param value Module (all non-variant entries), a single entry, or an array of entries.
    */
   use(value: StylesModule | StyleEntry | readonly StyleEntry[]): void {
+    this.batch(() => this.useValue(value));
+  }
+
+  private useValue(
+    value: StylesModule | StyleEntry | readonly StyleEntry[]
+  ): void {
     if (isReadonlyArray(value)) {
       value.forEach((entry) => this.use(entry));
       return;
@@ -155,7 +164,7 @@ export class StylesCollector {
         if (entry.kind === 'handle' && !this.retainHandle(entry)) {
           continue;
         }
-        this.entries.set(entryKey(entry), entry);
+        this.setEntry(entry);
         if (entry.kind === 'handle' || entry.kind === 'rule') {
           this.addDeclarationDeps(entry.declarations);
         } else {
@@ -171,7 +180,7 @@ export class StylesCollector {
         if (!this.retainHandle(handle)) {
           continue;
         }
-        this.handles.set(handle.key, handle);
+        this.setHandle(handle);
       }
       return;
     }
@@ -185,20 +194,21 @@ export class StylesCollector {
    * @param module Module whose entries should all be collected.
    */
   useAllEntries(module: StylesModule): void {
-    for (const entry of module.entries) {
-      if (entry.kind === 'handle' && !this.retainHandle(entry)) {
-        continue;
+    this.batch(() => {
+      for (const entry of module.entries) {
+        if (entry.kind === 'handle' && !this.retainHandle(entry)) {
+          continue;
+        }
+        this.setEntry(entry);
       }
-      this.entries.set(entryKey(entry), entry);
-    }
-    for (const handle of module.handleList) {
-      if (!this.retainHandle(handle)) {
-        continue;
+      for (const handle of module.handleList) {
+        if (!this.retainHandle(handle)) {
+          continue;
+        }
+        this.setHandle(handle);
       }
-      this.handles.set(handle.key, handle);
-    }
-    module.themeDeps.forEach((path) => this.themeDeps.add(path));
-    module.varDeps.forEach((path) => this.varDeps.add(path));
+      this.addDeps(module.themeDeps, module.varDeps);
+    });
   }
 
   /**
@@ -210,44 +220,63 @@ export class StylesCollector {
    * @returns Handles that were retained. Empty untargeted handles are omitted in compact mode.
    */
   useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[] {
-    const retained: StyleHandle[] = [];
-    for (const handle of handles) {
-      if (!this.retainHandle(handle)) {
-        continue;
+    return this.batch(() => {
+      const retained: StyleHandle[] = [];
+      for (const handle of handles) {
+        if (!this.retainHandle(handle)) {
+          continue;
+        }
+        retained.push(handle);
+        if (this.handles.has(handle.key)) {
+          continue;
+        }
+        this.setEntry(handle);
+        this.setHandle(handle);
+        this.addDeclarationDeps(handle.declarations);
       }
-      retained.push(handle);
-      if (this.handles.has(handle.key)) {
-        continue;
+      for (const handle of retained) {
+        const module = this.registry.module(handle.moduleName);
+        if (!module) {
+          continue;
+        }
+        for (const dependent of dependentEntries(module, handle.key)) {
+          this.tryActivateDependent(dependent);
+        }
       }
-      this.entries.set(entryKey(handle), handle);
-      this.handles.set(handle.key, handle);
-      this.addDeclarationDeps(handle.declarations);
-    }
-    for (const handle of retained) {
-      const module = this.registry.module(handle.moduleName);
-      if (!module) {
-        continue;
-      }
-      for (const dependent of dependentEntries(module, handle.key)) {
-        this.tryActivateDependent(dependent);
-      }
-    }
-    return retained;
+      return retained;
+    });
   }
 
   /** Collects `auto` rules on `module` whose every selector dependency is already collected. */
   useRulesWhenDepsMet(module: StylesModule): void {
-    for (const entry of module.entries) {
-      if (entry.kind !== 'rule') {
-        continue;
+    this.batch(() => {
+      for (const entry of module.entries) {
+        if (entry.kind !== 'rule') {
+          continue;
+        }
+        if (this.entries.has(entryKey(entry))) {
+          continue;
+        }
+        if (this.allDepsMet(entry.dependsOn)) {
+          this.addEntry(entry);
+        }
       }
-      if (this.entries.has(entryKey(entry))) {
-        continue;
-      }
-      if (this.allDepsMet(entry.dependsOn)) {
-        this.addEntry(entry);
-      }
-    }
+    });
+  }
+
+  /**
+   * Calls `listener` after a public mutation adds an entry, handle, theme var, or contextual var.
+   *
+   * Fires at most once per outermost call; nested calls such as `use([a, b])` batch into it.
+   *
+   * @param listener Called with no arguments after the collection grows.
+   * @returns Unsubscribes `listener`.
+   */
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
   }
 
   private tryActivateDependent(entry: StyleEntry): void {
@@ -275,7 +304,7 @@ export class StylesCollector {
         liveRules.length === entry.rules.length
           ? entry
           : { ...entry, rules: liveRules };
-      this.entries.set(entryKey(filtered), filtered);
+      this.setEntry(filtered);
       for (const rule of liveRules) {
         this.addDeclarationDeps(rule.declarations);
       }
@@ -293,7 +322,7 @@ export class StylesCollector {
 
   /** Marks a theme token path as reachable so it appears in the emitted theme block, even if no collected declaration reads it. */
   useThemeVar(path: string): void {
-    this.themeDeps.add(path);
+    this.batch(() => this.addDeps([path], []));
   }
 
   /** Creates a {@link StyleNameResolver} scoped to this collector's current dep set. */
@@ -439,9 +468,9 @@ export class StylesCollector {
     if (entry.kind === 'handle' && !this.retainHandle(entry)) {
       return;
     }
-    this.entries.set(entryKey(entry), entry);
+    this.setEntry(entry);
     if (entry.kind === 'handle') {
-      this.handles.set(entry.key, entry);
+      this.setHandle(entry);
       this.addDeclarationDeps(entry.declarations);
       return;
     }
@@ -455,8 +484,61 @@ export class StylesCollector {
   }
 
   private addDeclarationDeps(declarations: Declarations): void {
-    declarations.deps.theme.forEach((path) => this.themeDeps.add(path));
-    declarations.deps.vars.forEach((path) => this.varDeps.add(path));
+    this.addDeps(declarations.deps.theme, declarations.deps.vars);
+  }
+
+  private addDeps(
+    theme: Iterable<string>,
+    vars: Iterable<ContextualVarPath>
+  ): void {
+    const before = this.themeDeps.size + this.varDeps.size;
+    for (const path of theme) {
+      this.themeDeps.add(path);
+    }
+    for (const path of vars) {
+      this.varDeps.add(path);
+    }
+    if (this.themeDeps.size + this.varDeps.size !== before) {
+      this.dirty = true;
+    }
+  }
+
+  // A media entry changes when its live inner rules change.
+  private setEntry(entry: StyleEntry): void {
+    const key = entryKey(entry);
+    const existing = this.entries.get(key);
+    this.entries.set(key, entry);
+    if (
+      !existing ||
+      (existing.kind === 'media' &&
+        entry.kind === 'media' &&
+        existing.rules.length !== entry.rules.length)
+    ) {
+      this.dirty = true;
+    }
+  }
+
+  private setHandle(handle: StyleHandle): void {
+    if (!this.handles.has(handle.key)) {
+      this.dirty = true;
+    }
+    this.handles.set(handle.key, handle);
+  }
+
+  // Listeners run once the outermost public mutation returns.
+  private batch<T>(mutate: () => T): T {
+    this.depth += 1;
+    try {
+      return mutate();
+    } finally {
+      this.depth -= 1;
+      if (this.depth === 0 && this.dirty) {
+        this.dirty = false;
+        for (const listener of [...this.listeners]) {
+          listener();
+        }
+      }
+    }
   }
 }
 

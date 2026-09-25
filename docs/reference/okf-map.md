@@ -8,7 +8,7 @@ description: Generated map of the Distillate OKF concept graph.
 Generated from `.okf/distillate` by `pnpm okf:map`. Do not edit by hand.
 
 - Concepts: 19
-- Links: 29
+- Links: 30
 - Isolated concepts: 0
 
 ## Graph
@@ -44,6 +44,7 @@ flowchart LR
     concepts_ordering --> concepts_naming
     concepts_tokens --> concepts_distillery
     concepts_tokens --> reference_public_contract
+    entry_points_emotion --> entry_points_root
     entry_points_emotion --> playbooks_migrate_from_emotion
     entry_points_root --> entry_points_emotion
     entry_points_root --> entry_points_testing

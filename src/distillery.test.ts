@@ -8,6 +8,8 @@
 import { describe, expect, it } from 'vitest';
 
 import type { StylesCollectorOptions } from './collector';
+import { createDomSink, type StyleElementLike } from './dom_sink';
+import { createEmotion } from './emotion';
 import { createDistillery } from './engine';
 import type { DistilleryOptions } from './environment';
 import { container, media, rule, variants } from './styles';
@@ -1361,5 +1363,163 @@ describe('no-op handle pruning', () => {
     const css = distillery.renderStyles(collector);
     expect(css).toContain('.a{color:red}');
     expect(css).not.toMatch(/\{\}/);
+  });
+});
+
+// A DOM sink over a stub document whose flushes run only when the test says.
+const manualDomSink = () => {
+  const queued: Array<() => void> = [];
+  const appended: StyleElementLike[] = [];
+  const sink = createDomSink({
+    document: {
+      createElement: () => ({ textContent: null }),
+      head: {
+        appendChild: () => {
+          throw new Error('Expected the parent option to be used.');
+        },
+      },
+    },
+    parent: { appendChild: (node) => appended.push(node) },
+    schedule: (flush) => queued.push(flush),
+  });
+  return {
+    sink,
+    pending: () => queued.length,
+    flush: (): string | null => {
+      queued.splice(0).forEach((flush) => flush());
+      return appended[0]?.textContent ?? null;
+    },
+  };
+};
+
+describe('distillery.liveCollection', () => {
+  const createButton = (
+    distillery: ReturnType<typeof createFixtureDistillery>
+  ) =>
+    distillery.createStyleModule('button', (t) => ({
+      root: t.css`
+        color: ${t.tokens.colors.ink};
+      `,
+      icon: t.css`
+        margin: ${t.tokens.gap};
+      `,
+      hover: rule(
+        (h) => `${h.root}:hover`,
+        t.decls`
+          color: ${t.tokens.colors.accent};
+        `
+      ),
+    }));
+
+  it('returns readable class names while collecting', () => {
+    const distillery = createFixtureDistillery();
+    const button = createButton(distillery);
+    const live = distillery.liveCollection();
+
+    expect(
+      live.resolveClassName(button.handles.root, button.handles.icon)
+    ).toBe('button-root button-icon');
+    expect(live.resolveClassName()).toBe('');
+  });
+
+  it('matches a two-pass readable artifact render', () => {
+    const distillery = createFixtureDistillery();
+    const button = createButton(distillery);
+    const live = distillery.liveCollection();
+    live.resolveClassName(button.handles.root);
+    live.resolveClassName(button.handles.icon, button.handles.root);
+
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([button.handles.root]);
+    collector.useHandles([button.handles.icon, button.handles.root]);
+    const resolver = collector.createResolver();
+
+    expect(live.css()).toBe(distillery.renderStyles(collector, resolver));
+    expect(live.css()).toContain('.button-root:hover');
+  });
+
+  it('forwards render options to css()', () => {
+    const distillery = createFixtureDistillery();
+    const button = createButton(distillery);
+    const live = distillery.liveCollection({ render: { scheme: 'dark' } });
+    live.resolveClassName(button.handles.root);
+
+    expect(live.css()).toContain('--eui-colors-ink:#eee');
+  });
+
+  it('invalidates the sink for new handles only', () => {
+    const distillery = createFixtureDistillery();
+    const button = createButton(distillery);
+    const dom = manualDomSink();
+    const live = distillery.liveCollection({ sink: dom.sink });
+    expect(dom.pending()).toBe(0);
+    expect(dom.flush()).toBeNull();
+
+    live.resolveClassName(button.handles.root);
+    expect(dom.pending()).toBe(1);
+    expect(dom.flush()).toContain('.button-root{');
+
+    live.resolveClassName(button.handles.root);
+    expect(dom.pending()).toBe(0);
+  });
+
+  it('re-flushes when a handle resolves after the first flush', () => {
+    const distillery = createFixtureDistillery();
+    const button = createButton(distillery);
+    const dom = manualDomSink();
+    const live = distillery.liveCollection({ sink: dom.sink });
+
+    live.resolveClassName(button.handles.root);
+    expect(dom.flush()).not.toContain('button-icon');
+
+    // A suspended subtree resolves after the host has already painted.
+    live.resolveClassName(button.handles.icon);
+    const css = dom.flush();
+    expect(css).toContain('.button-icon{margin:8px}');
+    expect(css).toBe(live.css());
+  });
+
+  it('flushes globals collected through the exposed collector', () => {
+    const distillery = createFixtureDistillery();
+    const button = createButton(distillery);
+    const em = createEmotion(distillery);
+    const injectHtml = (): void => em.injectGlobal`
+      html {
+        color-scheme: light dark;
+      }
+    `;
+    injectHtml();
+    const dom = manualDomSink();
+    const live = distillery.liveCollection({ sink: dom.sink });
+    live.resolveClassName(button.handles.root);
+    expect(dom.flush()).not.toContain('html');
+
+    for (const module of em.globalModules()) {
+      live.collector.use(module);
+    }
+    expect(dom.flush()).toContain('html{color-scheme:light dark}');
+  });
+
+  it('flushes theme vars collected through the exposed collector', () => {
+    const distillery = createFixtureDistillery();
+    const dom = manualDomSink();
+    const live = distillery.liveCollection({ sink: dom.sink });
+
+    live.collector.useThemeVar('colors/surface');
+    expect(dom.flush()).toBe(
+      '.eui-view{--eui-colors-surface:light-dark(#fff,#000)}'
+    );
+  });
+
+  it('resolves Emotion css wrappers to their readable class', () => {
+    const distillery = createFixtureDistillery();
+    const em = createEmotion(distillery);
+    const wrapper = em.css`
+      color: red;
+    `;
+    const live = distillery.liveCollection();
+
+    expect(live.resolveClassName(wrapper)).toBe(String(wrapper));
+    expect(live.css()).toContain(`.${String(wrapper)}{color:red}`);
   });
 });

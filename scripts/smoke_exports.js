@@ -19,7 +19,9 @@ const testing = await import('@elastic/distillate/testing');
 
 const requiredExports = [
   ['@elastic/distillate', distillate.createDistillery],
+  ['@elastic/distillate.createDomSink', distillate.createDomSink],
   ['@elastic/distillate/emotion', emotion.createEmotion],
+  ['@elastic/distillate/emotion.createDomSink', emotion.createDomSink],
   ['@elastic/distillate/testing', testing.assertVarRefsHaveDeclarations],
   [
     '@elastic/distillate/testing.findVarRefViolations',

@@ -8,6 +8,7 @@
 import type { Distillery } from './engine';
 import { contentHash64 } from './hash';
 import { flattenTemplate, isHandleLike, type TemplateSlice } from './nesting';
+import type { StyleSink } from './sink';
 import {
   globalStylesFromFlattened,
   pendingHandleFromFlattened,
@@ -21,13 +22,9 @@ export {
   type CreateDomSinkOptions,
   type DocumentLike,
   type StyleElementLike,
+  type StyleParentLike,
 } from './dom_sink';
-
-/** Receives stylesheet invalidation from Emotion compat modules. */
-export interface StyleSink {
-  /** Marks the sink dirty. `render` produces the current stylesheet when it flushes. */
-  invalidate(render: () => string): void;
-}
+export type { StyleSink } from './sink';
 
 /** Shared sink for Emotion compat modules on one registry. */
 export interface CreateEmotionOptions {

@@ -5,7 +5,20 @@
  * 2.0.
  */
 
-export { createDistillery, type Distillery } from './engine';
+export {
+  createDistillery,
+  type Distillery,
+  type LiveCollection,
+  type LiveCollectionOptions,
+} from './engine';
+export {
+  createDomSink,
+  type CreateDomSinkOptions,
+  type DocumentLike,
+  type StyleElementLike,
+  type StyleParentLike,
+} from './dom_sink';
+export type { StyleSink } from './sink';
 export {
   type DistilleryEnvironment,
   type DistilleryOptions,

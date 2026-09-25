@@ -20,7 +20,7 @@ sources:
 
 `createEmotion(distillery, { sink? })` returns `css`, `cx`, `injectGlobal`, `stylesheet`, `globalModules`. `String(css\`...\`)`is the readable class and does not collect. The wrapper is still a`StyleHandle` for artifact collection.[^emotion]
 
-`createDomSink({ document, schedule? })` manages one `<style>` element, rewritten on each registration, one flush per turn.[^sink]
+`createDomSink({ document, parent?, schedule? })` manages one `<style>` element, rewritten on each invalidation, one flush per turn. It appends to `parent` (e.g. a `ShadowRoot`) or `document.head`. It is also exported from the [root entry](/entry-points/root.md) for `distillery.liveCollection({ sink })`.[^sink]
 
 Object styles, `keyframes`, and `@container` inside `css` are rejected. Playbook: [migrate from Emotion](/playbooks/migrate-from-emotion.md).
 

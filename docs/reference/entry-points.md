@@ -31,13 +31,16 @@ import {
 | `css` / `decls` | runtime | Handle and declaration templates. Also on the `createStyleModule` factory argument. |
 | `rule` / `media` / `container` / `variants` / `mapDomain` | runtime | Root-entry authoring helpers. `mapDomain` has no collector side effect. |
 | `combineClassNames` | runtime | `context.resolveClassName(...handles)`. |
-| `StylesCollector` | runtime | Class; `artifactCollector` / `stylesheetCollector` return instances. |
+| `StylesCollector` | runtime | Class; `artifactCollector` / `stylesheetCollector` / `liveCollection` return or wrap instances. `subscribe` reports growth. |
+| `createDomSink` | runtime | One `<style>` element in `document.head` or a given `parent` (e.g. a `ShadowRoot`), flushed per turn. Also exported from `./emotion`. |
 | `renderStyles` | runtime | Unbound renderer; prefer `distillery.renderStyles`. |
 | `createStyleNameResolver` | runtime | Standalone compact/readable name map. |
 | `StyleRegistry` | runtime | Module registry class. |
 | `Distillery` / `DistilleryOptions` / `DistilleryEnvironment` / `ThemeVarDefinition` | type | Bindings. |
 | `TokensOf` / `ValuesOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
 | `StyleHandle` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. |
+| `LiveCollection` / `LiveCollectionOptions` | type | `distillery.liveCollection` result and options. |
+| `StyleSink` / `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike` | type | Sink surface. |
 
 ### Key signatures
 
@@ -57,6 +60,11 @@ distillery.stylesheetCollector(
   names?: 'compact' | 'readable',
   options?: { warn?: (message: string) => void }
 ): StylesCollector;
+distillery.liveCollection(options?: {
+  sink?: StyleSink;
+  render?: RenderStylesOptions;
+  warn?: (message: string) => void;
+}): LiveCollection; // { collector, resolveClassName(...handles), css() }
 distillery.renderStyles(
   collector: StylesCollector,
   resolver?: StyleNameResolver,
@@ -66,6 +74,12 @@ distillery.renderStyles(
 collector.use(module | entry | entries): void;
 collector.useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[];
 collector.createResolver(): StyleNameResolver;
+collector.subscribe(listener: () => void): () => void; // once per outermost call that grows
+createDomSink(options: {
+  document: DocumentLike;
+  parent?: StyleParentLike;
+  schedule?: (flush: () => void) => void;
+}): StyleSink;
 ```
 
 Field-level environment types: [Environment](environment.md).
@@ -88,13 +102,13 @@ const { css, cx, injectGlobal, stylesheet, globalModules } = createEmotion(
 | Export | Kind | Role |
 | ------ | ---- | ---- |
 | `createEmotion` | runtime | `css` / `cx` / `injectGlobal` over the distillery registry. |
-| `createDomSink` | runtime | One `<style>` element, flushed per turn. |
+| `createDomSink` | runtime | One `<style>` element, flushed per turn. Re-exported from the root entry. |
 | `Emotion` / `EmotionCss` / `CreateEmotionOptions` / `StyleSink` | type | Return and option types. |
-| `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` | type | DOM sink surface. |
+| `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike` | type | DOM sink surface. Same as the root entry. |
 
 ```ts
 createEmotion(distillery, options?: { sink?: StyleSink }): Emotion;
-createDomSink(options: { document: DocumentLike; schedule?: (flush: () => void) => void }): StyleSink;
+createDomSink(options: { document: DocumentLike; parent?: StyleParentLike; schedule?: (flush: () => void) => void }): StyleSink;
 ```
 
 The string form of a `css` template is readable and does not collect. The wrapper is still a `StyleHandle` for `useHandles` / `resolveClassName`.

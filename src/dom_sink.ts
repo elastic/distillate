@@ -5,26 +5,24 @@
  * 2.0.
  */
 
-import type { StyleSink } from './emotion';
+import type { StyleElementLike, StyleParentLike, StyleSink } from './sink';
 
-/** Minimal interface for a DOM `<style>` element. */
-export interface StyleElementLike {
-  /** Current stylesheet text, or `null` before the first flush. */
-  textContent: string | null;
-}
+export type { StyleElementLike, StyleParentLike } from './sink';
 
 /** Minimal interface for a DOM `Document` able to create and append style tags. */
 export interface DocumentLike {
   /** Creates a `<style>` element. */
   createElement(tagName: 'style'): StyleElementLike;
-  /** Node that receives the created style element. */
-  readonly head: { appendChild(node: StyleElementLike): void };
+  /** Default parent for the created style element. */
+  readonly head: StyleParentLike;
 }
 
 /** Host document and optional flush scheduler for a `<style>` sink. */
 export interface CreateDomSinkOptions {
-  /** The host document where the style element will be appended. */
+  /** Document that creates the style element. */
   document: DocumentLike;
+  /** Node that receives the style element, e.g. a `ShadowRoot`. Defaults to `document.head`. */
+  parent?: StyleParentLike;
   /** Defers the flush. Defaults to `queueMicrotask`. */
   schedule?: (flush: () => void) => void;
 }
@@ -34,6 +32,7 @@ export interface CreateDomSinkOptions {
  */
 export const createDomSink = ({
   document,
+  parent,
   schedule = queueMicrotask,
 }: CreateDomSinkOptions): StyleSink => {
   let element: StyleElementLike | null = null;
@@ -47,7 +46,7 @@ export const createDomSink = ({
     }
     if (!element) {
       element = document.createElement('style');
-      document.head.appendChild(element);
+      (parent ?? document.head).appendChild(element);
     }
     element.textContent = latestRender();
   };

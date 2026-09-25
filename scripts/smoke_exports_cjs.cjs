@@ -31,7 +31,9 @@ const testing = require('@elastic/distillate/testing');
 
 const requiredExports = [
   ['@elastic/distillate (cjs)', distillate.createDistillery],
+  ['@elastic/distillate.createDomSink (cjs)', distillate.createDomSink],
   ['@elastic/distillate/emotion (cjs)', emotion.createEmotion],
+  ['@elastic/distillate/emotion.createDomSink (cjs)', emotion.createDomSink],
   ['@elastic/distillate/testing (cjs)', testing.assertVarRefsHaveDeclarations],
   [
     '@elastic/distillate/testing.findVarRefViolations (cjs)',
@@ -79,6 +81,14 @@ collector.use(smokeModule.handles.root);
 const rendered = distillery.renderStyles(collector);
 if (typeof rendered !== 'string' || rendered.length === 0) {
   throw new Error('CJS root build rendered no CSS');
+}
+
+const live = distillery.liveCollection();
+if (live.resolveClassName(smokeModule.handles.root) !== 'smoke-root') {
+  throw new Error('CJS live collection returned the wrong class name');
+}
+if (!live.css().includes('.smoke-root{')) {
+  throw new Error('CJS live collection rendered no CSS');
 }
 
 const { css: emotionCss } = emotion.createEmotion(distillery);
