@@ -296,13 +296,14 @@ export class StylesCollector {
     if (entry.kind === 'media') {
       // Add newly live rules; keep rules already collected (e.g. by `use`).
       const existing = this.entries.get(entryKey(entry));
-      const collected = existing?.kind === 'media' ? existing.rules : [];
+      const collected = new Set<StyleRule>(
+        existing?.kind === 'media' ? existing.rules : []
+      );
       const rules = entry.rules.filter(
         (rule) =>
-          collected.includes(rule) ||
-          (rule.auto && this.allDepsMet(rule.dependsOn))
+          collected.has(rule) || (rule.auto && this.allDepsMet(rule.dependsOn))
       );
-      if (rules.length === collected.length) {
+      if (rules.length === collected.size) {
         return;
       }
       const filtered: StyleMedia =
