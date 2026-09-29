@@ -42,7 +42,8 @@
           "noteKeywords": [
             "BREAKING CHANGE",
             "BREAKING CHANGES"
-          ]
+          ],
+          "breakingHeaderPattern": "^(\\w*)(?:\\((.*)\\))?!: (.*)$"
         }
       }
     ],

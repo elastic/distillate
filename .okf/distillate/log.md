@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-09-29
+
+- **Update**: `.releaserc.json` adds a `breakingHeaderPattern` to the angular preset's parser options, so a `feat!:` or `fix(scope)!:` header drives a major release and lands under breaking changes in the notes without a `BREAKING CHANGE` footer. `scripts/releaserc.test.js` runs the config through the upstream analyzer and notes generator.
+
 ## 2026-09-25
 
 - **Update**: `useHandles` no longer narrows a media block that `use(module)` or `useAllEntries` already collected. It adds newly live inner rules and keeps the rest, so `auto: false` rules and rules with unmet deps survive a later handle. Regression tests cover `use(module)`, `stylesheetCollector`, and change notification.
