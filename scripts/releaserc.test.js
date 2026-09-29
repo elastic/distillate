@@ -15,9 +15,15 @@ import { describe, expect, it } from 'vitest';
 
 const repoRoot = fileURLToPath(new URL('..', import.meta.url));
 
-const {
-  plugins: [[, config]],
-} = JSON.parse(readFileSync(join(repoRoot, '.releaserc.json'), 'utf-8'));
+const { plugins } = JSON.parse(
+  readFileSync(join(repoRoot, '.releaserc.json'), 'utf-8')
+);
+
+/** The options semantic-release hands the plugin named `name`. */
+const pluginConfig = (name) => {
+  const entry = plugins.find((plugin) => [plugin].flat()[0] === name);
+  return [entry].flat()[1] ?? {};
+};
 
 const context = (...messages) => ({
   commits: messages.map((message, index) => ({
@@ -40,12 +46,17 @@ describe('.releaserc.json commit analysis', () => {
     ['fix: repair z', 'patch'],
     ['chore: tidy', null],
   ])('%j releases %s', async (message, release) => {
-    expect(await analyzeCommits(config, context(message))).toBe(release);
+    expect(
+      await analyzeCommits(
+        pluginConfig('@semantic-release/commit-analyzer'),
+        context(message)
+      )
+    ).toBe(release);
   });
 
   it('lists a `!` header under breaking changes in the notes', async () => {
     const notes = await generateNotes(
-      config,
+      pluginConfig('@semantic-release/release-notes-generator'),
       context('feat!: drop x', 'feat: add y')
     );
     const [, breaking = ''] = notes.split('BREAKING CHANGES');
