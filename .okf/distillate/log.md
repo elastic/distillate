@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-10-01
+
+- **Codex per-PR docs preview**: `.github/workflows/codex-preview.yml` builds and deploys a per-PR preview to Elastic Internal Docs (`https://codex.elastic.dev/`) alongside `docs.yml`'s GitHub Pages deploy, which it never replaces. It inlines `elastic/docs-actions`' reusable workflow rather than calling it, so `pnpm docs:api` (typedoc) runs before the build and the playground bundle is copied into the output after; the reusable workflow checks out, builds, and uploads in one step with no hook for either. `.github/workflows/codex-preview-cleanup.yml` tears the preview down when the PR closes. Both files' paths are bound to the `token-policy-push-codex-link-index-distillate` policy in `elastic/catalog-info`; renaming either breaks the vault role it derives. `docs/docset.yml`'s `registry`/`codex.group` fields still need values from the docs team before this registers in a broader Codex product catalog; the per-PR preview and link-index registration don't need them.
+
 ## 2026-09-25
 
 - **Update**: `useHandles` no longer narrows a media block that `use(module)` or `useAllEntries` already collected. It adds newly live inner rules and keeps the rest, so `auto: false` rules and rules with unmet deps survive a later handle. Regression tests cover `use(module)`, `stylesheetCollector`, and change notification.
