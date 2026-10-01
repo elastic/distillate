@@ -1,0 +1,19 @@
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0; you may not use this file except in compliance with the Elastic License
+# 2.0.
+
+name: elastic-internal-docs-cleanup
+
+on:
+  pull_request_target:
+    types:
+      - closed
+
+jobs:
+  preview:
+    uses: elastic/docs-actions/.github/workflows/codex-preview-cleanup.yml@v1
+    permissions:
+      contents: none
+      id-token: write
+      deployments: write
