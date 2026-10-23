@@ -5,12 +5,18 @@
  * 2.0.
  */
 
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { StylesCollector } from './collector';
 import { createDistillery } from './engine';
 import { media, rule } from './styles';
+import { isEmptyDeclarations } from './styles/declarations';
 import { lightDark } from './tokens';
+
+vi.mock('./styles/declarations', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./styles/declarations')>();
+  return { ...actual, isEmptyDeclarations: vi.fn(actual.isEmptyDeclarations) };
+});
 
 const createFixture = () => {
   const distillery = createDistillery({
@@ -208,5 +214,53 @@ describe('StylesCollector.subscribe', () => {
 
     collector.use(demo.handles.manual);
     expect(count).toBe(3);
+  });
+});
+
+describe('StylesCollector.useHandles', () => {
+  beforeEach(() => {
+    vi.mocked(isEmptyDeclarations).mockClear();
+  });
+
+  it('skips handles it has already processed', () => {
+    const { distillery, demo } = createFixture();
+    const collector = distillery.artifactCollector('compact');
+    const handles = [demo.handles.first, demo.handles.second];
+
+    expect(collector.useHandles(handles)).toEqual(handles);
+    const checks = vi.mocked(isEmptyDeclarations).mock.calls.length;
+
+    for (let i = 0; i < 100; i += 1) {
+      expect(collector.useHandles(handles)).toEqual(handles);
+    }
+    expect(vi.mocked(isEmptyDeclarations).mock.calls.length).toBe(checks);
+  });
+
+  it('still activates dependents after another path collects a handle', () => {
+    const { distillery } = createFixture();
+    const pair = distillery.createStyleModule('pair', (t) => ({
+      a: t.css`
+        color: red;
+      `,
+      b: t.css`
+        color: blue;
+      `,
+      both: rule(
+        (h) => `${h.a}${h.b}`,
+        t.decls`
+          opacity: 0.5;
+        `
+      ),
+    }));
+    const collector = distillery.artifactCollector('readable');
+
+    collector.useHandles([pair.handles.a]);
+    expect(distillery.renderStyles(collector)).not.toContain('.pair-a.pair-b');
+
+    collector.use(pair.handles.b);
+    collector.useHandles([pair.handles.a]);
+    expect(distillery.renderStyles(collector)).toContain(
+      '.pair-a.pair-b{opacity:0.5}'
+    );
   });
 });
