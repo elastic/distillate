@@ -113,6 +113,8 @@ export class StylesCollector {
   private readonly handles = new Map<string, StyleHandle>();
   // Handles `useHandles` has fully processed since the last entry or handle change.
   private readonly settledHandles = new Set<StyleHandle>();
+  // Bumped whenever `settledHandles` is invalidated.
+  private revision = 0;
   private readonly themeDeps = new Set<string>();
   private readonly varDeps = new Set<ContextualVarPath>();
   private readonly listeners = new Set<() => void>();
@@ -224,8 +226,9 @@ export class StylesCollector {
    */
   useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[] {
     return this.batch(() => {
+      const revision = this.revision;
       const retained: StyleHandle[] = [];
-      const pending: StyleHandle[] = [];
+      let pending: StyleHandle[] = [];
       for (const handle of handles) {
         if (this.settledHandles.has(handle)) {
           retained.push(handle);
@@ -242,6 +245,10 @@ export class StylesCollector {
         this.setEntry(handle);
         this.setHandle(handle);
         this.addDeclarationDeps(handle.declarations);
+      }
+      // A later handle may complete deps for a skipped one, so rescan them all.
+      if (this.revision !== revision) {
+        pending = retained;
       }
       for (const handle of pending) {
         const module = this.registry.module(handle.moduleName);
@@ -526,7 +533,7 @@ export class StylesCollector {
     const key = entryKey(entry);
     const existing = this.entries.get(key);
     if (existing !== entry) {
-      this.settledHandles.clear();
+      this.invalidateSettled();
       this.finalized = undefined;
     }
     this.entries.set(key, entry);
@@ -542,13 +549,18 @@ export class StylesCollector {
 
   private setHandle(handle: StyleHandle): void {
     if (this.handles.get(handle.key) !== handle) {
-      this.settledHandles.clear();
+      this.invalidateSettled();
       this.finalized = undefined;
     }
     if (!this.handles.has(handle.key)) {
       this.dirty = true;
     }
     this.handles.set(handle.key, handle);
+  }
+
+  private invalidateSettled(): void {
+    this.settledHandles.clear();
+    this.revision += 1;
   }
 
   // Listeners run once the outermost public mutation returns.

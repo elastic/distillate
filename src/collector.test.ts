@@ -263,4 +263,30 @@ describe('StylesCollector.useHandles', () => {
       '.pair-a.pair-b{opacity:0.5}'
     );
   });
+
+  it('activates cross-module dependents when a later handle in the batch completes them', () => {
+    const { distillery } = createFixture();
+    const base = distillery.createStyleModule('base', (t) => ({
+      mark: t.css`
+        color: red;
+      `,
+    }));
+    const overlay = distillery.createStyleModule('overlay', (t) => ({
+      panel: t.css`
+        color: blue;
+        ${base.handles.mark} & {
+          outline: 1px solid red;
+        }
+      `,
+    }));
+    const collector = distillery.artifactCollector('readable');
+
+    collector.useHandles([overlay.handles.panel]);
+    expect(distillery.renderStyles(collector)).not.toContain('outline');
+
+    collector.useHandles([overlay.handles.panel, base.handles.mark]);
+    expect(distillery.renderStyles(collector)).toContain(
+      '.base-mark .overlay-panel{outline:1px solid red}'
+    );
+  });
 });
