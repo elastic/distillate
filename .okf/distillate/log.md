@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-10-23
+
+- **Update**: `renderStyles` builds its readable-name lookup once per call and rewrites `--<prefix>-…` names in one pass per CSS span, instead of building a `RegExp` per theme token per span (#41). `StylesCollector` caches its finalized theme and var deps until the collection changes. Output is unchanged; `src/runtime.test.ts` pins compact substitution and the cache.
+
 ## 2026-09-25
 
 - **Update**: `useHandles` no longer narrows a media block that `use(module)` or `useAllEntries` already collected. It adds newly live inner rules and keeps the rest, so `auto: false` rules and rules with unmet deps survive a later handle. Regression tests cover `use(module)`, `stylesheetCollector`, and change notification.
