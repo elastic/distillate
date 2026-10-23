@@ -38,6 +38,7 @@ sources:
 - Published package metadata uses `license: "Elastic-2.0"`, ships `LICENSE.txt`, `NOTICE.txt`, and `THIRD_PARTY_LICENSES.md`, and targets Node `>=20`.[^package]
 - The supported consumer install contract is `npm install @elastic/distillate` from `registry.npmjs.org`.[^package][^post-release]
 - Release publishing runs only from `.github/workflows/release.yml`, verifies with `pnpm verify`, and authenticates to npm via OIDC trusted publishing (`id-token: write`).[^release-workflow][^post-release]
+- Each push to `main` that changes a published file or build input publishes a prerelease snapshot, `<release + 1 patch>-main.<UTC commit time>.g<sha>`, under the `next` dist-tag from the same workflow, with no tag, commit, or GitHub Release. `npm install @elastic/distillate@next` opts in; `latest` and caret ranges never select it.[^release-workflow][^post-release]
 
 [^idents]: CSS identifier-segment check
 

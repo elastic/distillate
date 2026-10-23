@@ -2,6 +2,7 @@
 
 ## 2026-10-23
 
+- **Update**: Snapshots under `next`. Each push to `main` that changes a published file or build input runs a Snapshot job in `release.yml`, where trusted publishing is bound, and `scripts/publish_snapshot.js` publishes `@elastic/distillate` at `<release + 1 patch>-main.<time>.g<sha>` under the `next` dist-tag, with no tag or commit. `.github/post-release.md`, the installation docs, README, and the public contract describe it.
 - **Update**: `renderStyles` builds its readable-name lookup once per call and rewrites `--<prefix>-…` names in one pass per CSS span, instead of building a `RegExp` per theme token per span (#41). `StylesCollector` caches its finalized theme and var deps until the collection changes. Output is unchanged; `src/runtime.test.ts` pins compact substitution and the cache.
 
 ## 2026-09-25

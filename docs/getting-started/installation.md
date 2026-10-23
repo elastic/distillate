@@ -13,6 +13,8 @@ npm install @elastic/distillate
 
 pnpm and yarn work the same way (`pnpm add @elastic/distillate`). The package declares `engines.node` `>=20`. Git URL installs, GitHub Packages, and GitHub Release tarballs are not supported.
 
+To try what has merged to `main` since the last release, install `@elastic/distillate@next`. It is a prerelease snapshot published on each push to `main` that changes the package, and `latest` and caret ranges never select it.
+
 The primary build is ESM (`"type": "module"`), reached through the `import` export condition. A parallel CommonJS build is published under the `require` condition for hosts whose loader cannot use ESM — for example a plugin-host platform (Kibana-style) whose server code is transpiled to CommonJS and calls `require(...)` rather than `import`. Bundlers and Node's own resolver pick whichever condition matches automatically; you do not select one yourself. See [dual-package hazard](../concepts/single-copy.md#dual-package-hazard) for the one thing this adds to watch for.
 
 ## Entry points
