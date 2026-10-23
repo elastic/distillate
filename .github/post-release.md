@@ -17,7 +17,7 @@ Later `feat:` commits become `0.2.0`, `0.3.0`, …; a `BREAKING CHANGE` becomes 
 
 Every push to `main` that changes a published file or a build input runs the **Snapshot** job in `release.yml`; `scripts/publish_snapshot.test.js` fails when its path filter drifts from `package.json` `files` or the build scripts. Snapshots publish from that file because npm Trusted Publishing is bound to it. The job runs `pnpm verify`, then `scripts/publish_snapshot.js`, which publishes `@elastic/distillate` under the `next` dist-tag with no git tag, commit, or GitHub Release.
 
-The version is a prerelease of the patch after the latest `v*` tag: `<major>.<minor>.<patch + 1>-main.<UTC commit time>.g<short sha>`. It sorts after that release and before the next one, and no `latest` or `^x.y.z` range admits it. Consumers opt in with `npm install @elastic/distillate@next`. Re-running for a commit that is already published does nothing.
+The version is a prerelease of the patch after the latest stable `vX.Y.Z` tag (prerelease tags are skipped): `<major>.<minor>.<patch + 1>-main.<UTC commit time>.g<short sha>`. It sorts after that release and before the next one, and no `latest` or `^x.y.z` range admits it. Consumers opt in with `npm install @elastic/distillate@next`. Re-running for a commit that is already published does nothing.
 
 To publish one by hand, dispatch **Publish a Release** with **snapshot** enabled (and **dry_run** to only pack). Snapshots accumulate on the registry; `npm dist-tag ls @elastic/distillate` shows which one `next` points at.
 

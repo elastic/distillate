@@ -16,8 +16,10 @@ on:
       - LICENSE.txt
       - NOTICE.txt
       - THIRD_PARTY_LICENSES.md
+      - README.md
       - tsconfig.build.json
       - tsconfig.build.cjs.json
+      - tsconfig.json
       - scripts/write_cjs_manifest.js
       - scripts/docs_api_anchors.js
       - typedoc.json

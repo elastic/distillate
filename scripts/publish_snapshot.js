@@ -69,6 +69,8 @@ export const publishSnapshot = ({ dryRun }) => {
       '--abbrev=0',
       '--match',
       'v[0-9]*',
+      '--exclude',
+      '*-*',
       'HEAD',
     ]),
     sha: git(['rev-parse', 'HEAD']),

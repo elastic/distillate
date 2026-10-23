@@ -7,7 +7,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -79,6 +79,18 @@ describe('publishSnapshot', () => {
     });
   });
 
+  it('builds on the latest stable release tag, skipping prereleases', () => {
+    publishSnapshot({ dryRun: false });
+    const [[, args]] = vi
+      .mocked(execFileSync)
+      .mock.calls.filter(
+        ([command, args]) => command === 'git' && args[0] === 'describe'
+      );
+    expect(args).toEqual(
+      expect.arrayContaining(['--match', 'v[0-9]*', '--exclude', '*-*'])
+    );
+  });
+
   it('passes --dry-run to npm publish', () => {
     publishSnapshot({ dryRun: true });
     expect(publishCalls()[0][1].at(-1)).toBe('--dry-run');
@@ -136,6 +148,15 @@ describe('release.yml push paths', () => {
     });
   };
 
+  // `extends` chains of the given tsconfig files, including the files themselves.
+  const withExtends = (paths) =>
+    paths.flatMap((path) => {
+      const { extends: parent } = JSON.parse(read(path));
+      return parent
+        ? [path, ...withExtends([join(dirname(path), parent)])]
+        : [path];
+    });
+
   it('covers every published file, every build input, and the snapshot itself', () => {
     const { files, scripts } = JSON.parse(read('package.json'));
     const published = files
@@ -148,10 +169,16 @@ describe('release.yml push paths', () => {
           ([path]) => path
         )
       );
+    const tsconfigs = withExtends(
+      build.filter((path) => path.startsWith('tsconfig'))
+    );
     expect(new Set(pushPaths())).toEqual(
       new Set([
         ...published,
         ...build,
+        ...tsconfigs,
+        // npm packs the README whatever `files` says.
+        'README.md',
         'typedoc.json',
         'package.json',
         'pnpm-lock.yaml',
