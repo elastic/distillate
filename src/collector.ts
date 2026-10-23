@@ -111,6 +111,10 @@ export class StylesCollector {
   private readonly warn: (message: string) => void;
   private readonly entries = new Map<string, StyleEntry>();
   private readonly handles = new Map<string, StyleHandle>();
+  // Handles `useHandles` has fully processed since the last entry or handle change.
+  private readonly settledHandles = new Set<StyleHandle>();
+  // Bumped whenever `settledHandles` is invalidated.
+  private revision = 0;
   private readonly themeDeps = new Set<string>();
   private readonly varDeps = new Set<ContextualVarPath>();
   private readonly listeners = new Set<() => void>();
@@ -222,12 +226,19 @@ export class StylesCollector {
    */
   useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[] {
     return this.batch(() => {
+      const revision = this.revision;
       const retained: StyleHandle[] = [];
+      let pending: StyleHandle[] = [];
       for (const handle of handles) {
+        if (this.settledHandles.has(handle)) {
+          retained.push(handle);
+          continue;
+        }
         if (!this.retainHandle(handle)) {
           continue;
         }
         retained.push(handle);
+        pending.push(handle);
         if (this.handles.has(handle.key)) {
           continue;
         }
@@ -235,7 +246,11 @@ export class StylesCollector {
         this.setHandle(handle);
         this.addDeclarationDeps(handle.declarations);
       }
-      for (const handle of retained) {
+      // A later handle may complete deps for a skipped one, so rescan them all.
+      if (this.revision !== revision) {
+        pending = retained;
+      }
+      for (const handle of pending) {
         const module = this.registry.module(handle.moduleName);
         if (!module) {
           continue;
@@ -243,6 +258,9 @@ export class StylesCollector {
         for (const dependent of dependentEntries(module, handle.key)) {
           this.tryActivateDependent(dependent);
         }
+      }
+      for (const handle of pending) {
+        this.settledHandles.add(handle);
       }
       return retained;
     });
@@ -515,6 +533,7 @@ export class StylesCollector {
     const key = entryKey(entry);
     const existing = this.entries.get(key);
     if (existing !== entry) {
+      this.invalidateSettled();
       this.finalized = undefined;
     }
     this.entries.set(key, entry);
@@ -530,12 +549,18 @@ export class StylesCollector {
 
   private setHandle(handle: StyleHandle): void {
     if (this.handles.get(handle.key) !== handle) {
+      this.invalidateSettled();
       this.finalized = undefined;
     }
     if (!this.handles.has(handle.key)) {
       this.dirty = true;
     }
     this.handles.set(handle.key, handle);
+  }
+
+  private invalidateSettled(): void {
+    this.settledHandles.clear();
+    this.revision += 1;
   }
 
   // Listeners run once the outermost public mutation returns.
