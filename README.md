@@ -29,6 +29,8 @@ npm install @elastic/distillate
 
 Requires Node.js 20 or later. The package ships as ESM (`import`) with a parallel CommonJS build (`require`) for consumers that cannot load ESM directly — see [Installation](https://elastic.github.io/distillate/getting-started/installation.html).
 
+The latest `main` is published as `@next` (`npm install @elastic/distillate@next`), a prerelease that `latest` and caret ranges never select.
+
 ## Quick start
 
 Bind the engine to your library with `createDistillery`. The snippets use an EUI-flavored environment to show that the engine carries no brand of its own.

@@ -5,7 +5,26 @@
 
 name: Publish a Release
 
+# Trusted publishing is bound to this file, so snapshots publish from here too.
 on:
+  push:
+    branches: [main]
+    # Every published file and build input; scripts/publish_snapshot.test.js keeps this in step.
+    paths:
+      - src/**
+      - docs/**
+      - LICENSE.txt
+      - NOTICE.txt
+      - THIRD_PARTY_LICENSES.md
+      - tsconfig.build.json
+      - tsconfig.build.cjs.json
+      - scripts/write_cjs_manifest.js
+      - scripts/docs_api_anchors.js
+      - typedoc.json
+      - package.json
+      - pnpm-lock.yaml
+      - scripts/publish_snapshot.js
+      - .github/workflows/release.yml
   workflow_dispatch:
     inputs:
       dry_run:
@@ -13,6 +32,11 @@ on:
         required: true
         type: boolean
         default: true
+      snapshot:
+        description: Skip semantic-release and publish a snapshot of this commit under the next dist-tag
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -20,6 +44,7 @@ permissions:
 jobs:
   release:
     name: Release
+    if: ${{ github.event_name == 'workflow_dispatch' && !inputs.snapshot }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -87,3 +112,32 @@ jobs:
             echo "Labeling PR #$pr as released ($NEW_TAG)"
             gh pr edit "$pr" --add-label released
           done
+
+  snapshot:
+    name: Snapshot
+    if: ${{ github.event_name == 'push' || inputs.snapshot }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release-snapshot
+      cancel-in-progress: true
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm verify
+      # Trusted publishing needs npm >= 11.5.1.
+      - run: npm install -g npm@^11.5.1
+      # A prerelease under `next`; no tag, commit, or GitHub Release. See .github/post-release.md.
+      - name: Publish a snapshot
+        run: node scripts/publish_snapshot.js ${{ inputs.dry_run && '--dry-run' || '' }}
