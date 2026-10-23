@@ -116,6 +116,7 @@ export class StylesCollector {
   private readonly listeners = new Set<() => void>();
   private depth = 0;
   private dirty = false;
+  private finalized: FinalizedDeps | undefined;
 
   constructor({
     target,
@@ -409,13 +410,14 @@ export class StylesCollector {
   }
 
   // Computes the final theme/var dep sets, folding in default-marker
-  // contributions only for keys that survive reachability. Called once per
-  // `createResolver()` and per `collectedThemeDeps`/`collectedVarDeps`
-  // access; collection mutations between calls re-derive the result.
-  private finalizeDeps(): {
-    theme: ReadonlySet<string>;
-    vars: ReadonlySet<ContextualVarPath>;
-  } {
+  // contributions only for keys that survive reachability. Cached until the
+  // next change to entries, handles, or deps.
+  private finalizeDeps(): FinalizedDeps {
+    this.finalized ??= this.computeFinalizedDeps();
+    return this.finalized;
+  }
+
+  private computeFinalizedDeps(): FinalizedDeps {
     const theme = new Set<string>(this.themeDeps);
     const vars = new Set<ContextualVarPath>(this.varDeps);
 
@@ -504,6 +506,7 @@ export class StylesCollector {
     }
     if (this.themeDeps.size + this.varDeps.size !== before) {
       this.dirty = true;
+      this.finalized = undefined;
     }
   }
 
@@ -511,6 +514,9 @@ export class StylesCollector {
   private setEntry(entry: StyleEntry): void {
     const key = entryKey(entry);
     const existing = this.entries.get(key);
+    if (existing !== entry) {
+      this.finalized = undefined;
+    }
     this.entries.set(key, entry);
     if (
       !existing ||
@@ -523,6 +529,9 @@ export class StylesCollector {
   }
 
   private setHandle(handle: StyleHandle): void {
+    if (this.handles.get(handle.key) !== handle) {
+      this.finalized = undefined;
+    }
     if (!this.handles.has(handle.key)) {
       this.dirty = true;
     }
@@ -544,6 +553,11 @@ export class StylesCollector {
       }
     }
   }
+}
+
+interface FinalizedDeps {
+  readonly theme: ReadonlySet<string>;
+  readonly vars: ReadonlySet<ContextualVarPath>;
 }
 
 const includeAllDefaults = (
