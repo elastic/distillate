@@ -1,0 +1,83 @@
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0; you may not use this file except in compliance with the Elastic License
+# 2.0.
+
+name: Dependabot license reports
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependabot-licenses-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm licenses:report
+      - uses: actions/upload-artifact@v4
+        with:
+          name: license-reports
+          path: |
+            THIRD_PARTY_LICENSES.md
+            NOTICE.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  commit:
+    needs: generate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: license-reports
+          path: ${{ runner.temp }}/license-reports
+      - name: Commit updated reports
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for report in THIRD_PARTY_LICENSES.md NOTICE.txt; do
+            test -f "$RUNNER_TEMP/license-reports/$report"
+            test ! -L "$RUNNER_TEMP/license-reports/$report"
+            cp --remove-destination "$RUNNER_TEMP/license-reports/$report" "$report"
+          done
+          git add -- THIRD_PARTY_LICENSES.md NOTICE.txt
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git -c core.hooksPath=/dev/null commit -m 'chore: refresh dependency license reports'
+            gh auth setup-git
+            git remote set-url origin "https://github.com/$GITHUB_REPOSITORY.git"
+            git -c core.hooksPath=/dev/null push \
+              --force-with-lease="refs/heads/$HEAD_REF:$HEAD_SHA" \
+              origin "HEAD:refs/heads/$HEAD_REF"
+            gh workflow run ci.yml --ref "$HEAD_REF"
+          fi
