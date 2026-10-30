@@ -12,7 +12,7 @@ import { createDomSink, type StyleElementLike } from './dom_sink';
 import { createEmotion } from './emotion';
 import { createDistillery } from './engine';
 import type { DistilleryOptions } from './environment';
-import { container, media, rule, variants } from './styles';
+import { container, type CssValue, media, rule, variants } from './styles';
 import { lightDark } from './tokens';
 import { contextualVar, cq } from './tokens';
 
@@ -1585,5 +1585,48 @@ describe('distillery.liveCollection', () => {
 
     expect(live.resolveClassName(wrapper)).toBe(String(wrapper));
     expect(live.css()).toContain(`.${String(wrapper)}{color:red}`);
+  });
+});
+
+describe('t.vars value validation at render', () => {
+  const unbranded = {
+    toString: () => '#f00',
+  } as unknown as CssValue;
+
+  it('rejects an unbranded object as a reachable default', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', { bg: unbranded });
+      return {
+        root: t.css`
+          ${look}
+          background: ${look.bg};
+        `,
+      };
+    });
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([demo.handles.root]);
+
+    expect(() => distillery.renderStyles(collector)).toThrow(
+      't.vars(...) value must be a string, number, theme token, contextual var, scale token, or local var ref; received object.'
+    );
+  });
+
+  it('rejects an unbranded object in a set() override', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', { bg: '#fff' });
+      return {
+        loud: t.css`
+          ${look.set({ bg: unbranded })}
+        `,
+      };
+    });
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([demo.handles.loud]);
+
+    expect(() => distillery.renderStyles(collector)).toThrow(
+      /received object\.$/
+    );
   });
 });
