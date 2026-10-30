@@ -21,27 +21,45 @@ const css = distillery.renderStyles(collector);
 
 `stylesheetCollector()` snapshots only modules whose files have already loaded and registered with this distillery. It does not discover or import style files, and modules loaded later are not added automatically.
 
-Libraries declaring `"sideEffects": false` let bundlers remove files whose exports are unused. In particular, Rollup and Rolldown can drop style files that are imported only for registration, so registry-only collection can silently emit an incomplete or empty stylesheet. A side-effect import, a `void` read, or marking only a barrel file as side-effectful is not a reliable way to retain those style files.
+Libraries declaring `"sideEffects": false` let bundlers remove files whose exports are unused. Rollup and Rolldown can therefore drop style files imported only for registration, silently leaving an incomplete or empty stylesheet. Registration is a real side effect: the **library that owns the style files** must describe it accurately in its published `package.json`. Distillate's own manifest cannot override another package's metadata.
 
-For a full library stylesheet, import the intended modules and pass them **by value**:
+For example, if registration files are named `*.styles.ts` and compile to `*.styles.js`, replace `"sideEffects": false` with:
 
-```ts
-import { button } from './button.styles';
-import { panel } from './panel.styles';
-
-export function stylesheet() {
-  const collector = distillery.stylesheetCollector({
-    modules: [button, panel],
-  });
-  return distillery.renderStyles(collector);
+```json
+{
+  "sideEffects": ["**/*.styles.js", "**/*.styles.ts"]
 }
 ```
 
-`modules` accepts a readonly array. When supplied, it replaces the registry snapshot: only the listed modules are preloaded, including all their variants; `modules: []` starts empty. Keep the list complete as the library grows. Omit `modules` to retain registry-based collection.
+Match the **actual published registration files**, including ESM and CommonJS paths, not just a barrel or stylesheet entry. Adapt the patterns to your naming and output layout; keep any other existing side-effect exemptions (for example, CSS files). Include source patterns only if consumers can resolve source files. If your build bundles many modules into one output file, mark that output file instead and ensure the library build also retains registration.
 
-For compact names, use `stylesheetCollector('compact', { modules: [button, panel] })`. The existing `stylesheetCollector(names?, { warn })` form still works, and `{ warn }` can also accompany `modules` in the options-only form.
+Expose a library-owned stylesheet entry that loads the complete style inventory before collecting:
 
-If you deliberately rely on registration side effects instead, the publishing package must mark the **actual style files** as side-effectful in its `sideEffects` configuration, not just their barrel. Explicit module values avoid relying on that configuration.
+```ts
+// stylesheet.ts: maintain or generate these imports inside the library.
+import './styles/button.styles.js';
+import './styles/panel.styles.js';
+import { distillery } from './environment.js';
+
+export const stylesheet = () =>
+  distillery.renderStyles(distillery.stylesheetCollector());
+```
+
+Export this entry through the library's package exports, so consumers only import and call `stylesheet()`. Maintain or generate the imports at the library boundary as styles are added; consumers never pass a module list. The side-effect patterns retain imports but do not discover files: each intended style file must still be reachable through this entry's imports.
+
+To reuse an existing style barrel instead of direct imports, import it from the stylesheet entry and mark **both the barrel and the actual style files** as side-effectful:
+
+```json
+{
+  "sideEffects": ["./dist/styles/index.js", "**/*.styles.js"]
+}
+```
+
+Adapt the barrel paths for every published output/source layout you expose. An unmarked barrel imported only for side effects can be skipped even when its style files are marked. Conversely, marking only the barrel does not retain unmarked style files. Adding a `void` read or using bare imports under `"sideEffects": false` does not fix retention.
+
+`stylesheetCollector()` remains registry-based and includes all variants. `stylesheetCollector('compact', { warn })` remains supported. Retaining registration JavaScript does not disable Distillate's CSS reachability pruning: `artifactCollector` still emits only collected entries and their dependencies.
+
+Verify the published package by bundling a consumer entry that only calls `stylesheet()` and checking its CSS, not just whether the barrel exists in the bundle. The regression fixture covers lost registrations under `"sideEffects": false`, incomplete barrel/style-file exemptions, and retained direct and barrel imports with readable/compact stylesheet output and artifact pruning.
 
 ## What each method collects
 

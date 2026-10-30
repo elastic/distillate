@@ -2,7 +2,7 @@
 
 ## 2026-10-30
 
-- **Update**: `stylesheetCollector({ modules })` and `stylesheetCollector(names, { modules })` preload explicit module values, including variants, instead of the registry snapshot. The options type is exported as `StylesheetCollectorOptions`; existing calls retain their behavior. README and collection docs explain why registry-only stylesheets can lose style files under `"sideEffects": false` with Rollup/Rolldown.
+- **Update**: Revised stylesheet tree-shaking guidance at the publishing boundary instead of adding explicit-module collector options. `stylesheetCollector(names?, { warn }?)` remains unchanged. Style-owning libraries must mark actual published registration files as side-effectful and load their complete inventory through a library-owned stylesheet entry; a side-effect-only inventory barrel needs its own exemption too. Bundling regressions cover `"sideEffects": false`, incomplete exemptions, direct and barrel imports, readable/compact output, and preserved artifact CSS pruning.
 
 ## 2026-10-23
 

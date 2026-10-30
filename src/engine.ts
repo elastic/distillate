@@ -41,15 +41,6 @@ import {
   type ValuesOf,
 } from './theme';
 
-/** Explicit module roots and warning sink for stylesheet collection. */
-export interface StylesheetCollectorOptions extends Pick<
-  StylesCollectorOptions,
-  'warn'
-> {
-  /** Modules to collect, including variants. Omit to use every currently registered module. */
-  modules?: readonly StylesModule[];
-}
-
 /** Sink, render options, and warning sink for {@link Distillery.liveCollection}. */
 export interface LiveCollectionOptions {
   /** Invalidated whenever the collection grows. Nothing is written before the first handle. */
@@ -109,14 +100,11 @@ export interface Distillery<
     names: StyleNameMode,
     options?: Pick<StylesCollectorOptions, 'warn'>
   ) => StylesCollector;
-  /** Collector preloaded with explicit modules, or every currently registered module. Pass modules by value to retain them under tree-shaking. No-op warnings require `dev: true`. */
-  readonly stylesheetCollector: {
-    (options?: StylesheetCollectorOptions): StylesCollector;
-    (
-      names?: StyleNameMode,
-      options?: StylesheetCollectorOptions
-    ): StylesCollector;
-  };
+  /** Collector preloaded with every registered module. No-op warnings require `dev: true`; pass `{ warn }` to capture them. */
+  readonly stylesheetCollector: (
+    names?: StyleNameMode,
+    options?: Pick<StylesCollectorOptions, 'warn'>
+  ) => StylesCollector;
   /** Readable collection for one live render; keeps `sink` current as handles resolve. */
   readonly liveCollection: (options?: LiveCollectionOptions) => LiveCollection;
   /** Emits collected CSS for this environment. */
@@ -214,23 +202,16 @@ export const createDistillery = <const TTheme extends ThemeTree>(
           factory({ style, tokens: moduleTokens })
       ),
     artifactCollector,
-    stylesheetCollector: (
-      namesOrOptions: StyleNameMode | StylesheetCollectorOptions = 'readable',
-      options?: StylesheetCollectorOptions
-    ) => {
-      const names =
-        typeof namesOrOptions === 'string' ? namesOrOptions : 'readable';
-      const collectorOptions =
-        typeof namesOrOptions === 'string' ? options : namesOrOptions;
+    stylesheetCollector: (names = 'readable', options) => {
       const collector = new StylesCollector({
         target: 'stylesheet',
         names,
         registry,
         prefix,
         dev,
-        ...(collectorOptions?.warn ? { warn: collectorOptions.warn } : {}),
+        ...(options?.warn ? { warn: options.warn } : {}),
       });
-      for (const module of collectorOptions?.modules ?? registry.modules) {
+      for (const module of registry.modules) {
         collector.useAllEntries(module);
       }
       return collector;

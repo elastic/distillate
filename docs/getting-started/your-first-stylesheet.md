@@ -35,9 +35,7 @@ const panel = distillery.createStyleModule('panel', ({ css, tokens }) => ({
   `,
 }));
 
-const css = distillery.renderStyles(
-  distillery.stylesheetCollector({ modules: [panel] })
-);
+const css = distillery.renderStyles(distillery.stylesheetCollector());
 ```
 
 ```css
@@ -54,7 +52,7 @@ const css = distillery.renderStyles(
 }
 ```
 
-`stylesheetCollector({ modules: [panel] })` preloads the listed modules, including variants. With no `modules` option, it collects every module registered by files that have already loaded; tree-shaking can remove unused style files from libraries with `"sideEffects": false`. Pass modules by value for a full library stylesheet; see [tree-shaking and library stylesheets](../concepts/collection.md#tree-shaking-and-library-stylesheets).
+`stylesheetCollector()` preloads every registered module, including variants. It sees only files that have already loaded. When publishing a library, retain those registration side effects in the package manifest and load all intended style files from a library-owned stylesheet entry; see [tree-shaking and library stylesheets](../concepts/collection.md#tree-shaking-and-library-stylesheets).
 
 Apply `panel.handles.root.readableName` (or `String(handle)` on an emotion wrapper) in markup. Readable stringification does **not** collect; it only works when the document's stylesheet also used readable names.
 

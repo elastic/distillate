@@ -23,13 +23,16 @@ sources:
   - id: collector-tests
     resource: https://github.com/elastic/distillate/blob/main/src/collector.test.ts
     title: Change-notification tests
+  - id: bundling-tests
+    resource: https://github.com/elastic/distillate/blob/main/docs/playground/src/lib/stylesheet_bundling.test.ts
+    title: Published style-file retention regression
 ---
 
 # Definition
 
 Prefer `distillery.artifactCollector(names)` (empty) and `distillery.stylesheetCollector(names?)` (preloads every currently registered module via `useAllEntries`, default `'readable'`). There is no `StylesCollector.artifact` static factory.[^collector]
 
-For tree-shaken libraries, pass module values explicitly: `stylesheetCollector({ modules: [button, panel] })` or `stylesheetCollector('compact', { modules: [button, panel], warn })`. The readonly array replaces the registry snapshot, includes variants, and may be empty. Omit `modules` to collect the current registry. Registry-only collection sees only files already loaded; `"sideEffects": false` can let Rollup/Rolldown drop files used only for registration. A barrel-only side-effect exemption or `void` read is not reliable. Keep the explicit list complete, or mark actual style files as side-effectful.[^engine][^distillery-tests]
+Registry-only collection sees only files already loaded; `"sideEffects": false` can let Rollup/Rolldown drop files used only for registration. The style-owning library must mark actual published registration files as side-effectful (for example, `"sideEffects": ["**/*.styles.js", "**/*.styles.ts"]`, adjusted to its output and source exports). Distillate's package metadata cannot override another library's manifest. A library-owned stylesheet entry directly imports the complete style inventory before calling the unchanged `stylesheetCollector()`. Maintain or generate that inventory inside the library, never in each consumer. To reuse a barrel imported only for side effects, mark both the barrel and actual style files; an unmarked barrel can itself be skipped. Patterns do not discover unimported files; marking only a barrel or adding a `void` read does not suffice. Retained registration JavaScript does not change artifact CSS pruning.[^engine][^distillery-tests][^bundling-tests]
 
 | Method                  | Effect                                                               |
 | ----------------------- | -------------------------------------------------------------------- |
@@ -58,3 +61,5 @@ A handle whose declarations are empty and that no rule targets is a no-op. Compa
 [^engine]: distillery.liveCollection
 
 [^collector-tests]: Change-notification tests
+
+[^bundling-tests]: Published style-file retention regression

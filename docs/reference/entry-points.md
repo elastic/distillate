@@ -40,7 +40,6 @@ import {
 | `TokensOf` / `ValuesOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
 | `StyleHandle` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. |
 | `LiveCollection` / `LiveCollectionOptions` | type | `distillery.liveCollection` result and options. |
-| `StylesheetCollectorOptions` | type | Explicit stylesheet modules and warning sink. |
 | `StyleSink` / `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike` | type | Sink surface. |
 
 ### Key signatures
@@ -58,17 +57,9 @@ distillery.artifactCollector(
   options?: { warn?: (message: string) => void }
 ): StylesCollector;
 distillery.stylesheetCollector(
-  options?: StylesheetCollectorOptions
-): StylesCollector;
-distillery.stylesheetCollector(
   names?: 'compact' | 'readable',
-  options?: StylesheetCollectorOptions
+  options?: { warn?: (message: string) => void }
 ): StylesCollector;
-// Exported type:
-interface StylesheetCollectorOptions {
-  modules?: readonly StylesModule[]; // replaces the registry snapshot when supplied
-  warn?: (message: string) => void;
-}
 distillery.liveCollection(options?: {
   sink?: StyleSink;
   render?: RenderStylesOptions;

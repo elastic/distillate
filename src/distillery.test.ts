@@ -79,9 +79,9 @@ describe('createDistillery with a foreign environment', () => {
     expect(css).not.toContain('aui');
   });
 
-  it('collects explicit stylesheet modules including variants and theme deps', () => {
+  it('snapshots registered stylesheet modules including variants and theme deps', () => {
     const distillery = createFixtureDistillery();
-    const panel = distillery.createStyleModule('panel', (t) => ({
+    distillery.createStyleModule('panel', (t) => ({
       root: t.css`
         color: ${t.tokens.colors.ink};
       `,
@@ -92,33 +92,28 @@ describe('createDistillery with a foreign environment', () => {
         `
       ),
     }));
-    distillery.createStyleModule('unused', (t) => ({
+    const collector = distillery.stylesheetCollector();
+    distillery.createStyleModule('later', (t) => ({
       root: t.css`
         background: ${t.tokens.colors.surface};
       `,
     }));
-    const modules = [panel] as const;
-    const css = distillery.renderStyles(
-      distillery.stylesheetCollector({ modules })
-    );
+    const css = distillery.renderStyles(collector);
 
     expect(css).toContain('.panel-root{color:var(--eui-colors-ink)}');
     expect(css).toContain('.panel-look-accent{color:var(--eui-colors-accent)}');
     expect(css).toContain('--eui-colors-ink:light-dark(#111,#eee)');
     expect(css).toContain('--eui-colors-accent:light-dark(#06c,#8cf)');
-    expect(css).not.toContain('unused');
+    expect(css).not.toContain('later');
     expect(css).not.toContain('--eui-colors-surface');
     expect(distillery.renderStyles(distillery.stylesheetCollector())).toContain(
-      '.unused-root'
-    );
-    expect(distillery.renderStyles(distillery.stylesheetCollector({}))).toBe(
-      distillery.renderStyles(distillery.stylesheetCollector())
+      '.later-root'
     );
   });
 
-  it('supports explicit modules with positional naming and warning options', () => {
+  it('supports stylesheet naming and warning options', () => {
     const distillery = createFixtureDistillery({ dev: true });
-    const panel = distillery.createStyleModule('panel', (t) => ({
+    distillery.createStyleModule('panel', (t) => ({
       empty: t.css``,
       root: t.css`
         color: red;
@@ -127,7 +122,6 @@ describe('createDistillery with a foreign environment', () => {
     const warnings: string[] = [];
     const warn = (message: string) => warnings.push(message);
     const compact = distillery.stylesheetCollector('compact', {
-      modules: [panel],
       warn,
     });
 
@@ -135,14 +129,9 @@ describe('createDistillery with a foreign environment', () => {
     expect(warnings).toHaveLength(1);
     expect(
       distillery.renderStyles(
-        distillery.stylesheetCollector(undefined, { modules: [panel] })
+        distillery.stylesheetCollector(undefined, { warn })
       )
     ).toBe('.panel-root{color:red}');
-    expect(
-      distillery.renderStyles(
-        distillery.stylesheetCollector({ modules: [], warn })
-      )
-    ).toBe('');
     expect(warnings).toHaveLength(1);
   });
 
