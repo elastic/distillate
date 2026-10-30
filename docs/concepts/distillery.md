@@ -44,6 +44,6 @@ See [declare and select variations](../guides/theming.md) for render-time `flatt
 
 `primitiveStyles(name, factory)` is the same registry path as `createStyleModule`, with `factory` receiving `{ style, tokens }` instead of the full authoring API. Use it when a module only needs handles and tokens.
 
-`owns(handle)` is `true` when the handle was authored in a module registered with this distillery. A full handle is matched by identity, so one from another distillery is rejected even when its key coincides; a bare `{ key }` is matched by key. Adapters that serve several distilleries use it to route a handle to the one that can collect it.
+`owns(handle)` is `true` when the handle was authored in a module registered with this distillery. A full handle is matched by its registered declarations, so an Emotion wrapper from `createEmotion(distillery)` counts and a handle from another distillery is rejected even when its key coincides; a bare `{ key }` is matched by key. Adapters that serve several distilleries use it to route a handle to the one that can collect it.
 
 See [environment reference](../reference/environment.md) for field-level types.

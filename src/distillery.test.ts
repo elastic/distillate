@@ -1615,6 +1615,22 @@ describe('distillery.owns', () => {
     expect(theirs.owns(foreign.handles.root)).toBe(true);
   });
 
+  it('recognizes its own Emotion wrappers and rejects foreign ones', () => {
+    const mine = createFixtureDistillery();
+    const theirs = createFixtureDistillery();
+    const wrapper = createEmotion(mine).css`
+      color: red;
+    `;
+    const foreign = createEmotion(theirs).css`
+      color: red;
+    `;
+
+    expect(wrapper).not.toBe(mine.registry.handle(wrapper.key));
+    expect(mine.owns(wrapper)).toBe(true);
+    expect(mine.owns(foreign)).toBe(false);
+    expect(theirs.owns(foreign)).toBe(true);
+  });
+
   it('lets a live collection resolve class names by key', () => {
     const distillery = createFixtureDistillery();
     const demo = createDemo(distillery);

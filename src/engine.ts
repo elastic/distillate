@@ -84,7 +84,7 @@ export interface Distillery<
   ) => ValuesOf<TTheme>;
   /** The module registry accumulating collected handles and rules. */
   readonly registry: StyleRegistry;
-  /** `true` when `handle` was authored in a module registered with this distillery. A bare `{ key }` is checked by key. */
+  /** `true` when `handle` was authored in a module registered with this distillery, including an Emotion wrapper of one. A bare `{ key }` is checked by key. */
   readonly owns: (handle: StyleHandleRef) => boolean;
   /** When `true`, collectors warn about no-op handles. */
   readonly dev: boolean;
@@ -195,9 +195,13 @@ export const createDistillery = <const TTheme extends ThemeTree>(
     registry,
     owns: (handle) => {
       const registered = registry.handle(handle.key);
+      if (!registered) {
+        return false;
+      }
+      // An Emotion wrapper is a spread copy of its handle, so the declarations object is the identity.
       return isHandleLike(handle)
-        ? registered === handle
-        : registered !== undefined;
+        ? registered.declarations === handle.declarations
+        : true;
     },
     dev,
     createStyleModule: (name, factory) =>
