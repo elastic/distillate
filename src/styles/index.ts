@@ -50,6 +50,7 @@ export type {
   StyleDeps,
   StyleEntry,
   StyleHandle,
+  StyleHandleRef,
   StyleMedia,
   StyleRegistrySnapshot,
   StyleRule,

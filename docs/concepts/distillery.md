@@ -5,7 +5,7 @@ description: Bind prefix and a theme tree with createDistillery.
 
 # The distillery
 
-`createDistillery(options)` binds the engine to one component library. The returned object is destructure-safe (no `this`): `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `dev`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`.
+`createDistillery(options)` binds the engine to one component library. The returned object is destructure-safe (no `this`): `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `owns`, `dev`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`.
 
 ```ts
 import { createDistillery, cq, lightDark } from '@elastic/distillate';
@@ -43,5 +43,7 @@ Each distillery owns a private `StyleRegistry`. Two libraries in one process sho
 See [declare and select variations](../guides/theming.md) for render-time `flatten`, `scheme`, and `alternates`. `resolveValues(scheme, variation?)` returns the same tree as nested literal strings for a non-CSS surface; `renderStyles({ scheme })` emits the stylesheet with that scheme already chosen. See [read values outside CSS](../guides/non-css-surfaces.md).
 
 `primitiveStyles(name, factory)` is the same registry path as `createStyleModule`, with `factory` receiving `{ style, tokens }` instead of the full authoring API. Use it when a module only needs handles and tokens.
+
+`owns(handle)` is `true` when the handle was authored in a module registered with this distillery. A full handle is matched by identity, so one from another distillery is rejected even when its key coincides; a bare `{ key }` is matched by key. Adapters that serve several distilleries use it to route a handle to the one that can collect it.
 
 See [environment reference](../reference/environment.md) for field-level types.

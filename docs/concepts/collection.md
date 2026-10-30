@@ -19,13 +19,13 @@ const css = distillery.renderStyles(collector);
 
 ## What each method collects
 
-| Method                  | Effect                                                                                                                                       |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `use(module)`           | Non-variant entries on the module. Variants stay out.                                                                                        |
-| `use(entry)`            | One handle, rule, or media block.                                                                                                            |
-| `useHandles(handles)`   | Those handles, then any `auto` rule or media-inner-rule whose deps are all present. Media blocks keep inner rules collected earlier.         |
-| `useAllEntries(module)` | Every entry, including variants. Used by the stylesheet target.                                                                              |
-| `useThemeVar(path)`     | Marks a theme token path reachable even if no collected declaration reads it.                                                                |
+| Method                  | Effect                                                                                                                                                                                                            |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `use(module)`           | Non-variant entries on the module. Variants stay out.                                                                                                                                                             |
+| `use(entry)`            | One handle, rule, or media block.                                                                                                                                                                                 |
+| `useHandles(handles)`   | Those handles, then any `auto` rule or media-inner-rule whose deps are all present. Media blocks keep inner rules collected earlier. A bare `{ key }` resolves through the registry and throws when unregistered. |
+| `useAllEntries(module)` | Every entry, including variants. Used by the stylesheet target.                                                                                                                                                   |
+| `useThemeVar(path)`     | Marks a theme token path reachable even if no collected declaration reads it.                                                                                                                                     |
 
 Paths are slash-delimited (`colors/ink`), matching `themeVars` keys. There is no `StylesCollector.artifact(...)` static factory.
 

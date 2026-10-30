@@ -18,6 +18,7 @@ import {
   type StyleNameResolver,
   type StyleNameResolverOptions,
 } from './names';
+import { isHandleLike } from './nesting';
 import { renderStyles, type RenderStylesOptions } from './runtime';
 import type { StyleSink } from './sink';
 import {
@@ -26,7 +27,7 @@ import {
   readableVarOwnersFromEnvironment,
   type ResolvedStyles,
   type StyleAuthoringApi,
-  type StyleHandle,
+  type StyleHandleRef,
   StyleRegistry,
   type StylesModule,
   type StylesObject,
@@ -59,8 +60,8 @@ export interface LiveCollectionOptions {
 export interface LiveCollection {
   /** Underlying readable artifact collector. Mutations here (e.g. `use(globalModule)`, `useThemeVar`) also invalidate the sink. */
   readonly collector: StylesCollector;
-  /** Collects `handles` and returns their readable class names, space-separated. */
-  readonly resolveClassName: (...handles: StyleHandle[]) => string;
+  /** Collects `handles` and returns their readable class names, space-separated. A bare `{ key }` resolves through the registry. */
+  readonly resolveClassName: (...handles: StyleHandleRef[]) => string;
   /** Renders the CSS collected so far. */
   readonly css: () => string;
 }
@@ -83,6 +84,8 @@ export interface Distillery<
   ) => ValuesOf<TTheme>;
   /** The module registry accumulating collected handles and rules. */
   readonly registry: StyleRegistry;
+  /** `true` when `handle` was authored in a module registered with this distillery. A bare `{ key }` is checked by key. */
+  readonly owns: (handle: StyleHandleRef) => boolean;
   /** When `true`, collectors warn about no-op handles. */
   readonly dev: boolean;
   /** Named handle tree plus tokens. */
@@ -190,6 +193,12 @@ export const createDistillery = <const TTheme extends ThemeTree>(
           : requireThemeVariation(environment.variations, variation)
       ),
     registry,
+    owns: (handle) => {
+      const registered = registry.handle(handle.key);
+      return isHandleLike(handle)
+        ? registered === handle
+        : registered !== undefined;
+    },
     dev,
     createStyleModule: (name, factory) =>
       createStyleModuleWithEnvironment(environment, registry, name, factory),

@@ -38,7 +38,7 @@ import {
 | `StyleRegistry` | runtime | Module registry class. |
 | `Distillery` / `DistilleryOptions` / `DistilleryEnvironment` / `ThemeVarDefinition` | type | Bindings. |
 | `TokensOf` / `ValuesOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
-| `StyleHandle` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. |
+| `StyleHandle` / `StyleHandleRef` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. `StyleHandleRef` is `Pick<StyleHandle, 'key'>`, accepted by `useHandles` and `owns`. |
 | `LiveCollection` / `LiveCollectionOptions` | type | `distillery.liveCollection` result and options. |
 | `StyleSink` / `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike` | type | Sink surface. |
 
@@ -50,6 +50,7 @@ createDistillery<const TTheme extends ThemeTree>(
 ): Distillery<TokensOf<TTheme>, TTheme>;
 
 distillery.resolveValues(scheme: 'light' | 'dark', variation?: string): ValuesOf<TTheme>;
+distillery.owns(handle: StyleHandleRef): boolean; // StyleHandleRef = Pick<StyleHandle, 'key'>
 
 distillery.createStyleModule(name, ({ css, tokens }) => ({ ... }));
 distillery.artifactCollector(
