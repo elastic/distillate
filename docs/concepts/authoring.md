@@ -112,4 +112,4 @@ rule((h) => `${h.button}:hover`, decls`color: red;`, { auto: false }); // requir
 
 ## Combining class names
 
-`combineClassNames(context, ...handles)` forwards to `context.resolveClassName`. In a React renderer, that context is the collector-backed resolver you pass down the tree. See [Integrate with a React renderer](../guides/react-renderer.md).
+`resolveClassNames(context, ...handles)` forwards to `context.resolveClassName`, and falls back to each handle's `readableName` when `context` is `null` or `undefined`. In a React renderer, that context is the collector-backed resolver you pass down the tree; without one, the same view renders in a unit test or a plain DOM mount with stable readable names. `combineClassNames` is the older form without the fallback. See [Integrate with a React renderer](../guides/react-renderer.md).

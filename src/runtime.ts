@@ -83,7 +83,7 @@ export interface RenderStylesOptions {
   scheme?: 'light' | 'dark';
   /** Extra blocks for runtime switching. Each entry emits only the variation's diff. */
   alternates?: readonly ThemeAlternate[];
-  /** Override a theme token's emitted value. */
+  /** Override a theme token's emitted value, keyed by path, for values known only at request time. Wins over `flatten` and `scheme`. To emit one color scheme, use `scheme` instead of overriding every `lightDark` token. */
   themeValueOverrides?: Partial<Record<string, string>>;
 }
 

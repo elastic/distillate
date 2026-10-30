@@ -8,6 +8,7 @@
 import '../instance';
 
 export {
+  type ClassNameContext,
   combineClassNames,
   container,
   css,
@@ -17,6 +18,7 @@ export {
   mapDomain,
   media,
   pendingHandleFromFlattened,
+  resolveClassNames,
   rule,
   variants,
 } from './authoring';
