@@ -217,10 +217,7 @@ const renderHandle = (handle: StyleHandle, ctx: RenderContext): string => {
 };
 
 const renderRule = (rule: StyleRule, ctx: RenderContext): string => {
-  // Rules don't have a host handle for per-handle reachability — default
-  // markers in a rule's declaration emit every listed key. In practice
-  // authors place default markers on handle declarations; this branch keeps
-  // the runtime well-defined if a rule ever does carry one.
+  // No host handle, so a default marker in a rule emits every key.
   const body = renderDeclarations(rule.declarations, {}, ctx);
   if (isBlankCss(body)) {
     return '';

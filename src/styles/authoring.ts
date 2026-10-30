@@ -104,9 +104,6 @@ export const rule = (
   key: '',
   selector,
   declarations,
-  // `dependsOn` is computed in `assignEntries` once the module's handles are
-  // known. Authors construct rules outside that scope, so the placeholder is
-  // an empty set until `assignEntries` rewrites the entry.
   dependsOn: EMPTY_DEPS,
   auto: options.auto ?? true,
   variant: false,

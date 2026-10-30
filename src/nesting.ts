@@ -97,9 +97,7 @@ export type InterpolationPosition = 'selector' | 'statement';
 
 const SELF_SENTINEL = '.__dstl_self__';
 
-// Brace presence is the trigger for the nesting path. Brace-free templates
-// keep the byte-identical fast path in `styles/authoring.ts`. Quoted braces (`content:
-// "{"`) intentionally route here too — they used to throw.
+// Brace-free templates take the fast path in `styles/authoring.ts`. Quoted braces route here too.
 export const hasNestedSyntax = (strings: readonly string[]): boolean =>
   strings.some((part) => part.includes('{') || part.includes('}'));
 
@@ -184,9 +182,8 @@ const assertNoReservedPatterns = (strings: readonly string[]): void => {
   }
 };
 
-// Scan-only structural validator over the serialized text. Classifies, never
-// restructures — stylis owns all flattening. Enforces v1 scope before stylis
-// can normalize, hoist, or silently drop malformed constructs.
+// Validates structure before stylis can normalize, hoist, or drop malformed
+// constructs. Never restructures; stylis owns flattening.
 const scanStructure = (text: string, mode: FlattenMode): void => {
   let depth = 0;
   let parenDepth = 0;
@@ -282,17 +279,12 @@ const scanStructure = (text: string, mode: FlattenMode): void => {
   }
 };
 
-/** stylis only wraps bare in-media declarations for lowercase `@media`. */
-// stylis matches at-rules case-sensitively, so `@MEDIA` has to be normalized
-// before it parses. Only `text` spans are eligible: an `@media` inside a
-// string, a comment, or an unquoted `url(...)` is data, and rewriting the last
-// of those silently changes a case-sensitive path.
+/** stylis matches at-rules case-sensitively, so `@MEDIA` is lowercased in text spans only; inside a string, comment, or `url(...)` it is data. */
 const canonicalizeAtMedia = (text: string): string =>
   scanCss(text)
     .map((span) =>
       span.kind === 'text'
-        ? // A `\\b` here would also match `@media-foo`, rewriting an unknown
-          // at-rule whose name merely starts with `media`.
+        ? // Not `\\b`, which would also match `@media-foo`.
           span.text.replace(/@media(?![\w-])/gi, '@media')
         : span.text
     )

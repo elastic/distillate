@@ -129,10 +129,7 @@ export const createEmotion = <TTokens>(
 
   if (options.sink) {
     state.sinks.add(options.sink);
-    // Catch a late-attached sink up to styles already registered on this
-    // registry: cached `css`/`injectGlobal` calls return early without
-    // invalidating, so without this the managed `<style>` would miss every
-    // style registered before the sink was attached.
+    // A sink attached after styles registered needs one flush to catch up.
     options.sink.invalidate(stylesheet);
   }
 
@@ -255,8 +252,6 @@ export const createEmotion = <TTokens>(
 const makeWrapper = (handle: StyleHandle): EmotionCss => {
   const readable = handle.readableName;
   const asString = (): string => readable;
-  // Spread copy keeps `resolveClassName` (closed over the original handle) and
-  // `key` intact so collector dedupe and compaction work unchanged.
   const wrapper = { ...handle } as EmotionCss & {
     toString: () => string;
     [Symbol.toPrimitive]: () => string;
@@ -290,9 +285,7 @@ const detectCollision = (
   }
 };
 
-// A cheap, exact collision tripwire independent of the (lossy) hash. NUL-joins
-// strings and String()s values — good enough because it is only ever compared
-// against another canonical string for the same module name.
+// Exact tripwire for hash collisions, compared only against another canonical string for the same module name.
 const canonicalKey = (
   strings: readonly string[],
   values: readonly unknown[]

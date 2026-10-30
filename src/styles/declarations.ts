@@ -50,10 +50,6 @@ export const buildDeclarations = (
       const value = values[index];
       if (isLocalVarMarker(value)) {
         flushPending();
-        // Both default-emission and override-emission markers may carry
-        // theme tokens or shared contextual var refs as values. Walk those
-        // values and record any nested deps onto the host declaration so
-        // tree-shaking and registry registration include them.
         recordMarkerDeps(value, deps);
         segments.push(value);
       } else {
@@ -76,11 +72,7 @@ const recordMarkerDeps = (
   deps: MutableStyleDeps
 ): void => {
   if (marker.__kind === 'local-var-default-marker') {
-    // Default markers contribute their var paths and per-value deps only
-    // through the collector's reachability pass at resolver creation. We
-    // capture per-key value deps here so the collector can fold them in
-    // verbatim when the key survives reachability — and skip them entirely
-    // when it doesn't.
+    // Default keys reach `deps.vars` only when the collector finds them reachable.
     deps.defaults.push({
       groupPath: marker.groupPath,
       keys: marker.defaults.map((item) => ({
@@ -93,9 +85,7 @@ const recordMarkerDeps = (
   }
   for (const item of marker.overrides) {
     deps.vars.add(item.path);
-    // Stringify each value once to capture nested theme/var deps. The
-    // string return is discarded — the runtime re-stringifies at render
-    // time so compaction sees the same readable refs we record here.
+    // Only the recorded deps are kept; the runtime stringifies again at render.
     stringifyCssValue(item.value, deps);
   }
 };
@@ -134,9 +124,7 @@ export const stringifyCssValue = (
     return value.ref;
   }
   if (isContextualCssVarName(value)) {
-    // `.name` interpolations are left-hand-side custom-property
-    // identifiers, not `var(...)` references — they belong in `vars` for
-    // registry coverage but not in `refs` (which feeds reachability).
+    // A `.name` is a declared identifier, not a read, so it is not a ref.
     deps.vars.add(value.path);
     return value.name;
   }

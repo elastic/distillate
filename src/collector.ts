@@ -158,10 +158,7 @@ export class StylesCollector {
     }
 
     if (isStylesModule(value)) {
-      // Aggregate deps from non-variant entries only. The module-level
-      // `themeDeps`/`varDeps` snapshot would also include variant entries'
-      // deps, which would push their var paths into the resolver's compact
-      // registry and steal short names from actually-rendered handles.
+      // Variant entries' deps would claim compact names for handles never rendered.
       for (const entry of value.entries) {
         if (entry.variant) {
           continue;
@@ -381,11 +378,6 @@ export class StylesCollector {
     return this.finalizeDeps().vars;
   }
 
-  // Reachability-aware default-emission set used by the runtime. For a
-  // given handle and `${group}` site, returns the keys whose declarations
-  // should ship: union of group-keys appearing in `handle.declarations.deps.refs`
-  // and in `deps.refs` of every collected rule/media-inner-rule whose
-  // selector targets `handle`.
   /**
    * Returns the variable keys within `groupPath` that are reachable from `handle` or from any collected rule targeting it.
    *
@@ -427,9 +419,7 @@ export class StylesCollector {
     return reachable;
   }
 
-  // Computes the final theme/var dep sets, folding in default-marker
-  // contributions only for keys that survive reachability. Cached until the
-  // next change to entries, handles, or deps.
+  // Cached until entries, handles, or deps change.
   private finalizeDeps(): FinalizedDeps {
     this.finalized ??= this.computeFinalizedDeps();
     return this.finalized;
@@ -453,10 +443,7 @@ export class StylesCollector {
       }
     }
 
-    // Default markers inside rule / media-inner-rule declarations don't have
-    // a host handle to anchor reachability against. The runtime emits every
-    // listed key when rendering such a declaration, so we mirror that here
-    // and include all of them in the registry.
+    // Rules have no host handle for reachability, so every default key counts, as at render.
     for (const entry of this.entries.values()) {
       if (entry.kind === 'rule') {
         includeAllDefaults(entry.declarations.deps.defaults, theme, vars);
@@ -626,8 +613,7 @@ const localVarOverrideRank = (entry: StyleEntry): number => {
   return entry.declarations.css.some(isLocalVarOverrideMarker) ? 1 : 0;
 };
 
-// Base entries before every `@media`/`@container` block (no specificity). See finding `media-block-ordering`.
-// `${group.set()}` after `${group}` defaults so a stacked override class wins. See finding `local-var-override-ordering`.
+// Base entries precede every at-rule block, which adds no specificity. Override markers follow default markers so a stacked override class wins.
 const compareEntriesForEmission = (a: StyleEntry, b: StyleEntry): number => {
   const rankDelta = mediaSortRank(a) - mediaSortRank(b);
   if (rankDelta !== 0) {

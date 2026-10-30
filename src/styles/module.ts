@@ -87,10 +87,7 @@ const assignEntries = (
   varDeps: Set<ContextualVarPath>,
   inheritedVariant = false
 ): unknown => {
-  // A value is considered "variant" when either the immediate node was
-  // produced inside a `variants(...)` factory, or it sits beneath a parent
-  // `variants(...)` record (covers nested handles inside a per-variant
-  // object literal). The flag is sticky once set during the walk.
+  // Everything beneath a `variants(...)` record is a variant.
   const variantHere = inheritedVariant || isVariantMarked(value);
 
   if (isPendingHandle(value)) {
@@ -339,9 +336,7 @@ const computeRuleDeps = (
   try {
     rule.selector(trackingResolver);
   } catch {
-    // Selector factories are expected to be pure string-builders, but a
-    // factory that throws on dummy input shouldn't break module construction.
-    // The dep set stays whatever was recorded before the throw.
+    // A factory that throws on the tracking resolver keeps the deps recorded so far.
   }
   return accessed;
 };
