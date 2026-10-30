@@ -26,7 +26,7 @@ import {
 | `lightDark` / `cq` | runtime | Theme-tree leaves. `cq` aliases `scaleToken`; its second argument defaults to the first. |
 | `zipSchemes` | runtime | Fold two per-scheme trees. Differing strings become `lightDark`. |
 | `resolveThemeValues` | runtime | Nested literal values for one scheme. Prefer `distillery.resolveValues`. |
-| `themeToken` / `scaleToken` / `contextualVar` | runtime | Token factories. Derivation calls `themeToken` / `scaleToken`. |
+| `themeToken` / `scaleToken` / `contextualVar` | runtime | Token factories. Derivation calls `themeToken` / `scaleToken`. For a path in `sharedVars`, prefer `distillery.contextualVar(path)`. |
 | `isCssToken` / `isScaleToken` / `isContextualCssVar` / `isContextualCssVarName` | runtime | Type guards. |
 | `css` / `decls` | runtime | Handle and declaration templates. Also on the `createStyleModule` factory argument. |
 | `rule` / `media` / `container` / `variants` / `mapDomain` | runtime | Root-entry authoring helpers. `mapDomain` has no collector side effect. |
@@ -53,6 +53,7 @@ createDistillery<const TTheme extends ThemeTree>(
 
 distillery.resolveValues(scheme: 'light' | 'dark', variation?: string): ValuesOf<TTheme>;
 distillery.owns(handle: StyleHandleRef): boolean; // StyleHandleRef = Pick<StyleHandle, 'key'>
+distillery.contextualVar(path: `vars/${string}`): ContextualCssVar; // path must be in sharedVars
 
 distillery.createStyleModule(name, ({ css, tokens }) => ({ ... }));
 distillery.artifactCollector(

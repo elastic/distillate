@@ -36,7 +36,7 @@ const fixtureTheme = {
 };
 
 const createFixtureDistillery = (
-  options: Pick<DistilleryOptions, 'dev'> = {}
+  options: Pick<DistilleryOptions, 'dev' | 'warn'> = {}
 ) =>
   createDistillery({
     prefix: 'eui',
@@ -1724,5 +1724,117 @@ describe('t.vars value validation at render', () => {
     expect(() => distillery.renderStyles(collector)).toThrow(
       /received object\.$/
     );
+  });
+});
+
+describe('distillery.contextualVar', () => {
+  const createShared = (
+    options: Pick<DistilleryOptions, 'dev' | 'warn'> = {}
+  ) =>
+    createDistillery({
+      prefix: 'eui',
+      themeScope: '.x',
+      theme: {},
+      sharedVars: ['vars/tone'],
+      ...options,
+    });
+
+  it('derives the custom property from the prefix and path', () => {
+    const distillery = createShared();
+    const tone = distillery.contextualVar('vars/tone');
+
+    expect(tone.path).toBe('vars/tone');
+    expect(tone.ref).toBe('var(--eui-tone)');
+    expect(String(tone.name)).toBe('--eui-tone');
+  });
+
+  it('throws for a path not declared in sharedVars', () => {
+    const distillery = createShared();
+
+    expect(() => distillery.contextualVar('vars/missing')).toThrow(
+      'declare "vars/missing" in createDistillery({ sharedVars })'
+    );
+  });
+
+  it('warns in dev when a hand-built shared var uses another name', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createShared({ dev: true, warn });
+    const drifted = contextualVar('vars/tone', '--slide-vars-tone');
+
+    distillery.createStyleModule('chip', (t) => ({
+      root: t.css`
+        color: ${drifted};
+      `,
+      loud: t.css`
+        outline-color: ${drifted};
+      `,
+    }));
+
+    expect(warnings).toEqual([
+      'Style module "chip" interpolates shared var "vars/tone" under a custom property other than "--eui-tone"; build it with distillery.contextualVar("vars/tone") so readable and compact names agree.',
+    ]);
+  });
+
+  it('warns for a drifted var inside a local-var override', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createShared({ dev: true, warn });
+    const drifted = contextualVar('vars/tone', '--slide-vars-tone');
+
+    distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', { bg: '#fff' });
+      return {
+        root: t.css`
+          ${look}
+          background: ${look.bg};
+        `,
+        loud: t.css`
+          ${look.set({ bg: drifted })}
+        `,
+      };
+    });
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('"vars/tone"');
+  });
+
+  it('stays quiet for a derived var, a foreign var, or outside dev', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createShared({ dev: true, warn });
+    const foreign = contextualVar('vars/other/tone', '--other-tone');
+
+    distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', {
+        bg: distillery.contextualVar('vars/tone'),
+      });
+      return {
+        root: t.css`
+          ${look}
+          color: ${distillery.contextualVar('vars/tone')};
+          border-color: ${foreign};
+        `,
+      };
+    });
+    expect(warnings).toEqual([]);
+
+    const quiet = createShared({ warn });
+    quiet.createStyleModule('chip', (t) => ({
+      root: t.css`
+        color: ${contextualVar('vars/tone', '--slide-vars-tone')};
+      `,
+    }));
+    expect(warnings).toEqual([]);
+  });
+
+  it('routes collector no-op warnings through the distillery sink', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createFixtureDistillery({ dev: true, warn });
+    const demo = distillery.createStyleModule('quiet', (t) => ({
+      empty: t.css``,
+    }));
+
+    distillery.artifactCollector('compact').useHandles([demo.handles.empty]);
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('handle "empty" has no declarations');
   });
 });
