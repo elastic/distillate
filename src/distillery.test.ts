@@ -1771,7 +1771,30 @@ describe('distillery.contextualVar', () => {
     }));
 
     expect(warnings).toEqual([
-      'Style module "chip" interpolates shared var "vars/tone" under a custom property other than "--eui-tone"; build it with distillery.contextualVar("vars/tone") so readable and compact names agree.',
+      'Style module "chip" interpolates shared var "vars/tone" as "--slide-vars-tone" instead of "--eui-tone"; build it with distillery.contextualVar("vars/tone") so readable and compact names agree.',
+    ]);
+  });
+
+  it('compares each interpolation exactly, so a prefix match or a correct sibling does not mask drift', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createShared({ dev: true, warn });
+    const superset = contextualVar('vars/tone', '--eui-tone-custom');
+    const drifted = contextualVar('vars/tone', '--slide-vars-tone');
+
+    distillery.createStyleModule('chip', (t) => ({
+      root: t.css`
+        color: ${superset};
+      `,
+      loud: t.css`
+        color: ${distillery.contextualVar('vars/tone')};
+        outline-color: ${drifted};
+        ${drifted.name}: red;
+      `,
+    }));
+
+    expect(warnings).toEqual([
+      expect.stringContaining('as "--eui-tone-custom" instead of "--eui-tone"'),
+      expect.stringContaining('as "--slide-vars-tone" instead of "--eui-tone"'),
     ]);
   });
 

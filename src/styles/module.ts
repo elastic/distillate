@@ -13,6 +13,7 @@ import {
   type LocalVarGroup,
 } from '../local_vars';
 import { cssVarName } from '../names';
+import { isContextualCssVar, isContextualCssVarName } from '../tokens';
 import { hasEntryKind } from '../tokens/kind';
 
 import { composeSelector, css, decls, isVariantMarked } from './authoring';
@@ -219,7 +220,7 @@ const addDeclarationDeps = (
   vars.forEach((path) => builder.varDeps.add(path));
 };
 
-// A shared var interpolated under any name writes that name into the declarations, so the reserved name missing means a hand-built var drifted.
+// Interpolating a contextual var records its property name on the block's deps; marker values keep the var itself.
 const warnContextualVarDrift = (
   environment: DistilleryEnvironment<unknown>,
   moduleName: string,
@@ -231,26 +232,37 @@ const warnContextualVarDrift = (
     return;
   }
   const warned = new Set<string>();
-  const check = (declarations: Declarations): void => {
-    const paths = [
-      ...declarations.deps.vars,
-      ...declarations.deps.defaults.flatMap((group) =>
-        group.keys.flatMap((item) => [...item.valueDeps.vars])
-      ),
-    ];
-    const text = declarationText(declarations);
-    for (const path of paths) {
-      if (!shared.has(path) || warned.has(path)) {
+  const report = (path: ContextualVarPath, name: string): void => {
+    if (!shared.has(path)) {
+      return;
+    }
+    const expected = cssVarName(environment.prefix, path);
+    if (name === expected || warned.has(`${path} ${name}`)) {
+      return;
+    }
+    warned.add(`${path} ${name}`);
+    warn(
+      `Style module "${moduleName}" interpolates shared var "${path}" as "${name}" instead of "${expected}"; build it with distillery.contextualVar("${path}") so readable and compact names agree.`
+    );
+  };
+  const check = ({ css, deps }: Declarations): void => {
+    deps.varNames?.forEach((names, path) =>
+      names.forEach((name) => report(path, name))
+    );
+    for (const segment of css) {
+      if (typeof segment === 'string') {
         continue;
       }
-      const expected = cssVarName(environment.prefix, path);
-      if (text.includes(expected)) {
-        continue;
+      const items = isLocalVarDefaultMarker(segment)
+        ? segment.defaults
+        : segment.overrides;
+      for (const { value } of items) {
+        if (isContextualCssVar(value)) {
+          report(value.path, value.name.name);
+        } else if (isContextualCssVarName(value)) {
+          report(value.path, value.name);
+        }
       }
-      warned.add(path);
-      warn(
-        `Style module "${moduleName}" interpolates shared var "${path}" under a custom property other than "${expected}"; build it with distillery.contextualVar("${path}") so readable and compact names agree.`
-      );
     }
   };
   for (const entry of entries) {
@@ -261,20 +273,6 @@ const warnContextualVarDrift = (
     }
   }
 };
-
-/** String segments plus every marker value, stringified. */
-const declarationText = (declarations: Declarations): string =>
-  declarations.css
-    .map((segment) => {
-      if (typeof segment === 'string') {
-        return segment;
-      }
-      const items = isLocalVarDefaultMarker(segment)
-        ? segment.defaults
-        : segment.overrides;
-      return items.map((item) => String(item.value)).join(' ');
-    })
-    .join(' ');
 
 const MAX_NESTED_SIBLINGS = 1000;
 
