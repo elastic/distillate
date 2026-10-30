@@ -154,9 +154,7 @@ export interface RuleOptions {
 export interface StyleMedia {
   /** Discriminant for {@link StyleEntry}. */
   readonly kind: 'media';
-  /**
-   * At-rule this entry emits. `kind` stays `'media'` so collector rank and deps apply uniformly; see finding `media-block-ordering`.
-   */
+  /** At-rule this entry emits. `kind` stays `'media'` so collector rank and deps apply uniformly. */
   readonly atRule?: 'media' | 'container';
   /** Stable identity for deduplication across multiple renders. */
   readonly key: string;

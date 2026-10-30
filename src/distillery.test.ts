@@ -384,7 +384,6 @@ describe('createDistillery with a foreign environment', () => {
     expect(css).not.toContain('aui');
   });
 
-  // Regression for finding `local-var-override-ordering`.
   it('emits t.vars defaults before .set() overrides when the override handle sorts first', () => {
     const distillery = createFixtureDistillery();
     const demo = distillery.createStyleModule('chip', (t) => {
@@ -452,12 +451,7 @@ describe('nested Emotion-style css templates', () => {
     expect(css.indexOf(':hover')).toBeLessThan(css.indexOf('@media'));
   });
 
-  // Regression for finding `media-block-ordering`. A module whose name sorts
-  // after `media` (which `deck` deliberately does not) used to emit its
-  // `@media` overrides before the base rules they override, so at equal
-  // specificity the base rule won and the responsive override never applied.
-  // `row` and `table` in the official pack are the real cases; this mirrors
-  // their explicit `media(...)`/`rule(...)` shape.
+  // At equal specificity a base rule emitted after its `@media` override would win.
   it('emits base rules before an overriding media block when the module name sorts after `media`', () => {
     const distillery = createFixtureDistillery();
     distillery.createStyleModule('zebra', (t) => ({
@@ -549,11 +543,7 @@ describe('nested Emotion-style css templates', () => {
     expect(css).not.toContain('@media (min-width:1080px)');
   });
 
-  // `container(...)` keeps `kind: 'media'` precisely so it inherits the
-  // emission rank from finding `media-block-ordering`: `@container` adds no
-  // specificity either, so a same-selector override only wins by coming later
-  // in source. Mirrors the `zebra` media case above with a module name that
-  // sorts after `container`.
+  // `@container` adds no specificity either, so the same ordering applies.
   it('emits base rules before an overriding container block when the module name sorts after `container`', () => {
     const distillery = createFixtureDistillery();
     distillery.createStyleModule('zebra', (t) => ({

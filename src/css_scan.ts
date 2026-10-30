@@ -5,17 +5,13 @@
  * 2.0.
  */
 
-// One scanner for the three passes that need to read CSS text: minification,
-// the `@media` canonicalization in `nesting.ts`, and the var invariant in
-// `./testing`. Each of those grew its own character loop, and each learned the
-// same lessons separately and late — comments inside `url(...)`, backslash
-// escapes, at-rules inside `url(...)`, selector-versus-declaration position.
-// A span is the unit all three actually need: a stretch of text with a kind
-// that says whether its contents are code or opaque, plus where it sits.
+// One scanner for the passes that read CSS text: minification, `@media`
+// canonicalization in `nesting.ts`, and the var invariant in `./testing`.
+// A span is a stretch of text with a kind that says whether its contents are
+// code or opaque, plus where it sits.
 //
-// This is deliberately not a CSS Syntax Level 3 tokenizer. It models the six
-// things those passes get wrong and nothing else, because a promise of full
-// conformance is one this module would not keep.
+// Not a CSS Syntax Level 3 tokenizer. It models comments, strings, unquoted
+// `url(...)`, escapes, structural characters, and block position, and nothing else.
 
 /** What a span's text is, which decides whether a pass may look inside it. */
 export type CssSpanKind =
@@ -64,16 +60,12 @@ const URL_PREFIX = 'url(';
 
 /** `true` when an unquoted `url(` function token starts at `index`. */
 const isUnquotedUrlStart = (value: string, index: number): boolean => {
-  // Cheap rejection first: this runs at every index of every text span, and
-  // all but one character in a few hundred fails here rather than in a
-  // `slice().toLowerCase()`.
+  // Runs at every index of every text span, so reject on the first character.
   const head = value[index];
   if (head !== 'u' && head !== 'U') {
     return false;
   }
-  // `url(` has to open a function token rather than end a longer identifier.
-  // `myurl(/a/*b*/c)` is some other function, and reading it as a url would
-  // make its contents opaque — hiding a real comment from every pass.
+  // `url(` must open a function token: `myurl(...)` is some other function.
   const before = value[index - 1];
   if (before !== undefined && /[\w\\-]/.test(before)) {
     return false;
