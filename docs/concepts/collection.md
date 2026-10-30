@@ -17,6 +17,32 @@ const css = distillery.renderStyles(collector);
 
 `artifactCollector` starts empty. `stylesheetCollector(names?)` defaults to `'readable'` and preloads every registered module via `useAllEntries`. Both accept an optional `{ warn }` so hosts can capture no-op-handle warnings when `createDistillery({ dev: true })`.
 
+## Tree-shaking and library stylesheets
+
+`stylesheetCollector()` snapshots only modules whose files have already loaded and registered with this distillery. It does not discover or import style files, and modules loaded later are not added automatically.
+
+Libraries declaring `"sideEffects": false` let bundlers remove files whose exports are unused. In particular, Rollup and Rolldown can drop style files that are imported only for registration, so registry-only collection can silently emit an incomplete or empty stylesheet. A side-effect import, a `void` read, or marking only a barrel file as side-effectful is not a reliable way to retain those style files.
+
+For a full library stylesheet, import the intended modules and pass them **by value**:
+
+```ts
+import { button } from './button.styles';
+import { panel } from './panel.styles';
+
+export function stylesheet() {
+  const collector = distillery.stylesheetCollector({
+    modules: [button, panel],
+  });
+  return distillery.renderStyles(collector);
+}
+```
+
+`modules` accepts a readonly array. When supplied, it replaces the registry snapshot: only the listed modules are preloaded, including all their variants; `modules: []` starts empty. Keep the list complete as the library grows. Omit `modules` to retain registry-based collection.
+
+For compact names, use `stylesheetCollector('compact', { modules: [button, panel] })`. The existing `stylesheetCollector(names?, { warn })` form still works, and `{ warn }` can also accompany `modules` in the options-only form.
+
+If you deliberately rely on registration side effects instead, the publishing package must mark the **actual style files** as side-effectful in its `sideEffects` configuration, not just their barrel. Explicit module values avoid relying on that configuration.
+
 ## What each method collects
 
 | Method                  | Effect                                                                                                                                       |

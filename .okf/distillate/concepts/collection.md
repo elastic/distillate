@@ -27,7 +27,9 @@ sources:
 
 # Definition
 
-Prefer `distillery.artifactCollector(names)` (empty) and `distillery.stylesheetCollector(names?)` (preloads every module via `useAllEntries`, default `'readable'`). There is no `StylesCollector.artifact` static factory.[^collector]
+Prefer `distillery.artifactCollector(names)` (empty) and `distillery.stylesheetCollector(names?)` (preloads every currently registered module via `useAllEntries`, default `'readable'`). There is no `StylesCollector.artifact` static factory.[^collector]
+
+For tree-shaken libraries, pass module values explicitly: `stylesheetCollector({ modules: [button, panel] })` or `stylesheetCollector('compact', { modules: [button, panel], warn })`. The readonly array replaces the registry snapshot, includes variants, and may be empty. Omit `modules` to collect the current registry. Registry-only collection sees only files already loaded; `"sideEffects": false` can let Rollup/Rolldown drop files used only for registration. A barrel-only side-effect exemption or `void` read is not reliable. Keep the explicit list complete, or mark actual style files as side-effectful.[^engine][^distillery-tests]
 
 | Method                  | Effect                                                               |
 | ----------------------- | -------------------------------------------------------------------- |

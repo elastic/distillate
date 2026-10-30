@@ -10,6 +10,7 @@ export {
   type Distillery,
   type LiveCollection,
   type LiveCollectionOptions,
+  type StylesheetCollectorOptions,
 } from './engine';
 export {
   createDomSink,

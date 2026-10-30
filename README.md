@@ -70,9 +70,11 @@ collector.use(demo.handles.root);
 distillery.renderStyles(collector);
 // => '.eui-view{--a:light-dark(#111,#eee)}.a{color:var(--a);padding:8px}'
 
-distillery.renderStyles(distillery.stylesheetCollector());
+distillery.renderStyles(distillery.stylesheetCollector({ modules: [demo] }));
 // => '.eui-view{--eui-colors-ink:light-dark(#111,#eee)}.demo-root{color:var(--eui-colors-ink);padding:8px}'
 ```
+
+Without `modules`, `stylesheetCollector()` collects only modules registered by files that have already loaded. Bundlers can drop style files in libraries declaring `"sideEffects": false`, leaving an incomplete stylesheet. For a tree-shaken library's full stylesheet, import every intended module and pass it by value in `modules`. See [collection and tree-shaking](https://elastic.github.io/distillate/concepts/collection.html#tree-shaking-and-library-stylesheets).
 
 ## Output matrix
 
