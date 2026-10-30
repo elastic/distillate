@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-10-30
+
+- **Update**: `stylesheetCollector({ modules })` and `stylesheetCollector(names, { modules })` preload explicit module values, including variants, instead of the registry snapshot. The options type is exported as `StylesheetCollectorOptions`; existing calls retain their behavior. README and collection docs explain why registry-only stylesheets can lose style files under `"sideEffects": false` with Rollup/Rolldown.
+
 ## 2026-10-23
 
 - **Update**: `.github/workflows/dependabot-licenses.yml` regenerates and commits license reports on Dependabot dependency PRs, then dispatches `ci.yml` for the updated branch. Generation runs with read-only access, and the write job commits only the two reports with a lease on the original PR head.
