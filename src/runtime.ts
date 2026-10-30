@@ -42,7 +42,13 @@ export const renderStyles = (
   resolver: StyleNameResolver = collector.createResolver(),
   options: RenderStylesOptions = {}
 ): string => {
-  const ctx: RenderContext = { environment, collector, resolver, options };
+  const ctx: RenderContext = {
+    environment,
+    collector,
+    resolver,
+    options,
+    readableVars: createReadableVarLookup(environment, collector),
+  };
   const bodyFragments = collector.collectedEntries.map((entry) => {
     if (entry.kind === 'handle') {
       return renderHandle(entry, ctx);
@@ -96,6 +102,8 @@ interface RenderContext {
   resolver: StyleNameResolver;
   /** Per-render theme value overrides. */
   options: RenderStylesOptions;
+  /** Readable var names to rewrite, built once per render. */
+  readableVars: ReadableVarLookup;
 }
 
 const renderThemeVars = (ctx: RenderContext): string => {
@@ -362,67 +370,121 @@ const defineSelectorAlias = (
 };
 
 const resolveStringSegment = (cssText: string, ctx: RenderContext): string => {
+  if (!cssText.includes(ctx.readableVars.marker)) {
+    return cssText;
+  }
   return scanCss(cssText)
     .map((span) =>
-      isOpaque(span) ? span.text : resolveCodeSpan(span.text, ctx)
+      isOpaque(span) ? span.text : substituteReadableVars(span.text, ctx)
     )
     .join('');
 };
 
-const resolveCodeSpan = (cssText: string, ctx: RenderContext): string => {
-  let result = cssText;
-  const paths = new Set<string>([
-    ...Object.keys(ctx.environment.themeVars),
-    ...(ctx.environment.sharedVars ?? []),
-    ...ctx.collector.collectedVarDeps,
-  ]);
-  for (const path of paths) {
-    result = substituteReadableVar(result, path, ctx);
-  }
-  return result;
+/** Readable custom-property names this render may rewrite, keyed to their paths. */
+interface ReadableVarLookup {
+  /** `--${prefix}-`, the start of every readable name. */
+  readonly marker: string;
+  /** Readable name to path. The first path for a name wins. */
+  readonly paths: ReadonlyMap<string, string>;
+  /** Resolved names, filled on first use. */
+  readonly resolved: Map<string, string>;
+}
+
+const createReadableVarLookup = (
+  environment: DistilleryEnvironment<unknown>,
+  collector: StylesCollector
+): ReadableVarLookup => {
+  const paths = new Map<string, string>();
+  const add = (path: string): void => {
+    const name = cssVarName(environment.prefix, path);
+    if (!paths.has(name)) {
+      paths.set(name, path);
+    }
+  };
+  Object.keys(environment.themeVars).forEach(add);
+  (environment.sharedVars ?? []).forEach(add);
+  collector.collectedVarDeps.forEach(add);
+  return {
+    marker: `--${environment.prefix}-`,
+    paths,
+    resolved: new Map(),
+  };
 };
 
-const substituteReadableVar = (
+// `var(<name>)` resolves the same as `<name>`, since `cssVarRef(path)` is
+// `var(${cssVar(path)})`, so only the identifier is rewritten.
+const substituteReadableVars = (
   cssText: string,
-  path: string,
   ctx: RenderContext
 ): string => {
-  const readableName = cssVarName(ctx.environment.prefix, path);
-  const readableRef = `var(${readableName})`;
-  let result = cssText;
-  if (result.includes(readableRef)) {
-    result = replaceAll(result, readableRef, ctx.resolver.cssVarRef(path));
+  const { marker } = ctx.readableVars;
+  let index = cssText.indexOf(marker);
+  if (index === -1) {
+    return cssText;
   }
-  if (containsCssIdentifier(result, readableName)) {
-    result = replaceCssIdentifier(
-      result,
-      readableName,
-      ctx.resolver.cssVar(path)
-    );
+  let result = '';
+  let copied = 0;
+  while (index !== -1) {
+    const name = longestReadableNameAt(cssText, index, ctx.readableVars);
+    if (name === undefined) {
+      index = cssText.indexOf(marker, index + 1);
+      continue;
+    }
+    result += cssText.slice(copied, index) + resolveReadableName(name, ctx);
+    copied = index + name.length;
+    index = cssText.indexOf(marker, copied);
   }
-  return result;
+  return result + cssText.slice(copied);
 };
 
-const replaceAll = (
-  value: string,
-  search: string,
-  replacement: string
-): string => value.split(search).join(replacement);
+// Matches a name only where the next character can't continue the identifier.
+const longestReadableNameAt = (
+  cssText: string,
+  start: number,
+  lookup: ReadableVarLookup
+): string | undefined => {
+  const minEnd = start + lookup.marker.length;
+  let end = minEnd;
+  while (end < cssText.length && !isNameTerminator(cssText.charCodeAt(end))) {
+    end += 1;
+  }
+  for (let cut = end; cut > minEnd; cut -= 1) {
+    if (cut < cssText.length && isIdentChar(cssText.charCodeAt(cut))) {
+      continue;
+    }
+    const name = cssText.slice(start, cut);
+    if (lookup.paths.has(name)) {
+      return name;
+    }
+  }
+  return undefined;
+};
 
-const replaceCssIdentifier = (
-  value: string,
-  search: string,
-  replacement: string
-): string =>
-  // Authored and generated CSS only contains valid custom property identifiers.
-  // Since every searched token starts with "--", the trailing boundary is enough.
-  value.replace(
-    new RegExp(`${escapeRegExp(search)}(?![_a-zA-Z0-9-])`, 'g'),
-    replacement
-  );
+const resolveReadableName = (name: string, ctx: RenderContext): string => {
+  const { paths, resolved } = ctx.readableVars;
+  let value = resolved.get(name);
+  if (value === undefined) {
+    value = ctx.resolver.cssVar(paths.get(name)!);
+    resolved.set(name, value);
+  }
+  return value;
+};
 
-const containsCssIdentifier = (value: string, search: string): boolean =>
-  new RegExp(`${escapeRegExp(search)}(?![_a-zA-Z0-9-])`).test(value);
+const isIdentChar = (code: number): boolean =>
+  code === 0x2d || // -
+  code === 0x5f || // _
+  (code >= 0x30 && code <= 0x39) ||
+  (code >= 0x41 && code <= 0x5a) ||
+  (code >= 0x61 && code <= 0x7a);
 
-const escapeRegExp = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// Characters no theme or var path contains, which bound the name search.
+const isNameTerminator = (code: number): boolean =>
+  code <= 0x20 ||
+  code === 0x22 || // "
+  code === 0x27 || // '
+  code === 0x28 || // (
+  code === 0x29 || // )
+  code === 0x2c || // ,
+  code === 0x3b || // ;
+  code === 0x7b || // {
+  code === 0x7d; // }

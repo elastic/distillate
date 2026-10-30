@@ -1,5 +1,11 @@
 # Directory Update Log
 
+## 2026-10-23
+
+- **Update**: `.github/workflows/dependabot-licenses.yml` regenerates and commits license reports on Dependabot dependency PRs, then dispatches `ci.yml` for the updated branch. Generation runs with read-only access, and the write job commits only the two reports with a lease on the original PR head.
+- **Update**: Snapshots under `next`. Each push to `main` that changes a published file or build input runs a Snapshot job in `release.yml`, where trusted publishing is bound, and `scripts/publish_snapshot.js` publishes `@elastic/distillate` at `<release + 1 patch>-main.<time>.g<sha>` under the `next` dist-tag, with no tag or commit. `.github/post-release.md`, the installation docs, README, and the public contract describe it.
+- **Update**: `renderStyles` builds its readable-name lookup once per call and rewrites `--<prefix>-…` names in one pass per CSS span, instead of building a `RegExp` per theme token per span (#41). `StylesCollector` caches its finalized theme and var deps until the collection changes. Output is unchanged; `src/runtime.test.ts` pins compact substitution and the cache.
+
 ## 2026-09-29
 
 - **Update**: `.releaserc.json` adds a `breakingHeaderPattern` to the angular preset's parser options, so a `feat!:` or `fix(scope)!:` header drives a major release and lands under breaking changes in the notes without a `BREAKING CHANGE` footer. `scripts/releaserc.test.js` runs the config through the upstream analyzer and notes generator.

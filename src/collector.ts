@@ -111,11 +111,16 @@ export class StylesCollector {
   private readonly warn: (message: string) => void;
   private readonly entries = new Map<string, StyleEntry>();
   private readonly handles = new Map<string, StyleHandle>();
+  // Handles `useHandles` has fully processed since the last entry or handle change.
+  private readonly settledHandles = new Set<StyleHandle>();
+  // Bumped whenever `settledHandles` is invalidated.
+  private revision = 0;
   private readonly themeDeps = new Set<string>();
   private readonly varDeps = new Set<ContextualVarPath>();
   private readonly listeners = new Set<() => void>();
   private depth = 0;
   private dirty = false;
+  private finalized: FinalizedDeps | undefined;
 
   constructor({
     target,
@@ -221,12 +226,19 @@ export class StylesCollector {
    */
   useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[] {
     return this.batch(() => {
+      const revision = this.revision;
       const retained: StyleHandle[] = [];
+      let pending: StyleHandle[] = [];
       for (const handle of handles) {
+        if (this.settledHandles.has(handle)) {
+          retained.push(handle);
+          continue;
+        }
         if (!this.retainHandle(handle)) {
           continue;
         }
         retained.push(handle);
+        pending.push(handle);
         if (this.handles.has(handle.key)) {
           continue;
         }
@@ -234,7 +246,11 @@ export class StylesCollector {
         this.setHandle(handle);
         this.addDeclarationDeps(handle.declarations);
       }
-      for (const handle of retained) {
+      // A later handle may complete deps for a skipped one, so rescan them all.
+      if (this.revision !== revision) {
+        pending = retained;
+      }
+      for (const handle of pending) {
         const module = this.registry.module(handle.moduleName);
         if (!module) {
           continue;
@@ -242,6 +258,9 @@ export class StylesCollector {
         for (const dependent of dependentEntries(module, handle.key)) {
           this.tryActivateDependent(dependent);
         }
+      }
+      for (const handle of pending) {
+        this.settledHandles.add(handle);
       }
       return retained;
     });
@@ -409,13 +428,14 @@ export class StylesCollector {
   }
 
   // Computes the final theme/var dep sets, folding in default-marker
-  // contributions only for keys that survive reachability. Called once per
-  // `createResolver()` and per `collectedThemeDeps`/`collectedVarDeps`
-  // access; collection mutations between calls re-derive the result.
-  private finalizeDeps(): {
-    theme: ReadonlySet<string>;
-    vars: ReadonlySet<ContextualVarPath>;
-  } {
+  // contributions only for keys that survive reachability. Cached until the
+  // next change to entries, handles, or deps.
+  private finalizeDeps(): FinalizedDeps {
+    this.finalized ??= this.computeFinalizedDeps();
+    return this.finalized;
+  }
+
+  private computeFinalizedDeps(): FinalizedDeps {
     const theme = new Set<string>(this.themeDeps);
     const vars = new Set<ContextualVarPath>(this.varDeps);
 
@@ -504,6 +524,7 @@ export class StylesCollector {
     }
     if (this.themeDeps.size + this.varDeps.size !== before) {
       this.dirty = true;
+      this.finalized = undefined;
     }
   }
 
@@ -511,6 +532,10 @@ export class StylesCollector {
   private setEntry(entry: StyleEntry): void {
     const key = entryKey(entry);
     const existing = this.entries.get(key);
+    if (existing !== entry) {
+      this.invalidateSettled();
+      this.finalized = undefined;
+    }
     this.entries.set(key, entry);
     if (
       !existing ||
@@ -523,10 +548,19 @@ export class StylesCollector {
   }
 
   private setHandle(handle: StyleHandle): void {
+    if (this.handles.get(handle.key) !== handle) {
+      this.invalidateSettled();
+      this.finalized = undefined;
+    }
     if (!this.handles.has(handle.key)) {
       this.dirty = true;
     }
     this.handles.set(handle.key, handle);
+  }
+
+  private invalidateSettled(): void {
+    this.settledHandles.clear();
+    this.revision += 1;
   }
 
   // Listeners run once the outermost public mutation returns.
@@ -544,6 +578,11 @@ export class StylesCollector {
       }
     }
   }
+}
+
+interface FinalizedDeps {
+  readonly theme: ReadonlySet<string>;
+  readonly vars: ReadonlySet<ContextualVarPath>;
 }
 
 const includeAllDefaults = (

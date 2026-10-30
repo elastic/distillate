@@ -25,6 +25,9 @@ sources:
   - id: post-release
     resource: https://github.com/elastic/distillate/blob/main/.github/post-release.md
     title: Release prerequisites and supported install contract
+  - id: dependabot-licenses
+    resource: https://github.com/elastic/distillate/blob/main/.github/workflows/dependabot-licenses.yml
+    title: Dependabot license report automation
 ---
 
 # Definition
@@ -36,8 +39,10 @@ sources:
 - Template interpolations are spliced into CSS verbatim. Never bind authored CSS to untrusted input.
 - Exactly one copy of the package may load. See [single-copy invariant](/concepts/single-copy.md).
 - Published package metadata uses `license: "Elastic-2.0"`, ships `LICENSE.txt`, `NOTICE.txt`, and `THIRD_PARTY_LICENSES.md`, and targets Node `>=20`.[^package]
+- Dependabot PRs run `pnpm licenses:report` when opened, updated, or reopened. Changed reports are committed to the PR branch, followed by a CI dispatch for that branch. Report generation has read-only repository access; a separate job writes only `THIRD_PARTY_LICENSES.md` and `NOTICE.txt`.[^dependabot-licenses]
 - The supported consumer install contract is `npm install @elastic/distillate` from `registry.npmjs.org`.[^package][^post-release]
 - Release publishing runs only from `.github/workflows/release.yml`, verifies with `pnpm verify`, and authenticates to npm via OIDC trusted publishing (`id-token: write`).[^release-workflow][^post-release]
+- Each push to `main` that changes a published file or build input publishes a prerelease snapshot, `<release + 1 patch>-main.<UTC commit time>.g<sha>`, under the `next` dist-tag from the same workflow, with no tag, commit, or GitHub Release. `npm install @elastic/distillate@next` opts in; `latest` and caret ranges never select it.[^release-workflow][^post-release]
 
 [^idents]: CSS identifier-segment check
 
@@ -50,3 +55,5 @@ sources:
 [^release-workflow]: Release workflow authentication and verification
 
 [^post-release]: Release prerequisites and supported install contract
+
+[^dependabot-licenses]: Dependabot license report automation

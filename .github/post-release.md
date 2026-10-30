@@ -8,10 +8,18 @@ A release never commits to `main`. Git tags track released versions, `@semantic-
 
 1. Confirm `main` is green and the release-driving commits since the last tag are the ones you intend to ship.
 2. On npmjs.com, configure a Trusted Publisher for `@elastic/distillate`: GitHub Actions, repository `elastic/distillate`, workflow `release.yml`. Publishing uses npm [trusted publishing](https://docs.npmjs.com/trusted-publishers) (OIDC) only (`id-token: write`); there is no `NPM_TOKEN` fallback. Do this before any `release.yml` run, including dry-run: `@semantic-release/npm` v13 exchanges the OIDC token even during its dry-run authentication check. Provenance is emitted automatically under trusted publishing.
-3. Run **Publish a Release** (`release.yml`) with **dry_run** enabled. It is `workflow_dispatch` only — nothing publishes on push. This exercises `pnpm verify` and semantic-release without tagging or publishing, and prints the notes. Read them: this is the checkpoint before anything is public. With no prior git tag the first release is **0.1.0**, because `scripts/run_semantic_release.js` patches semantic-release's `FIRST_RELEASE`, which is both the first tag and `main`'s allowed version range. Confirm the log says `the next release version is 0.1.0`, not `1.0.0`.
+3. Run **Publish a Release** (`release.yml`) with **dry_run** enabled. Releases are `workflow_dispatch` only; a push to `main` publishes only the snapshot below, never a release. This exercises `pnpm verify` and semantic-release without tagging or publishing, and prints the notes. Read them: this is the checkpoint before anything is public. With no prior git tag the first release is **0.1.0**, because `scripts/run_semantic_release.js` patches semantic-release's `FIRST_RELEASE`, which is both the first tag and `main`'s allowed version range. Confirm the log says `the next release version is 0.1.0`, not `1.0.0`.
 4. Run it again with `dry_run: false`. That tags the version, publishes `@elastic/distillate` to the npm registry, and creates the GitHub Release carrying the notes.
 
 Later `feat:` commits become `0.2.0`, `0.3.0`, …; a `BREAKING CHANGE` becomes `1.0.0`. The supported consumer install is `npm install @elastic/distillate` from registry.npmjs.org.
+
+## Snapshots under `next`
+
+Every push to `main` that changes a published file or a build input runs the **Snapshot** job in `release.yml`; `scripts/publish_snapshot.test.js` fails when its path filter drifts from `package.json` `files` or the build scripts. Snapshots publish from that file because npm Trusted Publishing is bound to it. The job runs `pnpm verify`, then `scripts/publish_snapshot.js`, which publishes `@elastic/distillate` under the `next` dist-tag with no git tag, commit, or GitHub Release.
+
+The version is a prerelease of the patch after the latest stable `vX.Y.Z` tag (prerelease tags are skipped): `<major>.<minor>.<patch + 1>-main.<UTC commit time>.g<short sha>`. It sorts after that release and before the next one, and no `latest` or `^x.y.z` range admits it. Consumers opt in with `npm install @elastic/distillate@next`. Re-running for a commit that is already published does nothing.
+
+To publish one by hand, dispatch **Publish a Release** with **snapshot** enabled (and **dry_run** to only pack). Snapshots accumulate on the registry; `npm dist-tag ls @elastic/distillate` shows which one `next` points at.
 
 ## Move CI onto shared infrastructure
 

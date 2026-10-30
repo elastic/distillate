@@ -151,9 +151,19 @@ export const stringifyCssValue = (
   return String(value);
 };
 
+const emptyDeclarations = new WeakMap<Declarations, boolean>();
+
 /** True when every segment is comments, whitespace, or bare `;`. A local-var marker counts as content. */
-export const isEmptyDeclarations = ({ css }: Declarations): boolean =>
-  css.every((segment) => typeof segment === 'string' && isBlankCss(segment));
+export const isEmptyDeclarations = (declarations: Declarations): boolean => {
+  let empty = emptyDeclarations.get(declarations);
+  if (empty === undefined) {
+    empty = declarations.css.every(
+      (segment) => typeof segment === 'string' && isBlankCss(segment)
+    );
+    emptyDeclarations.set(declarations, empty);
+  }
+  return empty;
+};
 
 const assertDeclarationBlock = (
   segments: readonly DeclarationSegment[]
