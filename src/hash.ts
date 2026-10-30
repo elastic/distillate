@@ -11,9 +11,12 @@
 // over a canonical serialization of the authored template. Determinism lets
 // server-rendered and client-rendered class names agree without coordination.
 
-import type { LocalVarMarker } from './local_vars';
-import { isLocalVarMarker } from './local_vars';
-import { isLocalVarRef } from './local_vars';
+import {
+  isLocalVarDefaultMarker,
+  isLocalVarMarker,
+  isLocalVarRef,
+  type LocalVarMarker,
+} from './local_vars';
 import { isHandleLike } from './nesting';
 import {
   isContextualCssVar,
@@ -98,7 +101,7 @@ const tagValue = (value: unknown): string => {
 };
 
 const tagMarker = (marker: LocalVarMarker): string => {
-  if (marker.__kind === 'local-var-default-marker') {
+  if (isLocalVarDefaultMarker(marker)) {
     const entries = marker.defaults
       .map((item) => `${item.key}=${tagValue(item.value)}`)
       .sort();

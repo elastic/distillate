@@ -202,13 +202,19 @@ export const combineClassNames = (
   ...handles: readonly StyleHandle[]
 ): string => context.resolveClassName(...handles);
 
-const composeAbsoluteSelector =
-  (alternatives: readonly SelectorAlternative[]) =>
+/** Selector factory over flattened alternatives. With `self`, `&` becomes the host handle's class. */
+export const composeSelector =
+  (alternatives: readonly SelectorAlternative[], self?: StyleHandle) =>
   (h: StyleSelectorResolver): string =>
     alternatives
       .map((parts) =>
         parts
-          .map((part) => (typeof part === 'string' ? part : `.${h(part)}`))
+          .map((part) => {
+            if (typeof part !== 'string') {
+              return `.${h(part)}`;
+            }
+            return self ? part.replaceAll('&', `.${h(self)}`) : part;
+          })
           .join('')
       )
       .join(',');
@@ -222,7 +228,7 @@ export const globalStylesFromFlattened = (
     const localKey = `g${String(index).padStart(3, '0')}`;
     if (entry.kind === 'rule') {
       styles[localKey] = rule(
-        composeAbsoluteSelector(entry.alternatives),
+        composeSelector(entry.alternatives),
         buildDeclarations(entry.slice.strings, entry.slice.values)
       );
       return;
@@ -231,7 +237,7 @@ export const globalStylesFromFlattened = (
       entry.query,
       entry.rules.map((nested) =>
         rule(
-          composeAbsoluteSelector(nested.alternatives),
+          composeSelector(nested.alternatives),
           buildDeclarations(nested.slice.strings, nested.slice.values)
         )
       )
