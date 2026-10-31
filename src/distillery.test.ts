@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { StylesCollectorOptions } from './collector';
 import { createDomSink, type StyleElementLike } from './dom_sink';
@@ -1678,9 +1678,35 @@ describe('resolveClassNames', () => {
     }));
     const live = distillery.liveCollection();
 
+    expect(live.css()).not.toContain('.demo-root{');
     expect(resolveClassNames(live, demo.handles.root)).toBe('demo-root');
-    expect(combineClassNames(live, demo.handles.root)).toBe('demo-root');
     expect(live.css()).toContain('.demo-root{');
+    expect(combineClassNames(live, demo.handles.root)).toBe('demo-root');
+  });
+
+  it('delegates all handles and returns the context-specific names', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('demo', (t) => ({
+      root: t.css`
+        color: red;
+      `,
+      icon: t.css`
+        margin: 0;
+      `,
+    }));
+    const resolveClassName = vi.fn(() => 'a b');
+
+    expect(
+      resolveClassNames(
+        { resolveClassName },
+        demo.handles.root,
+        demo.handles.icon
+      )
+    ).toBe('a b');
+    expect(resolveClassName).toHaveBeenCalledExactlyOnceWith(
+      demo.handles.root,
+      demo.handles.icon
+    );
   });
 });
 
