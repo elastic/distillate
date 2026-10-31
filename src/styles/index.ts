@@ -27,7 +27,10 @@ export {
   isEmptyDeclarations,
   stringifyCssValue,
 } from './declarations';
-export { createStyleModuleWithEnvironment } from './module';
+export {
+  createStyleModuleWithEnvironment,
+  type StyleModuleDiagnostics,
+} from './module';
 export { readableVarOwnersFromEnvironment, StyleRegistry } from './registry';
 export { createSelectorResolver } from './selector_resolver';
 export type {

@@ -24,7 +24,7 @@ sources:
 
 # Definition
 
-`createDistillery(options)` returns a destructure-safe `Distillery`: `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `owns`, `dev`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`. Each call owns a private `StyleRegistry`. `owns(handle)` answers whether a handle (or a bare `{ key }`) belongs to that registry, so adapters need not reach into `registry`. `environment` is the resolved form (derived `themeVars` and `tokens`). `resolveValues(scheme, variation?)` returns nested literal strings for one scheme.[^engine]
+`createDistillery(options)` returns a destructure-safe `Distillery`: `environment`, `tokens`, `themeVars`, `resolveValues`, `registry`, `owns`, `contextualVar`, `dev`, `createStyleModule`, `primitiveStyles`, `artifactCollector`, `stylesheetCollector`, `renderStyles`, `createNameResolver`. Each call owns a private `StyleRegistry`. `owns(handle)` answers whether a handle (or a bare `{ key }`) belongs to that registry, so adapters need not reach into `registry`. `environment` is the resolved form (derived `themeVars` and `tokens`). `resolveValues(scheme, variation?)` returns nested literal strings for one scheme.[^engine]
 
 # Schema
 
@@ -35,7 +35,8 @@ sources:
 | `theme`      | yes      | Nested value tree. Strings and `lightDark` become theme vars; `cq` / `scaleToken` inline.   |
 | `variations` | no       | Named value-only diffs of `theme`. Declaring a variation does not emit it; name it at `renderStyles`. |
 | `sharedVars` | no       | Cross-module contextual-var paths. Names derive via `cssVarName`.                            |
-| `dev`        | no       | When `true`, collectors warn about no-op handles. Default `false`. Does not affect the single-copy guard. |
+| `dev`        | no       | When `true`, collectors warn about no-op handles and module authoring warns about contextual-var name drift. Default `false`. Does not affect the single-copy guard. |
+| `warn`       | no       | Sink for `dev` warnings. Defaults to `console.warn`. A collector's own `{ warn }` overrides it. |
 
 Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. `themeVars` and `sharedVars` that hyphenate to the same readable custom-property name throw at construction. `lightDark` values that are not CSS `<color>` throw. Named `variations` that introduce unknown paths or disagree on leaf kind throw. `renderStyles` selects a declared variation with `{ flatten }` or `{ alternates }`, and may flatten `light-dark(...)` to one scheme with `{ scheme }`.[^environment][^theme][^runtime]
 

@@ -53,6 +53,8 @@ export interface StyleDeps {
   readonly refs: ReadonlySet<ContextualVarPath>;
   /** `t.vars(...)` default-emission sites, resolved after collection. */
   readonly defaults: ReadonlyArray<DefaultGroupDeps>;
+  /** Custom-property names each contextual var was interpolated under, by path. */
+  readonly varNames?: ReadonlyMap<ContextualVarPath, ReadonlySet<string>>;
 }
 
 /** One `t.vars(...)` group's default-emission metadata. */
@@ -88,6 +90,8 @@ export interface MutableStyleDeps {
   refs: Set<ContextualVarPath>;
   /** `t.vars(...)` default-emission sites. */
   defaults: DefaultGroupDeps[];
+  /** Custom-property names each contextual var was interpolated under, by path. */
+  varNames: Map<ContextualVarPath, Set<string>>;
 }
 
 /** Literal CSS text or a local-var interpolation marker. */

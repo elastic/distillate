@@ -58,10 +58,7 @@ gap.cq; <2>
 ## Shared contextual vars
 
 ```ts
-const foreground = contextualVar(
-  'vars/app/tone/foreground',
-  '--eui-app-tone-foreground'
-);
+const foreground = distillery.contextualVar('vars/app/tone/foreground');
 String(foreground); <1>
 String(foreground.name); <2>
 ```
@@ -69,7 +66,9 @@ String(foreground.name); <2>
 1. Interpolating the var **reads** it: `var(--eui-app-tone-foreground)`.
 2. Writing `.name` **declares** the property: `--eui-app-tone-foreground`.
 
-Register the path in `sharedVars` so two modules can share the name without either owning it.
+Declare the path in `sharedVars` so two modules can share the name without either owning it; `distillery.contextualVar` throws for a path that is not declared. The custom property is `cssVarName(prefix, path)`, the same name the readable stylesheet reserves and the compact resolver looks up, so the var compacts like any other.
+
+The standalone `contextualVar(path, prop)` takes the property name by hand. Use it for a var another library names. For a path in your own `sharedVars`, a hand-typed name that differs from `cssVarName(prefix, path)` never compacts; with `createDistillery({ dev: true })`, module authoring warns about it.
 
 ## Module-local `vars`
 

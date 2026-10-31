@@ -7,7 +7,13 @@
 
 import type { DistilleryEnvironment } from '../environment';
 import { assertCssIdentSegment } from '../idents';
-import { createLocalVarGroup, type LocalVarGroup } from '../local_vars';
+import {
+  createLocalVarGroup,
+  isLocalVarDefaultMarker,
+  type LocalVarGroup,
+} from '../local_vars';
+import { cssVarName } from '../names';
+import { isContextualCssVar, isContextualCssVarName } from '../tokens';
 import { hasEntryKind } from '../tokens/kind';
 
 import { composeSelector, css, decls, isVariantMarked } from './authoring';
@@ -30,6 +36,14 @@ import type {
   StylesObject,
 } from './types';
 
+/** Dev diagnostics for {@link createStyleModuleWithEnvironment}. */
+export interface StyleModuleDiagnostics {
+  /** When `true`, warn about shared vars interpolated under a name other than `cssVarName(prefix, path)`. */
+  dev?: boolean;
+  /** Warning sink. Defaults to `console.warn`. */
+  warn?: (message: string) => void;
+}
+
 export const createStyleModuleWithEnvironment = <
   TTokens,
   TStyles extends StylesObject,
@@ -37,7 +51,11 @@ export const createStyleModuleWithEnvironment = <
   environment: DistilleryEnvironment<TTokens>,
   registry: StyleRegistry,
   name: string,
-  factory: (t: StyleAuthoringApi<TTokens>) => TStyles
+  factory: (t: StyleAuthoringApi<TTokens>) => TStyles,
+  {
+    dev = false,
+    warn = (message) => console.warn(message),
+  }: StyleModuleDiagnostics = {}
 ): StylesModule<ResolvedStyles<TStyles>> => {
   assertCssIdentSegment(name, 'Style module name');
   const t = createAuthoringApi(environment, name);
@@ -57,6 +75,9 @@ export const createStyleModuleWithEnvironment = <
   }
 
   const { entries, handleList, themeDeps, varDeps } = builder;
+  if (dev) {
+    warnContextualVarDrift(environment, name, entries, warn);
+  }
   const module: StylesModule<ResolvedStyles<TStyles>> = {
     name,
     handles: authored as ResolvedStyles<TStyles>,
@@ -197,6 +218,60 @@ const addDeclarationDeps = (
   const { theme, vars } = declarations.deps;
   theme.forEach((path) => builder.themeDeps.add(path));
   vars.forEach((path) => builder.varDeps.add(path));
+};
+
+// Interpolating a contextual var records its property name on the block's deps; marker values keep the var itself.
+const warnContextualVarDrift = (
+  environment: DistilleryEnvironment<unknown>,
+  moduleName: string,
+  entries: readonly StyleEntry[],
+  warn: (message: string) => void
+): void => {
+  const shared = environment.sharedVars;
+  if (!shared || shared.size === 0) {
+    return;
+  }
+  const warned = new Set<string>();
+  const report = (path: ContextualVarPath, name: string): void => {
+    if (!shared.has(path)) {
+      return;
+    }
+    const expected = cssVarName(environment.prefix, path);
+    if (name === expected || warned.has(`${path} ${name}`)) {
+      return;
+    }
+    warned.add(`${path} ${name}`);
+    warn(
+      `Style module "${moduleName}" interpolates shared var "${path}" as "${name}" instead of "${expected}"; build it with distillery.contextualVar("${path}") so readable and compact names agree.`
+    );
+  };
+  const check = ({ css, deps }: Declarations): void => {
+    deps.varNames?.forEach((names, path) =>
+      names.forEach((name) => report(path, name))
+    );
+    for (const segment of css) {
+      if (typeof segment === 'string') {
+        continue;
+      }
+      const items = isLocalVarDefaultMarker(segment)
+        ? segment.defaults
+        : segment.overrides;
+      for (const { value } of items) {
+        if (isContextualCssVar(value)) {
+          report(value.path, value.name.name);
+        } else if (isContextualCssVarName(value)) {
+          report(value.path, value.name);
+        }
+      }
+    }
+  };
+  for (const entry of entries) {
+    if (entry.kind === 'media') {
+      entry.rules.forEach((rule) => check(rule.declarations));
+    } else {
+      check(entry.declarations);
+    }
+  }
 };
 
 const MAX_NESTED_SIBLINGS = 1000;

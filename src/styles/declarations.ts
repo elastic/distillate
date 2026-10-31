@@ -20,6 +20,7 @@ import {
 } from '../tokens';
 
 import type {
+  ContextualVarPath,
   Declarations,
   DeclarationSegment,
   DefaultKeyDeps,
@@ -37,6 +38,7 @@ export const buildDeclarations = (
     vars: new Set(),
     refs: new Set(),
     defaults: [],
+    varNames: new Map(),
   };
   const segments: DeclarationSegment[] = [];
   let pending = '';
@@ -103,6 +105,7 @@ export const computeValueDeps = (
     vars: new Set(),
     refs: new Set(),
     defaults: [],
+    varNames: new Map(),
   };
   stringifyCssValue(value, local);
   return { theme: local.theme, vars: local.vars };
@@ -125,11 +128,13 @@ export const stringifyCssValue = (
   if (isContextualCssVar(value)) {
     deps?.vars.add(value.path);
     deps?.refs.add(value.path);
+    recordVarName(deps, value.path, value.name.name);
     return value.ref;
   }
   if (isContextualCssVarName(value)) {
     // A `.name` is a declared identifier, not a read, so it is not a ref.
     deps?.vars.add(value.path);
+    recordVarName(deps, value.path, value.name);
     return value.name;
   }
   if (isLocalVarRef(value)) {
@@ -141,6 +146,22 @@ export const stringifyCssValue = (
     return value.value;
   }
   return String(value);
+};
+
+const recordVarName = (
+  deps: MutableStyleDeps | undefined,
+  path: ContextualVarPath,
+  name: string
+): void => {
+  if (!deps) {
+    return;
+  }
+  const names = deps.varNames.get(path);
+  if (names) {
+    names.add(name);
+  } else {
+    deps.varNames.set(path, new Set([name]));
+  }
 };
 
 const emptyDeclarations = new WeakMap<Declarations, boolean>();
