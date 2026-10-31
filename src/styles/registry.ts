@@ -12,6 +12,7 @@ import type {
   ContextualVarPath,
   CssVarPath,
   Declarations,
+  StyleHandle,
   StyleRegistrySnapshot,
   StylesModule,
 } from './types';
@@ -22,6 +23,7 @@ import type {
 export class StyleRegistry {
   private readonly modulesByName = new Map<string, StylesModule>();
   private targetedKeys: Set<string> | undefined;
+  private handlesByKey: Map<string, StyleHandle> | undefined;
 
   constructor(
     private readonly prefix: string,
@@ -51,6 +53,17 @@ export class StyleRegistry {
     );
     this.modulesByName.set(module.name, module);
     this.targetedKeys = undefined;
+    this.handlesByKey = undefined;
+  }
+
+  /** Looks up a registered handle by its `key` (`<module>/<localName>`). */
+  handle(key: string): StyleHandle | undefined {
+    this.handlesByKey ??= new Map(
+      this.modules.flatMap((module) =>
+        module.handleList.map((handle) => [handle.key, handle] as const)
+      )
+    );
+    return this.handlesByKey.get(key);
   }
 
   /**

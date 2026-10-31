@@ -12,6 +12,7 @@ import {
   type StyleNameResolver,
   type StyleTarget,
 } from './names';
+import { isHandleLike } from './nesting';
 import type {
   ContextualVarPath,
   CssVarPath,
@@ -19,6 +20,7 @@ import type {
   DefaultGroupDeps,
   StyleEntry,
   StyleHandle,
+  StyleHandleRef,
   StyleMedia,
   StyleRegistry,
   StyleRule,
@@ -111,10 +113,8 @@ export class StylesCollector {
   private readonly warn: (message: string) => void;
   private readonly entries = new Map<string, StyleEntry>();
   private readonly handles = new Map<string, StyleHandle>();
-  // Handles `useHandles` has fully processed since the last entry or handle change.
+  // Handles `useHandles` has fully processed since the last mutation.
   private readonly settledHandles = new Set<StyleHandle>();
-  // Bumped whenever `settledHandles` is invalidated.
-  private revision = 0;
   private readonly themeDeps = new Set<string>();
   private readonly varDeps = new Set<ContextualVarPath>();
   private readonly listeners = new Set<() => void>();
@@ -218,15 +218,17 @@ export class StylesCollector {
    *
    * Media blocks gain inner rules whose deps are met and keep rules already collected.
    *
-   * @param handles Handles resolved during this render pass (e.g. from `resolveClassName`).
+   * @param handles Handles resolved during this render pass (e.g. from `resolveClassName`). A bare `{ key }` resolves through the registry.
    * @returns Handles that were retained. Empty untargeted handles are omitted in compact mode.
+   * @throws If a `{ key }` names no handle registered with this collector's registry.
    */
-  useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[] {
+  useHandles(handles: readonly StyleHandleRef[]): readonly StyleHandle[] {
     return this.batch(() => {
-      const revision = this.revision;
+      let added = false;
       const retained: StyleHandle[] = [];
       let pending: StyleHandle[] = [];
-      for (const handle of handles) {
+      for (const ref of handles) {
+        const handle = this.resolveHandle(ref);
         if (this.settledHandles.has(handle)) {
           retained.push(handle);
           continue;
@@ -239,12 +241,13 @@ export class StylesCollector {
         if (this.handles.has(handle.key)) {
           continue;
         }
+        added = true;
         this.setEntry(handle);
         this.setHandle(handle);
         this.addDeclarationDeps(handle.declarations);
       }
       // A later handle may complete deps for a skipped one, so rescan them all.
-      if (this.revision !== revision) {
+      if (added) {
         pending = retained;
       }
       for (const handle of pending) {
@@ -329,6 +332,20 @@ export class StylesCollector {
         this.addDeclarationDeps(rule.declarations);
       }
     }
+  }
+
+  // A full handle passes through unchanged, even from another distillery.
+  private resolveHandle(ref: StyleHandleRef): StyleHandle {
+    if (isHandleLike(ref)) {
+      return ref;
+    }
+    const handle = this.registry.handle(ref.key);
+    if (!handle) {
+      throw new Error(
+        `Unknown style handle key "${ref.key}". Register its module with this distillery before collecting it.`
+      );
+    }
+    return handle;
   }
 
   private allDepsMet(dependsOn: ReadonlySet<string>): boolean {
@@ -510,8 +527,7 @@ export class StylesCollector {
       this.varDeps.add(path);
     }
     if (this.themeDeps.size + this.varDeps.size !== before) {
-      this.dirty = true;
-      this.finalized = undefined;
+      this.touch(true);
     }
   }
 
@@ -519,35 +535,34 @@ export class StylesCollector {
   private setEntry(entry: StyleEntry): void {
     const key = entryKey(entry);
     const existing = this.entries.get(key);
-    if (existing !== entry) {
-      this.invalidateSettled();
-      this.finalized = undefined;
+    if (existing === entry) {
+      return;
     }
     this.entries.set(key, entry);
-    if (
+    this.touch(
       !existing ||
-      (existing.kind === 'media' &&
-        entry.kind === 'media' &&
-        existing.rules.length !== entry.rules.length)
-    ) {
-      this.dirty = true;
-    }
+        (existing.kind === 'media' &&
+          entry.kind === 'media' &&
+          existing.rules.length !== entry.rules.length)
+    );
   }
 
   private setHandle(handle: StyleHandle): void {
-    if (this.handles.get(handle.key) !== handle) {
-      this.invalidateSettled();
-      this.finalized = undefined;
-    }
-    if (!this.handles.has(handle.key)) {
-      this.dirty = true;
+    const existing = this.handles.get(handle.key);
+    if (existing === handle) {
+      return;
     }
     this.handles.set(handle.key, handle);
+    this.touch(!existing);
   }
 
-  private invalidateSettled(): void {
+  /** Every mutation funnels through here: caches drop, and growth queues the listeners. */
+  private touch(grew: boolean): void {
+    this.finalized = undefined;
     this.settledHandles.clear();
-    this.revision += 1;
+    if (grew) {
+      this.dirty = true;
+    }
   }
 
   // Listeners run once the outermost public mutation returns.

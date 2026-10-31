@@ -6,7 +6,11 @@
  */
 
 import { isBlankCss } from '../css_scan';
-import { isLocalVarMarker, isLocalVarRef } from '../local_vars';
+import {
+  isLocalVarDefaultMarker,
+  isLocalVarMarker,
+  isLocalVarRef,
+} from '../local_vars';
 import { isHandleLike } from '../nesting';
 import {
   isContextualCssVar,
@@ -16,6 +20,7 @@ import {
 } from '../tokens';
 
 import type {
+  ContextualVarPath,
   Declarations,
   DeclarationSegment,
   DefaultKeyDeps,
@@ -33,6 +38,7 @@ export const buildDeclarations = (
     vars: new Set(),
     refs: new Set(),
     defaults: [],
+    varNames: new Map(),
   };
   const segments: DeclarationSegment[] = [];
   let pending = '';
@@ -71,7 +77,7 @@ const recordMarkerDeps = (
   marker: LocalVarMarker,
   deps: MutableStyleDeps
 ): void => {
-  if (marker.__kind === 'local-var-default-marker') {
+  if (isLocalVarDefaultMarker(marker)) {
     // Default keys reach `deps.vars` only when the collector finds them reachable.
     deps.defaults.push({
       groupPath: marker.groupPath,
@@ -99,15 +105,16 @@ export const computeValueDeps = (
     vars: new Set(),
     refs: new Set(),
     defaults: [],
+    varNames: new Map(),
   };
   stringifyCssValue(value, local);
   return { theme: local.theme, vars: local.vars };
 };
 
-/** Stringifies one interpolable CSS value and records theme/var deps onto `deps`. */
+/** Stringifies one interpolable CSS value, recording theme/var deps onto `deps` when given. */
 export const stringifyCssValue = (
   value: unknown,
-  deps: MutableStyleDeps
+  deps?: MutableStyleDeps
 ): string => {
   if (isHandleLike(value)) {
     throw new Error(
@@ -115,28 +122,46 @@ export const stringifyCssValue = (
     );
   }
   if (isCssToken(value)) {
-    deps.theme.add(value.path);
+    deps?.theme.add(value.path);
     return value.ref;
   }
   if (isContextualCssVar(value)) {
-    deps.vars.add(value.path);
-    deps.refs.add(value.path);
+    deps?.vars.add(value.path);
+    deps?.refs.add(value.path);
+    recordVarName(deps, value.path, value.name.name);
     return value.ref;
   }
   if (isContextualCssVarName(value)) {
     // A `.name` is a declared identifier, not a read, so it is not a ref.
-    deps.vars.add(value.path);
+    deps?.vars.add(value.path);
+    recordVarName(deps, value.path, value.name);
     return value.name;
   }
   if (isLocalVarRef(value)) {
-    deps.vars.add(value.path);
-    deps.refs.add(value.path);
+    deps?.vars.add(value.path);
+    deps?.refs.add(value.path);
     return value.ref;
   }
   if (isScaleToken(value)) {
     return value.value;
   }
   return String(value);
+};
+
+const recordVarName = (
+  deps: MutableStyleDeps | undefined,
+  path: ContextualVarPath,
+  name: string
+): void => {
+  if (!deps) {
+    return;
+  }
+  const names = deps.varNames.get(path);
+  if (names) {
+    names.add(name);
+  } else {
+    deps.varNames.set(path, new Set([name]));
+  }
 };
 
 const emptyDeclarations = new WeakMap<Declarations, boolean>();

@@ -14,19 +14,22 @@ import type {
 import { assertCssIdentSegment } from './idents';
 import {
   createStyleNameResolver,
+  cssVarName,
   type StyleNameMode,
   type StyleNameResolver,
   type StyleNameResolverOptions,
 } from './names';
+import { isHandleLike } from './nesting';
 import { renderStyles, type RenderStylesOptions } from './runtime';
 import type { StyleSink } from './sink';
 import {
+  type ContextualVarPath,
   createStyleModuleWithEnvironment,
   type PrimitiveStyleAuthoringApi,
   readableVarOwnersFromEnvironment,
   type ResolvedStyles,
   type StyleAuthoringApi,
-  type StyleHandle,
+  type StyleHandleRef,
   StyleRegistry,
   type StylesModule,
   type StylesObject,
@@ -40,6 +43,7 @@ import {
   type TokensOf,
   type ValuesOf,
 } from './theme';
+import { type ContextualCssVar, contextualVar } from './tokens';
 
 /** Sink, render options, and warning sink for {@link Distillery.liveCollection}. */
 export interface LiveCollectionOptions {
@@ -59,8 +63,8 @@ export interface LiveCollectionOptions {
 export interface LiveCollection {
   /** Underlying readable artifact collector. Mutations here (e.g. `use(globalModule)`, `useThemeVar`) also invalidate the sink. */
   readonly collector: StylesCollector;
-  /** Collects `handles` and returns their readable class names, space-separated. */
-  readonly resolveClassName: (...handles: StyleHandle[]) => string;
+  /** Collects `handles` and returns their readable class names, space-separated. A bare `{ key }` resolves through the registry. */
+  readonly resolveClassName: (...handles: StyleHandleRef[]) => string;
   /** Renders the CSS collected so far. */
   readonly css: () => string;
 }
@@ -83,8 +87,12 @@ export interface Distillery<
   ) => ValuesOf<TTheme>;
   /** The module registry accumulating collected handles and rules. */
   readonly registry: StyleRegistry;
-  /** When `true`, collectors warn about no-op handles. */
+  /** `true` when `handle` was authored in a module registered with this distillery, including an Emotion wrapper of one. A bare `{ key }` is checked by key. */
+  readonly owns: (handle: StyleHandleRef) => boolean;
+  /** When `true`, collectors warn about no-op handles and module authoring warns about contextual-var name drift. */
   readonly dev: boolean;
+  /** Shared contextual var for a path declared in `sharedVars`, named `cssVarName(prefix, path)`. Throws for an undeclared path. */
+  readonly contextualVar: (path: ContextualVarPath) => ContextualCssVar;
   /** Named handle tree plus tokens. */
   readonly createStyleModule: <TStyles extends StylesObject>(
     name: string,
@@ -135,6 +143,7 @@ export const createDistillery = <const TTheme extends ThemeTree>(
     sharedVars: sharedVarList,
     variations,
     dev = false,
+    warn = (message) => console.warn(message),
   } = options;
   assertCssIdentSegment(prefix, 'Distillery prefix');
   const { tokens, themeVars } = deriveTheme(prefix, theme);
@@ -173,8 +182,9 @@ export const createDistillery = <const TTheme extends ThemeTree>(
       registry,
       prefix,
       dev,
-      ...(collectorOptions?.warn ? { warn: collectorOptions.warn } : {}),
+      warn: collectorOptions?.warn ?? warn,
     });
+  const diagnostics = { dev, warn };
 
   return {
     environment,
@@ -190,16 +200,41 @@ export const createDistillery = <const TTheme extends ThemeTree>(
           : requireThemeVariation(environment.variations, variation)
       ),
     registry,
+    owns: (handle) => {
+      const registered = registry.handle(handle.key);
+      if (!registered) {
+        return false;
+      }
+      // An Emotion wrapper is a spread copy of its handle, so the declarations object is the identity.
+      return isHandleLike(handle)
+        ? registered.declarations === handle.declarations
+        : true;
+    },
     dev,
+    contextualVar: (path) => {
+      if (!sharedVars?.has(path)) {
+        throw new Error(
+          `distillery.contextualVar("${path}"): declare "${path}" in createDistillery({ sharedVars }) so its readable name is reserved.`
+        );
+      }
+      return contextualVar(path, cssVarName(prefix, path));
+    },
     createStyleModule: (name, factory) =>
-      createStyleModuleWithEnvironment(environment, registry, name, factory),
+      createStyleModuleWithEnvironment(
+        environment,
+        registry,
+        name,
+        factory,
+        diagnostics
+      ),
     primitiveStyles: (name, factory) =>
       createStyleModuleWithEnvironment(
         environment,
         registry,
         name,
         ({ css: style, tokens: moduleTokens }) =>
-          factory({ style, tokens: moduleTokens })
+          factory({ style, tokens: moduleTokens }),
+        diagnostics
       ),
     artifactCollector,
     stylesheetCollector: (names = 'readable', options) => {
@@ -209,7 +244,7 @@ export const createDistillery = <const TTheme extends ThemeTree>(
         registry,
         prefix,
         dev,
-        ...(options?.warn ? { warn: options.warn } : {}),
+        warn: options?.warn ?? warn,
       });
       for (const module of registry.modules) {
         collector.useAllEntries(module);

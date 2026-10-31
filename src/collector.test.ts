@@ -290,3 +290,36 @@ describe('StylesCollector.useHandles', () => {
     );
   });
 });
+
+describe('useHandles by key', () => {
+  it('resolves a bare { key } through the registry', () => {
+    const { distillery, demo } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+
+    const retained = collector.useHandles([{ key: demo.handles.first.key }]);
+
+    expect(retained).toEqual([demo.handles.first]);
+    expect(distillery.renderStyles(collector)).toContain('.demo-first:hover');
+  });
+
+  it('settles a key-resolved handle like a full one', () => {
+    const { distillery, demo } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([{ key: demo.handles.first.key }]);
+    const notifications = countNotifications(collector);
+
+    collector.useHandles([demo.handles.first]);
+    collector.useHandles([{ key: demo.handles.first.key }]);
+
+    expect(notifications.count()).toBe(0);
+  });
+
+  it('throws on a key no registered module owns', () => {
+    const { distillery } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+
+    expect(() => collector.useHandles([{ key: 'demo/missing' }])).toThrow(
+      'Unknown style handle key "demo/missing"'
+    );
+  });
+});

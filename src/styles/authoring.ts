@@ -191,24 +191,53 @@ export const variants = <TKey extends string, TValue>(
   return record;
 };
 
+/** Anything exposing `resolveClassName`, e.g. a React render context or a {@link index.LiveCollection | LiveCollection}. */
+export interface ClassNameContext {
+  /** Collects `handles` and returns their class names, space-separated. */
+  resolveClassName: (...handles: StyleHandle[]) => string;
+}
+
 /**
  * Resolves handles through the collector's class-name resolver.
  *
+ * @deprecated Use {@link resolveClassNames}, which also renders without a context.
  * @param context Object exposing `resolveClassName` (e.g. a React render context).
  * @param handles One or more handles to resolve and join.
  */
 export const combineClassNames = (
-  context: { resolveClassName: (...handles: StyleHandle[]) => string },
+  context: ClassNameContext,
   ...handles: readonly StyleHandle[]
 ): string => context.resolveClassName(...handles);
 
-const composeAbsoluteSelector =
-  (alternatives: readonly SelectorAlternative[]) =>
+/**
+ * Class names for `handles` through `context`, or their readable names when there is none.
+ *
+ * The fallback lets a view render outside a collecting tree (a unit test, a plain DOM mount) and still wear stable class names.
+ *
+ * @param context Object exposing `resolveClassName`, or `null` / `undefined` outside a collecting render.
+ * @param handles One or more handles to resolve and join.
+ */
+export const resolveClassNames = (
+  context: ClassNameContext | null | undefined,
+  ...handles: readonly StyleHandle[]
+): string =>
+  context
+    ? context.resolveClassName(...handles)
+    : handles.map(({ readableName }) => readableName).join(' ');
+
+/** Selector factory over flattened alternatives. With `self`, `&` becomes the host handle's class. */
+export const composeSelector =
+  (alternatives: readonly SelectorAlternative[], self?: StyleHandle) =>
   (h: StyleSelectorResolver): string =>
     alternatives
       .map((parts) =>
         parts
-          .map((part) => (typeof part === 'string' ? part : `.${h(part)}`))
+          .map((part) => {
+            if (typeof part !== 'string') {
+              return `.${h(part)}`;
+            }
+            return self ? part.replaceAll('&', `.${h(self)}`) : part;
+          })
           .join('')
       )
       .join(',');
@@ -222,7 +251,7 @@ export const globalStylesFromFlattened = (
     const localKey = `g${String(index).padStart(3, '0')}`;
     if (entry.kind === 'rule') {
       styles[localKey] = rule(
-        composeAbsoluteSelector(entry.alternatives),
+        composeSelector(entry.alternatives),
         buildDeclarations(entry.slice.strings, entry.slice.values)
       );
       return;
@@ -231,7 +260,7 @@ export const globalStylesFromFlattened = (
       entry.query,
       entry.rules.map((nested) =>
         rule(
-          composeAbsoluteSelector(nested.alternatives),
+          composeSelector(nested.alternatives),
           buildDeclarations(nested.slice.strings, nested.slice.values)
         )
       )

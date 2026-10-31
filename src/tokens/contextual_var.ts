@@ -37,7 +37,7 @@ export interface ContextualCssVar {
   [Symbol.toPrimitive](hint: string): string;
 }
 
-/** Shared contextual var. Stringifies to `var(<prop>)`; `.name` is the ident. */
+/** Shared contextual var. Stringifies to `var(<prop>)`; `.name` is the ident. For a path in `sharedVars`, prefer `distillery.contextualVar(path)`, which derives `prop`; this form is for a var another library names. */
 export const contextualVar = (
   path: `vars/${string}`,
   prop: `--${string}`

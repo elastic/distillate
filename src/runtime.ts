@@ -12,16 +12,18 @@ import {
   isLocalVarDefaultMarker,
   isLocalVarOverrideMarker,
   type LocalVarDefaultMarker,
-  type LocalVarOverrideMarker,
 } from './local_vars';
 import { minifyCss } from './minify';
 import { cssVarName, type StyleNameResolver } from './names';
-import type {
-  Declarations,
-  DeclarationSegment,
-  StyleHandle,
-  StyleRule,
-  StyleSelectorResolver,
+import { describeValue, isCssValue } from './nesting';
+import {
+  type ContextualVarPath,
+  createSelectorResolver,
+  type Declarations,
+  type DeclarationSegment,
+  stringifyCssValue,
+  type StyleHandle,
+  type StyleRule,
 } from './styles';
 import {
   requireThemeVariation,
@@ -81,7 +83,7 @@ export interface RenderStylesOptions {
   scheme?: 'light' | 'dark';
   /** Extra blocks for runtime switching. Each entry emits only the variation's diff. */
   alternates?: readonly ThemeAlternate[];
-  /** Override a theme token's emitted value. */
+  /** Override a theme token's emitted value, keyed by path, for values known only at request time. Wins over `flatten` and `scheme`. To emit one color scheme, use `scheme` instead of overriding every `lightDark` token. */
   themeValueOverrides?: Partial<Record<string, string>>;
 }
 
@@ -222,7 +224,14 @@ const renderRule = (rule: StyleRule, ctx: RenderContext): string => {
   if (isBlankCss(body)) {
     return '';
   }
-  const selector = rule.selector(createSelectorResolver(rule, ctx));
+  const { resolver } = ctx;
+  const handles =
+    ctx.collector.registry.module(rule.moduleName)?.handleList ?? [];
+  const selector = rule.selector(
+    createSelectorResolver(handles, (handle) =>
+      resolver.className(handle.key, handle.readableName)
+    )
+  );
   return `${selector}{${body}}`;
 };
 
@@ -256,7 +265,7 @@ const renderSegment = (
     return renderDefaultMarker(segment, host, ctx);
   }
   if (isLocalVarOverrideMarker(segment)) {
-    return renderOverrideMarker(segment, ctx);
+    return renderMarkerItems(segment.overrides, ctx);
   }
   return '';
 };
@@ -269,101 +278,33 @@ const renderDefaultMarker = (
   const reachable = host.handle
     ? ctx.collector.reachableDefaults(host.handle, marker.groupPath)
     : null;
-  const declarations: string[] = [];
-  for (const { key, path, value } of marker.defaults) {
-    if (reachable && !reachable.has(key)) {
-      continue;
-    }
-    const stringified = stringifyMarkerValue(value);
-    const resolvedValue = resolveStringSegment(stringified, ctx);
-    const propIdentifier = ctx.resolver.cssVar(path);
-    declarations.push(`${propIdentifier}:${resolvedValue}`);
-  }
-  return declarations.length > 0 ? `${declarations.join(';')};` : '';
+  const items = reachable
+    ? marker.defaults.filter(({ key }) => reachable.has(key))
+    : marker.defaults;
+  return renderMarkerItems(items, ctx);
 };
 
-const renderOverrideMarker = (
-  marker: LocalVarOverrideMarker,
+const renderMarkerItems = (
+  items: ReadonlyArray<{
+    readonly path: ContextualVarPath;
+    readonly value: unknown;
+  }>,
   ctx: RenderContext
 ): string => {
-  const declarations: string[] = [];
-  for (const { path, value } of marker.overrides) {
-    const stringified = stringifyMarkerValue(value);
-    const resolvedValue = resolveStringSegment(stringified, ctx);
-    const propIdentifier = ctx.resolver.cssVar(path);
-    declarations.push(`${propIdentifier}:${resolvedValue}`);
-  }
+  const declarations = items.map(
+    ({ path, value }) =>
+      `${ctx.resolver.cssVar(path)}:${resolveStringSegment(stringifyMarkerValue(value), ctx)}`
+  );
   return declarations.length > 0 ? `${declarations.join(';')};` : '';
 };
 
 const stringifyMarkerValue = (value: unknown): string => {
-  if (typeof value === 'string') {
-    return value;
-  }
-  if (typeof value === 'number') {
-    return String(value);
-  }
-  if (
-    value !== null &&
-    typeof value === 'object' &&
-    typeof (value as { toString?: () => string }).toString === 'function' &&
-    (value as { toString: () => string }).toString !== Object.prototype.toString
-  ) {
-    return (value as { toString: () => string }).toString();
+  if (isCssValue(value)) {
+    return stringifyCssValue(value);
   }
   throw new Error(
     `t.vars(...) value must be a string, number, theme token, contextual var, scale token, or local var ref; received ${describeValue(value)}.`
   );
-};
-
-const describeValue = (value: unknown): string => {
-  if (value === null) {
-    return 'null';
-  }
-  if (value === undefined) {
-    return 'undefined';
-  }
-  if (typeof value === 'object') {
-    return '[object Object]';
-  }
-  return `${typeof value}`;
-};
-
-const createSelectorResolver = (
-  rule: StyleRule,
-  ctx: RenderContext
-): StyleSelectorResolver => {
-  const { resolver } = ctx;
-  const selectorResolver = ((handle: StyleHandle) =>
-    resolver.className(
-      handle.key,
-      handle.readableName
-    )) as StyleSelectorResolver;
-  const module = ctx.collector.registry.module(rule.moduleName);
-  for (const handle of module?.handleList ?? []) {
-    defineSelectorAlias(selectorResolver, handle.localName, handle, resolver);
-    const leafName = handle.localName.split('/').at(-1);
-    if (leafName && leafName !== handle.localName) {
-      defineSelectorAlias(selectorResolver, leafName, handle, resolver);
-    }
-  }
-  return selectorResolver;
-};
-
-const defineSelectorAlias = (
-  selectorResolver: StyleSelectorResolver,
-  name: string,
-  handle: StyleHandle,
-  resolver: StyleNameResolver
-): void => {
-  if (!/^[A-Za-z_$][\w$]*$/.test(name) || name in selectorResolver) {
-    return;
-  }
-  Object.defineProperty(selectorResolver, name, {
-    configurable: true,
-    enumerable: true,
-    get: () => `.${resolver.className(handle.key, handle.readableName)}`,
-  });
 };
 
 const resolveStringSegment = (cssText: string, ctx: RenderContext): string => {

@@ -53,6 +53,8 @@ export interface StyleDeps {
   readonly refs: ReadonlySet<ContextualVarPath>;
   /** `t.vars(...)` default-emission sites, resolved after collection. */
   readonly defaults: ReadonlyArray<DefaultGroupDeps>;
+  /** Custom-property names each contextual var was interpolated under, by path. */
+  readonly varNames?: ReadonlyMap<ContextualVarPath, ReadonlySet<string>>;
 }
 
 /** One `t.vars(...)` group's default-emission metadata. */
@@ -88,6 +90,8 @@ export interface MutableStyleDeps {
   refs: Set<ContextualVarPath>;
   /** `t.vars(...)` default-emission sites. */
   defaults: DefaultGroupDeps[];
+  /** Custom-property names each contextual var was interpolated under, by path. */
+  varNames: Map<ContextualVarPath, Set<string>>;
 }
 
 /** Literal CSS text or a local-var interpolation marker. */
@@ -124,6 +128,9 @@ export interface StyleHandle {
   }): string;
 }
 
+/** A handle, or anything carrying a registered handle's `key`; see {@link index.StylesCollector#useHandles | StylesCollector.useHandles}. */
+export type StyleHandleRef = Pick<StyleHandle, 'key'>;
+
 /** A selector plus declarations, optionally auto-collected from handle deps. */
 export interface StyleRule {
   /** Discriminant for {@link StyleEntry}. */
@@ -138,7 +145,7 @@ export interface StyleRule {
   readonly declarations: Declarations;
   /** `true` when produced inside `variants(...)`. */
   readonly variant: boolean;
-  /** Handle keys this selector reads. Empty until `assignEntries` fills it. */
+  /** Handle keys this selector reads. Empty until the module is constructed. */
   readonly dependsOn: ReadonlySet<string>;
   /** When `false`, skip auto-collection; the caller must `use` the rule. */
   readonly auto: boolean;
