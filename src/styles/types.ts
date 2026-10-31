@@ -138,7 +138,7 @@ export interface StyleRule {
   readonly declarations: Declarations;
   /** `true` when produced inside `variants(...)`. */
   readonly variant: boolean;
-  /** Handle keys this selector reads. Empty until `assignEntries` fills it. */
+  /** Handle keys this selector reads. Empty until the module is constructed. */
   readonly dependsOn: ReadonlySet<string>;
   /** When `false`, skip auto-collection; the caller must `use` the rule. */
   readonly auto: boolean;

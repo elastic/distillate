@@ -10,24 +10,18 @@ import { assertCssIdentSegment } from '../idents';
 import { createLocalVarGroup, type LocalVarGroup } from '../local_vars';
 import { hasEntryKind } from '../tokens/kind';
 
-import {
-  composeSelector,
-  css,
-  decls,
-  EMPTY_DEPS,
-  isVariantMarked,
-} from './authoring';
+import { composeSelector, css, decls, isVariantMarked } from './authoring';
 import type { StyleRegistry } from './registry';
 import { createSelectorResolver } from './selector_resolver';
 import type {
   ContextualVarPath,
   CssValue,
+  Declarations,
   PendingNested,
   PendingNestedRule,
   PendingStyleHandle,
   ResolvedStyles,
   StyleAuthoringApi,
-  StyleDeps,
   StyleEntry,
   StyleHandle,
   StyleMedia,
@@ -48,14 +42,21 @@ export const createStyleModuleWithEnvironment = <
   assertCssIdentSegment(name, 'Style module name');
   const t = createAuthoringApi(environment, name);
   const authored = factory(t);
-  const entries: StyleEntry[] = [];
-  const handleList: StyleHandle[] = [];
-  const themeDeps = new Set<string>();
-  const varDeps = new Set<ContextualVarPath>();
+  const builder: ModuleBuilder = {
+    moduleName: name,
+    entries: [],
+    handleList: [],
+    themeDeps: new Set(),
+    varDeps: new Set(),
+    ruleDeps: [],
+  };
 
-  assignEntries(name, authored, [], entries, handleList, themeDeps, varDeps);
-  recordRuleDeps(entries, handleList);
+  assignEntries(builder, authored, []);
+  for (const { rule, dependsOn } of builder.ruleDeps) {
+    trackRuleDeps(rule, builder.handleList, dependsOn);
+  }
 
+  const { entries, handleList, themeDeps, varDeps } = builder;
   const module: StylesModule<ResolvedStyles<TStyles>> = {
     name,
     handles: authored as ResolvedStyles<TStyles>,
@@ -82,101 +83,120 @@ const createAuthoringApi = <TTokens>(
   tokens: environment.tokens,
 });
 
+/** Accumulators for one module under construction. */
+interface ModuleBuilder {
+  readonly moduleName: string;
+  readonly entries: StyleEntry[];
+  readonly handleList: StyleHandle[];
+  readonly themeDeps: Set<string>;
+  readonly varDeps: Set<ContextualVarPath>;
+  /** Each keyed rule with the set behind its `dependsOn`, filled once every handle exists. */
+  readonly ruleDeps: Array<{ rule: StyleRule; dependsOn: Set<string> }>;
+}
+
 const assignEntries = (
-  moduleName: string,
+  builder: ModuleBuilder,
   value: unknown,
   path: readonly string[],
-  entries: StyleEntry[],
-  handles: StyleHandle[],
-  themeDeps: Set<string>,
-  varDeps: Set<ContextualVarPath>,
   inheritedVariant = false
 ): unknown => {
+  const { moduleName, entries, handleList } = builder;
   // Everything beneath a `variants(...)` record is a variant.
   const variantHere = inheritedVariant || isVariantMarked(value);
+  const key = `${moduleName}/${path.join('/')}`;
 
   if (isPendingHandle(value)) {
-    const localName = path.join('/');
     const handle: StyleHandle = {
       kind: 'handle',
       moduleName,
-      localName,
-      key: `${moduleName}/${localName}`,
+      localName: path.join('/'),
+      key,
       readableName: `${moduleName}-${path.join('-')}`,
       declarations: value.declarations,
       variant: variantHere,
       resolveClassName: (context) => context.resolveClassName(handle),
     };
     entries.push(handle);
-    handles.push(handle);
-    copyDeps(value.declarations.deps, themeDeps, varDeps);
+    handleList.push(handle);
+    addDeclarationDeps(builder, value.declarations);
     if (value.nested && value.nested.length > 0) {
-      expandNestedEntries(
-        moduleName,
-        handle,
-        value.nested,
-        variantHere,
-        entries,
-        themeDeps,
-        varDeps
-      );
+      expandNestedEntries(builder, handle, value.nested, variantHere);
     }
     return handle;
   }
 
   if (isRule(value)) {
-    const keyedRule: StyleRule = {
-      ...value,
-      moduleName,
-      key: `${moduleName}/${path.join('/')}`,
-      variant: variantHere,
-    };
+    const keyedRule = buildRule(builder, key, variantHere, value);
     entries.push(keyedRule);
-    copyDeps(value.declarations.deps, themeDeps, varDeps);
     return keyedRule;
   }
 
   if (isMedia(value)) {
-    const mediaKey = `${moduleName}/${path.join('/')}`;
     const keyedMedia: StyleMedia = {
       ...value,
-      key: mediaKey,
+      key,
       moduleName,
       variant: variantHere,
-      rules: value.rules.map((child, index) => ({
-        ...child,
-        moduleName,
-        key: `${mediaKey}/${index}`,
-        variant: variantHere,
-      })),
+      rules: value.rules.map((child, index) =>
+        buildRule(builder, `${key}/${index}`, variantHere, child)
+      ),
     };
     entries.push(keyedMedia);
-    for (const child of keyedMedia.rules) {
-      copyDeps(child.declarations.deps, themeDeps, varDeps);
-    }
     return keyedMedia;
   }
 
   if (value && typeof value === 'object') {
-    for (const [key, child] of Object.entries(value)) {
-      assertCssIdentSegment(key, `Style module "${moduleName}" key`);
+    for (const [childKey, child] of Object.entries(value)) {
+      assertCssIdentSegment(childKey, `Style module "${moduleName}" key`);
       const assigned = assignEntries(
-        moduleName,
+        builder,
         child,
-        [...path, key],
-        entries,
-        handles,
-        themeDeps,
-        varDeps,
+        [...path, childKey],
         variantHere
       );
       if (assigned) {
-        (value as Record<string, unknown>)[key] = assigned;
+        (value as Record<string, unknown>)[childKey] = assigned;
       }
     }
   }
 
   return value;
+};
+
+/** Keys a rule into the module with a fresh `dependsOn`, filled by {@link trackRuleDeps} after the walk. */
+const buildRule = (
+  builder: ModuleBuilder,
+  key: string,
+  variant: boolean,
+  {
+    selector,
+    declarations,
+    auto,
+  }: Pick<StyleRule, 'selector' | 'declarations' | 'auto'>
+): StyleRule => {
+  const dependsOn = new Set<string>();
+  const rule: StyleRule = {
+    kind: 'rule',
+    moduleName: builder.moduleName,
+    key,
+    selector,
+    declarations,
+    variant,
+    dependsOn,
+    auto,
+  };
+  builder.ruleDeps.push({ rule, dependsOn });
+  addDeclarationDeps(builder, declarations);
+  return rule;
+};
+
+const addDeclarationDeps = (
+  builder: ModuleBuilder,
+  declarations: Declarations
+): void => {
+  const { theme, vars } = declarations.deps;
+  theme.forEach((path) => builder.themeDeps.add(path));
+  vars.forEach((path) => builder.varDeps.add(path));
 };
 
 const MAX_NESTED_SIBLINGS = 1000;
@@ -192,35 +212,22 @@ const paddedIndex = (index: number): string => {
 };
 
 const expandNestedEntries = (
-  moduleName: string,
+  builder: ModuleBuilder,
   self: StyleHandle,
   nested: readonly PendingNested[],
-  variant: boolean,
-  entries: StyleEntry[],
-  themeDeps: Set<string>,
-  varDeps: Set<ContextualVarPath>
+  variant: boolean
 ): void => {
   nested.forEach((entry, index) => {
     const key = `${self.key}/&/${paddedIndex(index)}`;
     if (entry.kind === 'nested-rule') {
-      entries.push(
-        makeNestedRule(
-          moduleName,
-          key,
-          self,
-          entry,
-          variant,
-          themeDeps,
-          varDeps
-        )
-      );
+      builder.entries.push(makeNestedRule(builder, key, self, entry, variant));
       return;
     }
     const rules: StyleRule[] = [];
     if (entry.self) {
       rules.push(
         makeNestedRule(
-          moduleName,
+          builder,
           `${key}/${paddedIndex(0)}`,
           self,
           {
@@ -228,29 +235,25 @@ const expandNestedEntries = (
             alternatives: [['&']],
             declarations: entry.self,
           },
-          variant,
-          themeDeps,
-          varDeps
+          variant
         )
       );
     }
     entry.rules.forEach((rule, ruleIndex) => {
       rules.push(
         makeNestedRule(
-          moduleName,
+          builder,
           `${key}/${paddedIndex(ruleIndex + (entry.self ? 1 : 0))}`,
           self,
           rule,
-          variant,
-          themeDeps,
-          varDeps
+          variant
         )
       );
     });
-    entries.push({
+    builder.entries.push({
       kind: 'media',
       key,
-      moduleName,
+      moduleName: builder.moduleName,
       query: entry.query,
       rules,
       variant,
@@ -259,61 +262,26 @@ const expandNestedEntries = (
 };
 
 const makeNestedRule = (
-  moduleName: string,
+  builder: ModuleBuilder,
   key: string,
   self: StyleHandle,
   rule: PendingNestedRule,
-  variant: boolean,
-  themeDeps: Set<string>,
-  varDeps: Set<ContextualVarPath>
-): StyleRule => {
-  copyDeps(rule.declarations.deps, themeDeps, varDeps);
-  return {
-    kind: 'rule',
-    moduleName,
-    key,
+  variant: boolean
+): StyleRule =>
+  buildRule(builder, key, variant, {
     selector: composeSelector(rule.alternatives, self),
     declarations: rule.declarations,
-    dependsOn: EMPTY_DEPS,
     auto: true,
-    variant,
-  };
-};
+  });
 
-const recordRuleDeps = (
-  entries: readonly StyleEntry[],
-  handles: readonly StyleHandle[]
-): void => {
-  if (entries.length === 0) {
-    return;
-  }
-  for (const entry of entries) {
-    if (entry.kind === 'rule') {
-      assignDependsOn(entry, computeRuleDeps(entry, handles));
-      continue;
-    }
-    if (entry.kind === 'media') {
-      for (const nested of entry.rules) {
-        assignDependsOn(nested, computeRuleDeps(nested, handles));
-      }
-    }
-  }
-};
-
-const assignDependsOn = (
+/** Runs the selector against a tracking resolver and records every handle key it reads into `into`. */
+const trackRuleDeps = (
   rule: StyleRule,
-  dependsOn: ReadonlySet<string>
+  handles: readonly StyleHandle[],
+  into: Set<string>
 ): void => {
-  (rule as { dependsOn: ReadonlySet<string> }).dependsOn = dependsOn;
-};
-
-const computeRuleDeps = (
-  rule: StyleRule,
-  handles: readonly StyleHandle[]
-): ReadonlySet<string> => {
-  const accessed = new Set<string>();
   const trackingResolver = createSelectorResolver(handles, (handle) => {
-    accessed.add(handle.key);
+    into.add(handle.key);
     return handle.readableName;
   });
   try {
@@ -321,16 +289,6 @@ const computeRuleDeps = (
   } catch {
     // A factory that throws on the tracking resolver keeps the deps recorded so far.
   }
-  return accessed;
-};
-
-const copyDeps = (
-  deps: StyleDeps,
-  themeDeps: Set<string>,
-  varDeps: Set<ContextualVarPath>
-): void => {
-  deps.theme.forEach((path) => themeDeps.add(path));
-  deps.vars.forEach((path) => varDeps.add(path));
 };
 
 const isPendingHandle = (value: unknown): value is PendingStyleHandle =>
