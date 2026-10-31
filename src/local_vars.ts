@@ -8,6 +8,7 @@
 import { assertCssIdentSegment } from './idents';
 import { cssVarName } from './names';
 import type { ContextualVarPath, CssValue } from './styles/types';
+import { hasKind } from './tokens/kind';
 
 const RESERVED_DEFAULT_KEYS = new Set(['set', 'toString', 'valueOf', 'toJSON']);
 
@@ -85,31 +86,18 @@ export type LocalVarGroup<TKey extends string> = {
 
 /** `true` when `value` is a {@link LocalVarRef}. */
 export const isLocalVarRef = (value: unknown): value is LocalVarRef =>
-  Boolean(
-    value &&
-    typeof value === 'object' &&
-    (value as { __kind?: string }).__kind === 'local-var-ref'
-  );
+  hasKind(value, 'local-var-ref');
 
 /** `true` when `value` is a {@link LocalVarDefaultMarker}. */
 export const isLocalVarDefaultMarker = (
   value: unknown
-): value is LocalVarDefaultMarker =>
-  Boolean(
-    value &&
-    typeof value === 'object' &&
-    (value as { __kind?: string }).__kind === 'local-var-default-marker'
-  );
+): value is LocalVarDefaultMarker => hasKind(value, 'local-var-default-marker');
 
 /** `true` when `value` is a {@link LocalVarOverrideMarker}. */
 export const isLocalVarOverrideMarker = (
   value: unknown
 ): value is LocalVarOverrideMarker =>
-  Boolean(
-    value &&
-    typeof value === 'object' &&
-    (value as { __kind?: string }).__kind === 'local-var-override-marker'
-  );
+  hasKind(value, 'local-var-override-marker');
 
 /** `true` when `value` is a {@link LocalVarDefaultMarker} or {@link LocalVarOverrideMarker}. */
 export const isLocalVarMarker = (value: unknown): value is LocalVarMarker =>

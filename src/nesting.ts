@@ -19,15 +19,15 @@
 import { compile, type Element } from 'stylis';
 
 import { scanCss } from './css_scan';
-import { isLocalVarMarker } from './local_vars';
-import { isLocalVarRef } from './local_vars';
-import type { StyleHandle } from './styles/types';
+import { isLocalVarMarker, isLocalVarRef } from './local_vars';
+import type { CssValue, StyleHandle } from './styles/types';
 import {
   isContextualCssVar,
   isContextualCssVarName,
   isCssToken,
   isScaleToken,
 } from './tokens';
+import { hasEntryKind } from './tokens/kind';
 
 /** Rebuilt template fragment in tagged-template shape (`strings.length === values.length + 1`). */
 export interface TemplateSlice {
@@ -147,13 +147,13 @@ const serialize = (
       text += `--dstl-${index}:0;`;
       return;
     }
-    if (isSerializableScalar(value) || isHandleLike(value)) {
+    if (isCssValue(value) || isHandleLike(value)) {
       // Identifier sentinel in selectors and values (`__dstlN__`).
       text += `__dstl${index}__`;
       return;
     }
     throw new Error(
-      `Unsupported interpolation in css template: ${describe(value)}. Interpolate a theme token, scale token, contextual var, local var (ref/marker), string, number, or a style handle in selector position.`
+      `Unsupported interpolation in css template: ${describeValue(value)}. Interpolate a theme token, scale token, contextual var, local var (ref/marker), string, number, or a style handle in selector position.`
     );
   });
   if (mode === 'self') {
@@ -455,7 +455,7 @@ const reconstructSelector = (
     const value = values[Number(match[1])];
     if (!isHandleLike(value)) {
       throw new Error(
-        `Only style handles may be interpolated into selector position; received ${describe(value)}.`
+        `Only style handles may be interpolated into selector position; received ${describeValue(value)}.`
       );
     }
     parts.push(value);
@@ -478,7 +478,7 @@ const reconstructMediaQuery = (
       return String(value);
     }
     throw new Error(
-      `Media queries may interpolate strings or numbers only; received ${describe(value)}.`
+      `Media queries may interpolate strings or numbers only; received ${describeValue(value)}.`
     );
   });
 
@@ -554,7 +554,8 @@ const propName = (element: Element): string =>
 
 // --- Value guards --------------------------------------------------------
 
-const isSerializableScalar = (value: unknown): boolean =>
+/** `true` when `value` is a {@link CssValue}: a scalar that stringifies into a declaration. */
+export const isCssValue = (value: unknown): value is CssValue =>
   typeof value === 'string' ||
   typeof value === 'number' ||
   isCssToken(value) ||
@@ -564,15 +565,12 @@ const isSerializableScalar = (value: unknown): boolean =>
   isLocalVarRef(value);
 
 export const isHandleLike = (value: unknown): value is StyleHandle =>
-  Boolean(
-    value &&
-    typeof value === 'object' &&
-    (value as { kind?: string }).kind === 'handle'
-  );
+  hasEntryKind(value, 'handle');
 
 const emptySlice = (): TemplateSlice => ({ strings: [''], values: [] });
 
-const describe = (value: unknown): string => {
+/** Short description of an unsupported value for error messages. */
+export const describeValue = (value: unknown): string => {
   if (value === null) {
     return 'null';
   }

@@ -8,14 +8,20 @@
 import type { DistilleryEnvironment } from '../environment';
 import { assertCssIdentSegment } from '../idents';
 import { createLocalVarGroup, type LocalVarGroup } from '../local_vars';
-import type { SelectorAlternative } from '../nesting';
+import { hasEntryKind } from '../tokens/kind';
 
-import { css, decls, EMPTY_DEPS, isVariantMarked } from './authoring';
+import {
+  composeSelector,
+  css,
+  decls,
+  EMPTY_DEPS,
+  isVariantMarked,
+} from './authoring';
 import type { StyleRegistry } from './registry';
+import { createSelectorResolver } from './selector_resolver';
 import type {
   ContextualVarPath,
   CssValue,
-  PendingEntry,
   PendingNested,
   PendingNestedRule,
   PendingStyleHandle,
@@ -26,7 +32,6 @@ import type {
   StyleHandle,
   StyleMedia,
   StyleRule,
-  StyleSelectorResolver,
   StylesModule,
   StylesObject,
 } from './types';
@@ -186,21 +191,6 @@ const paddedIndex = (index: number): string => {
   return String(index).padStart(3, '0');
 };
 
-const composeNestedSelector =
-  (self: StyleHandle, alternatives: readonly SelectorAlternative[]) =>
-  (h: StyleSelectorResolver): string =>
-    alternatives
-      .map((parts) =>
-        parts
-          .map((part) =>
-            typeof part === 'string'
-              ? part.replaceAll('&', `.${h(self)}`)
-              : `.${h(part)}`
-          )
-          .join('')
-      )
-      .join(',');
-
 const expandNestedEntries = (
   moduleName: string,
   self: StyleHandle,
@@ -282,7 +272,7 @@ const makeNestedRule = (
     kind: 'rule',
     moduleName,
     key,
-    selector: composeNestedSelector(self, rule.alternatives),
+    selector: composeSelector(rule.alternatives, self),
     declarations: rule.declarations,
     dependsOn: EMPTY_DEPS,
     auto: true,
@@ -322,42 +312,16 @@ const computeRuleDeps = (
   handles: readonly StyleHandle[]
 ): ReadonlySet<string> => {
   const accessed = new Set<string>();
-  const trackingResolver = ((handle: StyleHandle) => {
+  const trackingResolver = createSelectorResolver(handles, (handle) => {
     accessed.add(handle.key);
-    return `.${handle.readableName}`;
-  }) as StyleSelectorResolver;
-  for (const handle of handles) {
-    defineTrackingAlias(trackingResolver, handle.localName, handle, accessed);
-    const leafName = handle.localName.split('/').at(-1);
-    if (leafName && leafName !== handle.localName) {
-      defineTrackingAlias(trackingResolver, leafName, handle, accessed);
-    }
-  }
+    return handle.readableName;
+  });
   try {
     rule.selector(trackingResolver);
   } catch {
     // A factory that throws on the tracking resolver keeps the deps recorded so far.
   }
   return accessed;
-};
-
-const defineTrackingAlias = (
-  resolver: StyleSelectorResolver,
-  name: string,
-  handle: StyleHandle,
-  accessed: Set<string>
-): void => {
-  if (!/^[A-Za-z_$][\w$]*$/.test(name) || name in resolver) {
-    return;
-  }
-  Object.defineProperty(resolver, name, {
-    configurable: true,
-    enumerable: true,
-    get: () => {
-      accessed.add(handle.key);
-      return `.${handle.readableName}`;
-    },
-  });
 };
 
 const copyDeps = (
@@ -370,22 +334,10 @@ const copyDeps = (
 };
 
 const isPendingHandle = (value: unknown): value is PendingStyleHandle =>
-  Boolean(
-    value &&
-    typeof value === 'object' &&
-    (value as PendingEntry).kind === 'pending-handle'
-  );
+  hasEntryKind(value, 'pending-handle');
 
 const isRule = (value: unknown): value is StyleRule =>
-  Boolean(
-    value &&
-    typeof value === 'object' &&
-    (value as PendingEntry).kind === 'rule'
-  );
+  hasEntryKind(value, 'rule');
 
 const isMedia = (value: unknown): value is StyleMedia =>
-  Boolean(
-    value &&
-    typeof value === 'object' &&
-    (value as PendingEntry).kind === 'media'
-  );
+  hasEntryKind(value, 'media');
