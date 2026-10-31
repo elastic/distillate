@@ -5,14 +5,22 @@
  * 2.0.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { StylesCollectorOptions } from './collector';
 import { createDomSink, type StyleElementLike } from './dom_sink';
 import { createEmotion } from './emotion';
 import { createDistillery } from './engine';
 import type { DistilleryOptions } from './environment';
-import { container, type CssValue, media, rule, variants } from './styles';
+import {
+  combineClassNames,
+  container,
+  type CssValue,
+  media,
+  resolveClassNames,
+  rule,
+  variants,
+} from './styles';
 import { lightDark } from './tokens';
 import { contextualVar, cq } from './tokens';
 
@@ -1638,6 +1646,66 @@ describe('distillery.owns', () => {
 
     expect(live.resolveClassName({ key: demo.handles.root.key })).toBe(
       'demo-root'
+    );
+  });
+});
+
+describe('resolveClassNames', () => {
+  it('falls back to readable names without a context', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('demo', (t) => ({
+      root: t.css`
+        color: ${t.tokens.colors.ink};
+      `,
+      icon: t.css`
+        margin: ${t.tokens.gap};
+      `,
+    }));
+
+    expect(resolveClassNames(undefined, demo.handles.root)).toBe('demo-root');
+    expect(resolveClassNames(null, demo.handles.root, demo.handles.icon)).toBe(
+      'demo-root demo-icon'
+    );
+    expect(resolveClassNames(undefined)).toBe('');
+  });
+
+  it('collects through a context when one is present', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('demo', (t) => ({
+      root: t.css`
+        color: ${t.tokens.colors.ink};
+      `,
+    }));
+    const live = distillery.liveCollection();
+
+    expect(live.css()).not.toContain('.demo-root{');
+    expect(resolveClassNames(live, demo.handles.root)).toBe('demo-root');
+    expect(live.css()).toContain('.demo-root{');
+    expect(combineClassNames(live, demo.handles.root)).toBe('demo-root');
+  });
+
+  it('delegates all handles and returns the context-specific names', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('demo', (t) => ({
+      root: t.css`
+        color: red;
+      `,
+      icon: t.css`
+        margin: 0;
+      `,
+    }));
+    const resolveClassName = vi.fn(() => 'a b');
+
+    expect(
+      resolveClassNames(
+        { resolveClassName },
+        demo.handles.root,
+        demo.handles.icon
+      )
+    ).toBe('a b');
+    expect(resolveClassName).toHaveBeenCalledExactlyOnceWith(
+      demo.handles.root,
+      demo.handles.icon
     );
   });
 });

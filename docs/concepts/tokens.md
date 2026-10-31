@@ -53,7 +53,7 @@ gap.cq; <2>
 1. Inlines as `8px`. No custom property, nothing to prune.
 2. Container-relative value: `2cqi`. Use this when the declaration should track container size.
 
-`cq` is an alias of `scaleToken`.
+`cq` is an alias of `scaleToken`. The second argument defaults to the first, so `cq('8px')` inlines `8px` and reports `8px` as its container-relative value too. Pass both only when they differ.
 
 ## Shared contextual vars
 

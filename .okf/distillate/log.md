@@ -2,6 +2,7 @@
 
 ## 2026-10-30
 
+- **Update**: `scaleToken(value, cq?)` / `cq(value, cq?)`: the container-relative argument defaults to `value`. `resolveClassNames(context, ...handles)` resolves through `context.resolveClassName` or falls back to readable names when `context` is `null` / `undefined`; `combineClassNames` is deprecated in its favor, and `ClassNameContext` names the context shape. `themeValueOverrides` JSDoc and the React-renderer and compact-artifact guides point fixed-scheme targets at `renderStyles({ scheme })`.
 - **Update**: `StylesCollector.useHandles` and `liveCollection.resolveClassName` accept a bare `{ key }` (`StyleHandleRef`), resolved through `StyleRegistry.handle(key)`; an unregistered key throws. `distillery.owns(handle)` reports whether a handle belongs to the distillery, by identity for a full handle and by key for a bare one, so adapters no longer derive it from `registry.module`.
 
 ## 2026-10-23

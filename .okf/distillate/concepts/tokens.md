@@ -33,7 +33,7 @@ sources:
 Author a nested value tree. `createDistillery` derives `CssToken` / `ScaleToken` leaves and the `themeVars` registry. Three branded values stringify through `Symbol.toPrimitive`:
 
 - `string` or `lightDark(light, dark)` → `CssToken` (`var(--...)`). Path is the slash-joined tree walk. Unread tokens are pruned. `lightDark` values must be CSS `<color>`.[^light-dark][^css-token]
-- `cq(value, cq)` / `scaleToken(value, cq)` → inlined literal. `.cq` is the container-relative variant.[^scale-token]
+- `cq(value, cq?)` / `scaleToken(value, cq?)` → inlined literal. `.cq` is the container-relative variant and defaults to `value`.[^scale-token]
 - `contextualVar(path, prop)` → shared var. `.name` declares; interpolating the var reads. Register the path in `sharedVars`.[^contextual-var]
 
 `zipSchemes(light, dark)` folds two per-scheme trees into the authoring form. Equal strings stay bare; differing strings become `lightDark`; `ScaleToken` leaves must agree.[^theme]

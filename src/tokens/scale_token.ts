@@ -13,7 +13,7 @@ export interface ScaleToken {
   readonly __kind: 'scale-token';
   /** Literal CSS value, inlined into declarations. */
   readonly value: string;
-  /** Container-query-relative variant of `value`. */
+  /** Container-query-relative variant of `value`; equal to `value` unless given. */
   readonly cq: string;
   /** Stringifies to {@link ScaleToken.value}. */
   toString(): string;
@@ -21,8 +21,8 @@ export interface ScaleToken {
   [Symbol.toPrimitive](hint: string): string;
 }
 
-/** Literal size token. Stringifies to `value`; `cq` is the container-relative variant. */
-export const scaleToken = (value: string, cq: string): ScaleToken => {
+/** Literal size token. Stringifies to `value`; `cq` is the container-relative variant and defaults to `value`. */
+export const scaleToken = (value: string, cq: string = value): ScaleToken => {
   const valueToString = (): string => value;
   return {
     __kind: 'scale-token',
