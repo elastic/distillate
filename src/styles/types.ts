@@ -124,6 +124,9 @@ export interface StyleHandle {
   }): string;
 }
 
+/** A handle, or anything carrying a registered handle's `key`; see {@link index.StylesCollector#useHandles | StylesCollector.useHandles}. */
+export type StyleHandleRef = Pick<StyleHandle, 'key'>;
+
 /** A selector plus declarations, optionally auto-collected from handle deps. */
 export interface StyleRule {
   /** Discriminant for {@link StyleEntry}. */

@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-10-30
+
+- **Update**: `StylesCollector.useHandles` and `liveCollection.resolveClassName` accept a bare `{ key }` (`StyleHandleRef`), resolved through `StyleRegistry.handle(key)`; an unregistered key throws. `distillery.owns(handle)` reports whether a handle belongs to the distillery, by identity for a full handle and by key for a bare one, so adapters no longer derive it from `registry.module`.
+
 ## 2026-10-23
 
 - **Update**: `.github/workflows/dependabot-licenses.yml` regenerates and commits license reports on Dependabot dependency PRs, then dispatches `ci.yml` for the updated branch. Generation runs with read-only access, and the write job commits only the two reports with a lease on the original PR head.

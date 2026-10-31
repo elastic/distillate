@@ -12,6 +12,7 @@ import {
   type StyleNameResolver,
   type StyleTarget,
 } from './names';
+import { isHandleLike } from './nesting';
 import type {
   ContextualVarPath,
   CssVarPath,
@@ -19,6 +20,7 @@ import type {
   DefaultGroupDeps,
   StyleEntry,
   StyleHandle,
+  StyleHandleRef,
   StyleMedia,
   StyleRegistry,
   StyleRule,
@@ -216,15 +218,17 @@ export class StylesCollector {
    *
    * Media blocks gain inner rules whose deps are met and keep rules already collected.
    *
-   * @param handles Handles resolved during this render pass (e.g. from `resolveClassName`).
+   * @param handles Handles resolved during this render pass (e.g. from `resolveClassName`). A bare `{ key }` resolves through the registry.
    * @returns Handles that were retained. Empty untargeted handles are omitted in compact mode.
+   * @throws If a `{ key }` names no handle registered with this collector's registry.
    */
-  useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[] {
+  useHandles(handles: readonly StyleHandleRef[]): readonly StyleHandle[] {
     return this.batch(() => {
       let added = false;
       const retained: StyleHandle[] = [];
       let pending: StyleHandle[] = [];
-      for (const handle of handles) {
+      for (const ref of handles) {
+        const handle = this.resolveHandle(ref);
         if (this.settledHandles.has(handle)) {
           retained.push(handle);
           continue;
@@ -328,6 +332,20 @@ export class StylesCollector {
         this.addDeclarationDeps(rule.declarations);
       }
     }
+  }
+
+  // A full handle passes through unchanged, even from another distillery.
+  private resolveHandle(ref: StyleHandleRef): StyleHandle {
+    if (isHandleLike(ref)) {
+      return ref;
+    }
+    const handle = this.registry.handle(ref.key);
+    if (!handle) {
+      throw new Error(
+        `Unknown style handle key "${ref.key}". Register its module with this distillery before collecting it.`
+      );
+    }
+    return handle;
   }
 
   private allDepsMet(dependsOn: ReadonlySet<string>): boolean {

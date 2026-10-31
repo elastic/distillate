@@ -97,6 +97,7 @@ export {
   type StyleDeps,
   type StyleEntry,
   type StyleHandle,
+  type StyleHandleRef,
   type StyleMedia,
   type StyleRegistrySnapshot,
   type StyleRule,
