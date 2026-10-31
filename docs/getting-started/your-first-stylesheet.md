@@ -52,6 +52,8 @@ const css = distillery.renderStyles(distillery.stylesheetCollector());
 }
 ```
 
-`stylesheetCollector()` preloads every registered module, including variants. Apply `panel.handles.root.readableName` (or `String(handle)` on an emotion wrapper) in markup. Readable stringification does **not** collect; it only works when the document's stylesheet also used readable names.
+`stylesheetCollector()` preloads every registered module, including variants. It sees only files that have already loaded. When publishing a library, retain those registration side effects in the package manifest and load all intended style files from a library-owned stylesheet entry; see [tree-shaking and library stylesheets](../concepts/collection.md#tree-shaking-and-library-stylesheets).
+
+Apply `panel.handles.root.readableName` (or `String(handle)` on an emotion wrapper) in markup. Readable stringification does **not** collect; it only works when the document's stylesheet also used readable names.
 
 For HTML that leaves the app with its CSS inlined, switch to [compact artifacts](../guides/compact-artifacts.md). For how names and targets combine, see [naming and output](../concepts/naming-and-output.md).

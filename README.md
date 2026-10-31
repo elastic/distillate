@@ -74,6 +74,8 @@ distillery.renderStyles(distillery.stylesheetCollector());
 // => '.eui-view{--eui-colors-ink:light-dark(#111,#eee)}.demo-root{color:var(--eui-colors-ink);padding:8px}'
 ```
 
+`stylesheetCollector()` collects only modules registered by files that have already loaded. Libraries shipping a full stylesheet must import their style files from a library-owned stylesheet entry and mark the actual published style files as side-effectful, rather than declaring `"sideEffects": false`. Consumers need no module list. See [collection and tree-shaking](https://elastic.github.io/distillate/concepts/collection.html#tree-shaking-and-library-stylesheets).
+
 ## Output matrix
 
 The same source emits four kinds of CSS. Pick a **target** and a **name mode**:
