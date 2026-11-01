@@ -179,6 +179,27 @@ describe('createEmotion — composition', () => {
     expect(css).toContain(`.${readable}:hover{color:blue}`);
   });
 
+  it('dedupes a template whether it interpolates a wrapper or its native handle', () => {
+    const distillery = createFixtureDistillery();
+    const em = createEmotion(distillery);
+    const target = em.css`color: red;`;
+    const native = distillery.registry.handle(target.key);
+    if (!native) {
+      throw new Error('expected a registered handle');
+    }
+    const viaWrapper = em.css`
+      ${target} & {
+        outline: 0;
+      }
+    `;
+    const viaNative = em.css`
+      ${native} & {
+        outline: 0;
+      }
+    `;
+    expect(viaNative).toBe(viaWrapper);
+  });
+
   it('keeps a compat handle in selector position as a cross-class target', () => {
     const distillery = createFixtureDistillery();
     const em = createEmotion(distillery);
