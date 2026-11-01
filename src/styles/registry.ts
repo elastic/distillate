@@ -8,6 +8,7 @@
 import type { DistilleryEnvironment } from '../environment';
 import { cssVarName } from '../names';
 
+import { declarationsOf, rulesOf } from './entries';
 import type {
   ContextualVarPath,
   CssVarPath,
@@ -82,12 +83,8 @@ export class StyleRegistry {
     const keys = new Set<string>();
     for (const module of this.modulesByName.values()) {
       for (const entry of module.entries) {
-        if (entry.kind === 'rule') {
-          entry.dependsOn.forEach((dep) => keys.add(dep));
-        } else if (entry.kind === 'media') {
-          for (const inner of entry.rules) {
-            inner.dependsOn.forEach((dep) => keys.add(dep));
-          }
+        for (const rule of rulesOf(entry)) {
+          rule.dependsOn.forEach((dep) => keys.add(dep));
         }
       }
     }
@@ -258,13 +255,7 @@ const localVarPathsOf = (
     }
   };
   for (const entry of module.entries) {
-    if (entry.kind === 'handle' || entry.kind === 'rule') {
-      addFrom(entry.declarations);
-    } else {
-      for (const nested of entry.rules) {
-        addFrom(nested.declarations);
-      }
-    }
+    declarationsOf(entry).forEach(addFrom);
   }
   return [...paths];
 };
