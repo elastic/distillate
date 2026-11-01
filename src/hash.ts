@@ -55,7 +55,9 @@ export const contentHash64 = (
 
 // Canonical, injective-enough serialization. Template strings and tagged
 // values are interleaved and joined with a NUL sentinel that cannot appear in
-// authored CSS, so distinct templates cannot collide by concatenation.
+// authored CSS, so distinct templates cannot collide by concatenation. Tags
+// carry the emitted custom-property name, not just the path, because the
+// rendered CSS differs when the name does.
 const canonicalize = (
   strings: readonly string[],
   values: readonly unknown[]
@@ -75,16 +77,16 @@ const tagValue = (value: unknown): string => {
     return `r:${value}`;
   }
   if (isCssToken(value)) {
-    return `t:${value.path}`;
+    return `t:${value.path}=${value.cssVar}`;
   }
   if (isContextualCssVar(value)) {
-    return `v:${value.path}`;
+    return `v:${value.path}=${value.name.name}`;
   }
   if (isContextualCssVarName(value)) {
-    return `n:${value.path}`;
+    return `n:${value.path}=${value.name}`;
   }
   if (isLocalVarRef(value)) {
-    return `l:${value.path}`;
+    return `l:${value.path}=${value.propName}`;
   }
   if (isScaleToken(value)) {
     return `s:${value.value}`;

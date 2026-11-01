@@ -149,13 +149,13 @@ export const createEmotion = <TTokens>(
   ): EmotionCss => {
     assertTemplate(strings, 'css');
     const hash = contentHash64(strings, values);
+    const moduleName = `css-${hash}`;
+    const canonical = canonicalKey(strings, values);
+    detectCollision(state, moduleName, canonical);
     const cached = state.wrappers.get(hash);
     if (cached) {
       return cached;
     }
-    const moduleName = `css-${hash}`;
-    const canonical = canonicalKey(strings, values);
-    detectCollision(state, moduleName, canonical);
 
     const flat = flattenTemplate(strings, values, {
       mode: 'self',
@@ -186,11 +186,11 @@ export const createEmotion = <TTokens>(
     assertTemplate(strings, 'injectGlobal');
     const hash = contentHash64(strings, values);
     const moduleName = `global-${hash}`;
+    const canonical = canonicalKey(strings, values);
+    detectCollision(state, moduleName, canonical);
     if (registry.module(moduleName)) {
       return;
     }
-    const canonical = canonicalKey(strings, values);
-    detectCollision(state, moduleName, canonical);
 
     const flat = flattenTemplate(strings, values, {
       mode: 'global',

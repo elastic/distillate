@@ -10,8 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { createEmotion, type StyleSink } from './emotion';
 import { createDistillery } from './engine';
 import type { LocalVarGroup, StyleHandle } from './styles';
-import { lightDark } from './tokens';
-import { cq } from './tokens';
+import { contextualVar, cq, lightDark } from './tokens';
 
 const fixtureTheme = {
   colors: {
@@ -104,6 +103,22 @@ describe('createEmotion — css wrapper', () => {
     expect(em.stylesheet()).toContain(
       `.${String(blue)}{--eui-vars-look-bg:blue;color:var(--eui-vars-look-bg)}`
     );
+  });
+
+  it('does not dedupe contextual vars that differ only by emitted name', () => {
+    const distillery = createFixtureDistillery();
+    const em = createEmotion(distillery);
+    const a = em.css`
+      color: ${contextualVar('vars/tone', '--a-tone')};
+    `;
+    const b = em.css`
+      color: ${contextualVar('vars/tone', '--b-tone')};
+    `;
+
+    expect(a).not.toBe(b);
+    const sheet = em.stylesheet();
+    expect(sheet).toContain(`.${String(a)}{color:var(--a-tone)}`);
+    expect(sheet).toContain(`.${String(b)}{color:var(--b-tone)}`);
   });
 
   it('renders nested selectors and media authored in one template', () => {

@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-11-01
+
+- **Update**: Emotion content hashes tag theme tokens, contextual vars, and local var refs by emitted custom-property name as well as path, so two `css` or `injectGlobal` templates that differ only in a var's name no longer share one class. The hash-collision tripwire now runs before the wrapper cache and registry checks, so it can fire. `useRulesWhenDepsMet` collects `auto` rules only; `auto: false` rules still require `collector.use(rule)`.
+
 ## 2026-10-30
 
 - **Update**: Revised stylesheet tree-shaking guidance at the publishing boundary instead of adding explicit-module collector options. `stylesheetCollector(names?, { warn }?)` remains unchanged. Style-owning libraries must mark actual published registration files as side-effectful and load their complete inventory through a library-owned stylesheet entry; a side-effect-only inventory barrel needs its own exemption too. Bundling regressions cover `"sideEffects": false`, incomplete exemptions, direct and barrel imports, readable/compact output, and preserved artifact CSS pruning.
