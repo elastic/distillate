@@ -69,7 +69,7 @@ export class StyleRegistry {
   /**
    * True when some rule, or some inner rule of an `@media` / `@container` block, reads `key` in its selector.
    *
-   * A nested `&` rule records its owning handle through `recordRuleDeps`, so a handle with an empty self block but real nested rules is targeted. A rule-less nested block targets nothing.
+   * A nested `&` rule records its owning handle through `trackRuleDeps`, so a handle with an empty self block but real nested rules is targeted. A rule-less nested block targets nothing.
    */
   targetsHandle(key: string): boolean {
     return this.targetedHandleKeys().has(key);

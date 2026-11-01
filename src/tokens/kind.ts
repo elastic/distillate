@@ -5,17 +5,10 @@
  * 2.0.
  */
 
-const hasField = (value: unknown, field: string, expected: string): boolean =>
+/** `true` when `value` carries the `__kind` brand `kind` (tokens, refs, markers). */
+export const hasKind = (value: unknown, kind: string): boolean =>
   Boolean(
     value &&
     typeof value === 'object' &&
-    (value as Record<string, unknown>)[field] === expected
+    (value as { __kind?: unknown }).__kind === kind
   );
-
-/** `true` when `value` carries the `__kind` brand `kind` (tokens, refs, markers). */
-export const hasKind = (value: unknown, kind: string): boolean =>
-  hasField(value, '__kind', kind);
-
-/** `true` when `value` is a style entry of `kind` (`'handle'`, `'rule'`, `'media'`, `'pending-handle'`). */
-export const hasEntryKind = (value: unknown, kind: string): boolean =>
-  hasField(value, 'kind', kind);
