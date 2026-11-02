@@ -19,15 +19,9 @@
 import { compile, type Element } from 'stylis';
 
 import { type CssSpan, scanCss } from './css_scan';
-import { isLocalVarMarker, isLocalVarRef } from './local_vars';
-import type { CssValue, StyleHandle } from './styles/types';
-import {
-  isContextualCssVar,
-  isContextualCssVarName,
-  isCssToken,
-  isScaleToken,
-} from './tokens';
-import { hasEntryKind } from './tokens/kind';
+import { isLocalVarMarker } from './local_vars';
+import type { StyleHandle } from './styles/types';
+import { describeValue, isCssValue, isHandleLike } from './values';
 
 /** Rebuilt template fragment in tagged-template shape (`strings.length === values.length + 1`). */
 export interface TemplateSlice {
@@ -536,35 +530,4 @@ const declChildren = (element: Element): readonly Element[] =>
 const propName = (element: Element): string =>
   typeof element.props === 'string' ? element.props : (element.props[0] ?? '');
 
-// --- Value guards --------------------------------------------------------
-
-/** `true` when `value` is a {@link CssValue}: a scalar that stringifies into a declaration. */
-export const isCssValue = (value: unknown): value is CssValue =>
-  typeof value === 'string' ||
-  typeof value === 'number' ||
-  isCssToken(value) ||
-  isContextualCssVar(value) ||
-  isContextualCssVarName(value) ||
-  isScaleToken(value) ||
-  isLocalVarRef(value);
-
-export const isHandleLike = (value: unknown): value is StyleHandle =>
-  hasEntryKind(value, 'handle');
-
 const emptySlice = (): TemplateSlice => ({ strings: [''], values: [] });
-
-/** Short description of an unsupported value for error messages. */
-export const describeValue = (value: unknown): string => {
-  if (value === null) {
-    return 'null';
-  }
-  if (value === undefined) {
-    return 'undefined';
-  }
-  if (typeof value === 'object') {
-    const kind = (value as { kind?: string; __kind?: string }).kind;
-    const brand = (value as { __kind?: string }).__kind;
-    return `object${kind ? ` (kind: ${kind})` : brand ? ` (${brand})` : ''}`;
-  }
-  return typeof value;
-};

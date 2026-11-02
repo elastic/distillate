@@ -7,7 +7,7 @@
 
 import type { Distillery } from './engine';
 import { contentHash64 } from './hash';
-import { flattenTemplate, isHandleLike, type TemplateSlice } from './nesting';
+import { flattenTemplate, type TemplateSlice } from './nesting';
 import type { StyleSink } from './sink';
 import {
   globalStylesFromFlattened,
@@ -16,6 +16,7 @@ import {
   type StyleRegistry,
   type StylesModule,
 } from './styles';
+import { isHandleLike } from './values';
 
 export {
   createDomSink,
