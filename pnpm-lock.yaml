@@ -77,8 +77,8 @@ importers:
         specifier: ^25.0.9
         version: 25.0.9(typescript@5.9.3)
       tsc-alias:
-        specifier: ^1.8.16
-        version: 1.9.4
+        specifier: ^1.9.9
+        version: 1.9.10
       typedoc:
         specifier: ^0.28.20
         version: 0.28.20(typescript@5.9.3)
@@ -2834,8 +2834,8 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
-  tsc-alias@1.9.4:
-    resolution: {integrity: sha512-vfhh/N9xQ6oRgdAvuXVbhHSsNtbk+D4LFbJ9YrFPTTP9evGAvf2Xc3MQ7lTVmnJNN+FnuoKHn3524CKDzFYOag==}
+  tsc-alias@1.9.10:
+    resolution: {integrity: sha512-dsZvDB/wgAtRPFDHPYy7X7uqKFR4jJ7VB/2ndPGZQkIMQREz8q74fFsMZL4UmCbUztXhxoA1brKfqW7XzQeMqA==}
     engines: {node: '>=16.20.2'}
     hasBin: true
 
@@ -5898,7 +5898,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  tsc-alias@1.9.4:
+  tsc-alias@1.9.10:
     dependencies:
       chokidar: 3.6.0
       commander: 9.5.0
