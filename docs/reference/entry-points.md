@@ -12,37 +12,34 @@ Runtime values are importable at runtime. Type-only names exist in `.d.ts` only.
 ```ts
 import {
   createDistillery,
-  combineClassNames,
   type Distillery,
   type DistilleryEnvironment,
   type StyleHandle,
 } from '@elastic/distillate';
 ```
 
-| Export | Kind | Role |
-| ------ | ---- | ---- |
-| `createDistillery` | runtime | Bind prefix and a theme tree. |
-| `cssVarName` | runtime | `--${prefix}-${path}` with `/` joined on `-`; strips a leading `vars/`. |
-| `lightDark` / `cq` | runtime | Theme-tree leaves. `cq` aliases `scaleToken`; its second argument defaults to the first. |
-| `zipSchemes` | runtime | Fold two per-scheme trees. Differing strings become `lightDark`. |
-| `resolveThemeValues` | runtime | Nested literal values for one scheme. Prefer `distillery.resolveValues`. |
-| `themeToken` / `scaleToken` / `contextualVar` | runtime | Token factories. Derivation calls `themeToken` / `scaleToken`. For a path in `sharedVars`, prefer `distillery.contextualVar(path)`. |
-| `isCssToken` / `isScaleToken` / `isContextualCssVar` / `isContextualCssVarName` | runtime | Type guards. |
-| `css` / `decls` | runtime | Handle and declaration templates. Also on the `createStyleModule` factory argument. |
-| `rule` / `media` / `container` / `variants` / `mapDomain` | runtime | Root-entry authoring helpers. `mapDomain` has no collector side effect. |
-| `resolveClassNames` | runtime | `context.resolveClassName(...handles)`, or readable names when `context` is `null` / `undefined`. |
-| `combineClassNames` | runtime | `context.resolveClassName(...handles)`. Deprecated in favor of `resolveClassNames`. |
-| `StylesCollector` | runtime | Class; `artifactCollector` / `stylesheetCollector` / `liveCollection` return or wrap instances. `subscribe` reports growth. |
-| `createDomSink` | runtime | One `<style>` element in `document.head` or a given `parent` (e.g. a `ShadowRoot`), flushed per turn. Also exported from `./emotion`. |
-| `renderStyles` | runtime | Unbound renderer; prefer `distillery.renderStyles`. |
-| `createStyleNameResolver` | runtime | Standalone compact/readable name map. |
-| `StyleRegistry` | runtime | Module registry class. |
-| `Distillery` / `DistilleryOptions` / `DistilleryEnvironment` / `ThemeVarDefinition` | type | Bindings. |
-| `TokensOf` / `ValuesOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
-| `StyleHandle` / `StyleHandleRef` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. `StyleHandleRef` is `Pick<StyleHandle, 'key'>`, accepted by `useHandles` and `owns`. |
-| `ClassNameContext` | type | `{ resolveClassName(...handles) }`, the shape `resolveClassNames` and `combineClassNames` accept. |
-| `LiveCollection` / `LiveCollectionOptions` | type | `distillery.liveCollection` result and options. |
-| `StyleSink` / `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike` | type | Sink surface. |
+| Export                                                                                                                                                    | Kind    | Role                                                                                                                                  |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `createDistillery`                                                                                                                                        | runtime | Bind prefix and a theme tree.                                                                                                         |
+| `cssVarName`                                                                                                                                              | runtime | `--${prefix}-${path}` with `/` joined on `-`; strips a leading `vars/`.                                                               |
+| `lightDark` / `cq`                                                                                                                                        | runtime | Theme-tree leaves. `cq` aliases `scaleToken`; its second argument defaults to the first.                                              |
+| `zipSchemes`                                                                                                                                              | runtime | Fold two per-scheme trees. Differing strings become `lightDark`.                                                                      |
+| `resolveThemeValues`                                                                                                                                      | runtime | Nested literal values for one scheme. Prefer `distillery.resolveValues`.                                                              |
+| `themeToken` / `scaleToken` / `contextualVar`                                                                                                             | runtime | Token factories. Derivation calls `themeToken` / `scaleToken`. For a path in `sharedVars`, prefer `distillery.contextualVar(path)`.   |
+| `isCssToken` / `isScaleToken`                                                                                                                             | runtime | Type guards for walking a derived token tree.                                                                                         |
+| `css` / `decls`                                                                                                                                           | runtime | Handle and declaration templates. Also on the `createStyleModule` factory argument.                                                   |
+| `rule` / `media` / `container` / `variants` / `mapDomain`                                                                                                 | runtime | Root-entry authoring helpers. `mapDomain` has no collector side effect.                                                               |
+| `resolveClassNames`                                                                                                                                       | runtime | `context.resolveClassName(...handles)`, or readable names when `context` is `null` / `undefined`.                                     |
+| `StylesCollector`                                                                                                                                         | runtime | Class; `artifactCollector` / `stylesheetCollector` / `liveCollection` return or wrap instances. `subscribe` reports growth.           |
+| `createDomSink`                                                                                                                                           | runtime | One `<style>` element in `document.head` or a given `parent` (e.g. a `ShadowRoot`), flushed per turn. Also exported from `./emotion`. |
+| `renderStyles`                                                                                                                                            | runtime | Unbound renderer; prefer `distillery.renderStyles`.                                                                                   |
+| `StyleRegistry`                                                                                                                                           | type    | `distillery.registry`.                                                                                                                |
+| `Distillery` / `DistilleryOptions` / `DistilleryEnvironment` / `ThemeVarDefinition`                                                                       | type    | Bindings.                                                                                                                             |
+| `TokensOf` / `ValuesOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type    | Theme derivation and render selection.                                                                                                |
+| `StyleHandle` / `StyleHandleRef` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget`                                                 | type    | Handles, modules, naming. `StyleHandleRef` is `Pick<StyleHandle, 'key'>`, accepted by `useHandles` and `owns`.                        |
+| `ClassNameContext`                                                                                                                                        | type    | `{ resolveClassName(...handles) }`, the shape `resolveClassNames` accepts.                                                            |
+| `LiveCollection` / `LiveCollectionOptions`                                                                                                                | type    | `distillery.liveCollection` result and options.                                                                                       |
+| `StyleSink` / `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike`                                                            | type    | Sink surface.                                                                                                                         |
 
 ### Key signatures
 
@@ -103,12 +100,12 @@ const { css, cx, injectGlobal, stylesheet, globalModules } = createEmotion(
 );
 ```
 
-| Export | Kind | Role |
-| ------ | ---- | ---- |
-| `createEmotion` | runtime | `css` / `cx` / `injectGlobal` over the distillery registry. |
-| `createDomSink` | runtime | One `<style>` element, flushed per turn. Re-exported from the root entry. |
-| `Emotion` / `EmotionCss` / `CreateEmotionOptions` / `StyleSink` | type | Return and option types. |
-| `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike` | type | DOM sink surface. Same as the root entry. |
+| Export                                                                           | Kind    | Role                                                                      |
+| -------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------- |
+| `createEmotion`                                                                  | runtime | `css` / `cx` / `injectGlobal` over the distillery registry.               |
+| `createDomSink`                                                                  | runtime | One `<style>` element, flushed per turn. Re-exported from the root entry. |
+| `Emotion` / `EmotionCss` / `CreateEmotionOptions` / `StyleSink`                  | type    | Return and option types.                                                  |
+| `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike` | type    | DOM sink surface. Same as the root entry.                                 |
 
 ```ts
 createEmotion(distillery, options?: { sink?: StyleSink }): Emotion;
@@ -131,12 +128,12 @@ findVarRefViolations(css: string): VarInvariantViolation[];
 assertVarRefsHaveDeclarations(css: string): void; // throws on violations
 ```
 
-| Export | Kind | Role |
-| ------ | ---- | ---- |
-| `findVarRefViolations` | runtime | Returns `{ reference, context }[]`. |
-| `assertVarRefsHaveDeclarations` | runtime | Throws if any `var(...)` is undeclared in the same text. |
-| `tokenTreeDts` | runtime | Emits a TypeScript `interface` for a derived token tree (Monaco extraLib). |
-| `VarInvariantViolation` | type | `reference` plus nearby `context`. |
+| Export                          | Kind    | Role                                                                       |
+| ------------------------------- | ------- | -------------------------------------------------------------------------- |
+| `findVarRefViolations`          | runtime | Returns `{ reference, context }[]`.                                        |
+| `assertVarRefsHaveDeclarations` | runtime | Throws if any `var(...)` is undeclared in the same text.                   |
+| `tokenTreeDts`                  | runtime | Emits a TypeScript `interface` for a derived token tree (Monaco extraLib). |
+| `VarInvariantViolation`         | type    | `reference` plus nearby `context`.                                         |
 
 No `stylis` import. Safe to use from tests that must not pull the compiler.
 

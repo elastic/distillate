@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-11-01
+
+- **Update**: Breaking export trim on the root entry. Removed `combineClassNames` (deprecated; use `resolveClassNames`), `createStyleNameResolver` and `StyleNameResolverOptions` (collectors create resolvers), and the `isContextualCssVar` / `isContextualCssVarName` guards. `StyleRegistry` is a type-only export; `distillery.registry` is the instance. `isCssToken` / `isScaleToken` stay for walking a derived token tree.
+
 ## 2026-10-30
 
 - **Update**: Revised stylesheet tree-shaking guidance at the publishing boundary instead of adding explicit-module collector options. `stylesheetCollector(names?, { warn }?)` remains unchanged. Style-owning libraries must mark actual published registration files as side-effectful and load their complete inventory through a library-owned stylesheet entry; a side-effect-only inventory barrel needs its own exemption too. Bundling regressions cover `"sideEffects": false`, incomplete exemptions, direct and barrel imports, readable/compact output, and preserved artifact CSS pruning.

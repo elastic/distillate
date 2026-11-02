@@ -9,7 +9,6 @@ import '../instance';
 
 export {
   type ClassNameContext,
-  combineClassNames,
   container,
   css,
   decls,
@@ -22,11 +21,7 @@ export {
   rule,
   variants,
 } from './authoring';
-export {
-  computeValueDeps,
-  isEmptyDeclarations,
-  stringifyCssValue,
-} from './declarations';
+export { isEmptyDeclarations, stringifyCssValue } from './declarations';
 export {
   createStyleModuleWithEnvironment,
   type StyleModuleDiagnostics,

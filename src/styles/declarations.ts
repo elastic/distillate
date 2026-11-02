@@ -97,9 +97,7 @@ const recordMarkerDeps = (
 };
 
 /** Theme/var deps recorded while stringifying one declaration value. */
-export const computeValueDeps = (
-  value: unknown
-): DefaultKeyDeps['valueDeps'] => {
+const computeValueDeps = (value: unknown): DefaultKeyDeps['valueDeps'] => {
   const local: MutableStyleDeps = {
     theme: new Set(),
     vars: new Set(),

@@ -198,18 +198,6 @@ export interface ClassNameContext {
 }
 
 /**
- * Resolves handles through the collector's class-name resolver.
- *
- * @deprecated Use {@link resolveClassNames}, which also renders without a context.
- * @param context Object exposing `resolveClassName` (e.g. a React render context).
- * @param handles One or more handles to resolve and join.
- */
-export const combineClassNames = (
-  context: ClassNameContext,
-  ...handles: readonly StyleHandle[]
-): string => context.resolveClassName(...handles);
-
-/**
  * Class names for `handles` through `context`, or their readable names when there is none.
  *
  * The fallback lets a view render outside a collecting tree (a unit test, a plain DOM mount) and still wear stable class names.

@@ -41,8 +41,6 @@ export {
 export {
   contextualVar,
   cq,
-  isContextualCssVar,
-  isContextualCssVarName,
   isCssToken,
   isScaleToken,
   lightDark,
@@ -55,11 +53,9 @@ export {
   type SchemePair,
 } from './tokens';
 export {
-  createStyleNameResolver,
   cssVarName,
   type StyleNameMode,
   type StyleNameResolver,
-  type StyleNameResolverOptions,
   type StyleTarget,
 } from './names';
 export { StylesCollector, type StylesCollectorOptions } from './collector';
@@ -69,7 +65,6 @@ export {
   type ThemeAlternate,
 } from './runtime';
 export {
-  combineClassNames,
   container,
   css,
   decls,
@@ -77,7 +72,7 @@ export {
   media,
   resolveClassNames,
   rule,
-  StyleRegistry,
+  type StyleRegistry,
   variants,
   type ClassNameContext,
   type ContextualVarPath,

@@ -101,7 +101,7 @@ A handle is no-op when its declarations produce nothing **and** no rule targets 
 
 Empty blocks never ship: `renderStyles` drops a handle or rule whose rendered body is blank, and a media block whose inner fragments are all blank.
 
-Dropping the class name itself happens only in `compact` mode. Readable names are stable, so a consumer stylesheet or test may scope on one. Compact names have no such contract, and no-op handles do not consume a compact slot. `useHandles` returns the retained handles so hosts can build the class string without changing `combineClassNames`.
+Dropping the class name itself happens only in `compact` mode. Readable names are stable, so a consumer stylesheet or test may scope on one. Compact names have no such contract, and no-op handles do not consume a compact slot. `useHandles` returns the retained handles so hosts can build the class string from what was kept.
 
 A handle is targeted when some rule, or some inner rule of an `@media` / `@container` block, reads it in a selector. `recordRuleDeps` fills that in for nested `&` rules too, so a handle with an empty self block and a real `& h2` stays. A nested block with no rules inside it (`@media (...) {}`) targets nothing and does not rescue its owner. A local-var marker counts as content, so marker-bearing handles are never pruned.
 
