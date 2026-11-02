@@ -3,7 +3,7 @@
 # 2.0; you may not use this file except in compliance with the Elastic License
 # 2.0.
 
-name: Dependabot license reports
+name: Dependency license reports
 
 on:
   pull_request_target:
@@ -13,13 +13,16 @@ permissions:
   contents: read
 
 concurrency:
-  group: dependabot-licenses-${{ github.event.pull_request.number }}
+  group: dependency-licenses-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
   generate:
     if: >-
-      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      (
+        github.event.pull_request.user.login == 'dependabot[bot]' ||
+        github.event.pull_request.user.login == 'elastic-renovate-prod[bot]'
+      ) &&
       github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
