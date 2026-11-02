@@ -11,13 +11,13 @@ import {
   isLocalVarMarker,
   isLocalVarRef,
 } from '../local_vars';
-import { isHandleLike } from '../nesting';
 import {
   isContextualCssVar,
   isContextualCssVarName,
   isCssToken,
   isScaleToken,
 } from '../tokens';
+import { isHandleLike } from '../values';
 
 import type {
   ContextualVarPath,

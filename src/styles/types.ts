@@ -276,9 +276,6 @@ export interface PendingNestedMedia {
 /** Nested `&` rule or `@media` on a pending handle. */
 export type PendingNested = PendingNestedRule | PendingNestedMedia;
 
-/** Pending handle or already-resolved rule/media during registration. */
-export type PendingEntry = PendingStyleHandle | StyleRule | StyleMedia;
-
 /** Narrow `t` for `primitiveStyles`: handles and tokens only. */
 export interface PrimitiveStyleAuthoringApi<TTokens = unknown> {
   /** Creates named style handles using the same template tag as `css`. */

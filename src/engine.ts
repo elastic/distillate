@@ -19,7 +19,6 @@ import {
   type StyleNameResolver,
   type StyleNameResolverOptions,
 } from './names';
-import { isHandleLike } from './nesting';
 import { renderStyles, type RenderStylesOptions } from './runtime';
 import type { StyleSink } from './sink';
 import {
@@ -44,6 +43,7 @@ import {
   type ValuesOf,
 } from './theme';
 import { type ContextualCssVar, contextualVar } from './tokens';
+import { isHandleLike } from './values';
 
 /** Sink, render options, and warning sink for {@link Distillery.liveCollection}. */
 export interface LiveCollectionOptions {
