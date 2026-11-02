@@ -125,7 +125,7 @@
     ],
     "overrides": {
       "smol-toml": ">=1.7.1",
-      "dompurify": ">=3.4.13"
+      "dompurify": ">=3.4.17"
     }
   }
 }
