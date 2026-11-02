@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-11-02
+
+- **Update**: Renamed the license workflow to `.github/workflows/dependency-licenses.yml` and allowed the verified `elastic-renovate-prod[bot]` PR author alongside Dependabot, still restricted to same-repository heads. Read-only generation, report-only writes, stale-head leases, and CI dispatch after a report commit are unchanged. `.github/post-release.md` documents the separate required-check setting; existing approval requirements are unchanged.
+
 ## 2026-11-01
 
 - **Update**: Emotion content hashes tag theme tokens, contextual vars, and local var refs by emitted custom-property name as well as path, so two `css` or `injectGlobal` templates that differ only in a var's name no longer share one class. The hash-collision tripwire now runs before the wrapper cache and registry checks, so it can fire. `useRulesWhenDepsMet` collects `auto` rules only; `auto: false` rules still require `collector.use(rule)`.
@@ -13,7 +17,7 @@
 
 ## 2026-10-23
 
-- **Update**: `.github/workflows/dependabot-licenses.yml` regenerates and commits license reports on Dependabot dependency PRs, then dispatches `ci.yml` for the updated branch. Generation runs with read-only access, and the write job commits only the two reports with a lease on the original PR head.
+- **Update**: `.github/workflows/dependency-licenses.yml` (originally named `dependabot-licenses.yml`) regenerates and commits license reports on Dependabot dependency PRs, then dispatches `ci.yml` for the updated branch. Generation runs with read-only access, and the write job commits only the two reports with a lease on the original PR head.
 - **Update**: Snapshots under `next`. Each push to `main` that changes a published file or build input runs a Snapshot job in `release.yml`, where trusted publishing is bound, and `scripts/publish_snapshot.js` publishes `@elastic/distillate` at `<release + 1 patch>-main.<time>.g<sha>` under the `next` dist-tag, with no tag or commit. `.github/post-release.md`, the installation docs, README, and the public contract describe it.
 - **Update**: `renderStyles` builds its readable-name lookup once per call and rewrites `--<prefix>-…` names in one pass per CSS span, instead of building a `RegExp` per theme token per span (#41). `StylesCollector` caches its finalized theme and var deps until the collection changes. Output is unchanged; `src/runtime.test.ts` pins compact substitution and the cache.
 

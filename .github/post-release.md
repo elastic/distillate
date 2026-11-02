@@ -30,6 +30,12 @@ Pull-request checks currently run on GitHub Actions and call pnpm scripts (`type
 
 No check logic needs to be rewritten to change runners.
 
+## Require pull-request CI
+
+The workflows define checks, not merge requirements. In an active ruleset targeting `main`, require the GitHub Actions check **typecheck / lint / test / build** (the `verify` job in `ci.yml`). It includes the export/declaration smokes and license-report check as well as the checks in its name. Keep the existing pull-request approval requirements; do not enable auto-merge or add a bot bypass.
+
+The effective `main` rules checked on 2026-11-02 require one approval but no status checks, and there is no classic branch protection. A repository or organization administrator must configure the required check separately; committing workflow changes does not enforce it.
+
 ## Upgrade ESLint
 
 The repo is on ESLint 9 with flat config. Move to ESLint 10 when every plugin in `package.json` (`typescript-eslint`, `eslint-plugin-license-header`, `eslint-plugin-prettier`, `eslint-plugin-simple-import-sort`) declares support, then re-run `pnpm verify`.
@@ -43,6 +49,8 @@ pnpm licenses:report
 ```
 
 Commit both files. CI fails `pnpm licenses:report --check` when they drift.
+
+For same-repository PRs authored by `dependabot[bot]` or `elastic-renovate-prod[bot]`, [the dependency license workflow](workflows/dependency-licenses.yml) regenerates both reports on open, update, and reopen. Generation installs with `--ignore-scripts` and read-only repository access. A separate write-enabled job commits only the two reports, pushes with a lease on the captured PR head, then dispatches `ci.yml` for the updated branch because a `GITHUB_TOKEN` push does not trigger pull-request CI. Unchanged reports need no commit or dispatch; ordinary pull-request CI covers that head. A stale-head push fails rather than overwriting newer work.
 
 ## Reconcile downstream copies
 
