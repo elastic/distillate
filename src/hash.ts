@@ -17,13 +17,13 @@ import {
   isLocalVarRef,
   type LocalVarMarker,
 } from './local_vars';
-import { isHandleLike } from './nesting';
 import {
   isContextualCssVar,
   isContextualCssVarName,
   isCssToken,
   isScaleToken,
 } from './tokens';
+import { isHandleLike } from './values';
 
 const FNV_PRIME = 0x01000193;
 const FNV_OFFSET_A = 0x811c9dc5;
