@@ -50,6 +50,17 @@ const forbiddenExports = [
     '@elastic/distillate.createStyleModuleWithEnvironment',
     distillate.createStyleModuleWithEnvironment,
   ],
+  ['@elastic/distillate.combineClassNames', distillate.combineClassNames],
+  [
+    '@elastic/distillate.createStyleNameResolver',
+    distillate.createStyleNameResolver,
+  ],
+  ['@elastic/distillate.isContextualCssVar', distillate.isContextualCssVar],
+  [
+    '@elastic/distillate.isContextualCssVarName',
+    distillate.isContextualCssVarName,
+  ],
+  ['@elastic/distillate.StyleRegistry', distillate.StyleRegistry],
 ];
 
 const missing = requiredExports

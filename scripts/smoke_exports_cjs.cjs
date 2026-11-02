@@ -49,6 +49,31 @@ if (missing.length > 0) {
   throw new Error(`Missing CJS package exports: ${missing.join(', ')}`);
 }
 
+const forbiddenExports = [
+  ['@elastic/distillate.combineClassNames (cjs)', distillate.combineClassNames],
+  [
+    '@elastic/distillate.createStyleNameResolver (cjs)',
+    distillate.createStyleNameResolver,
+  ],
+  [
+    '@elastic/distillate.isContextualCssVar (cjs)',
+    distillate.isContextualCssVar,
+  ],
+  [
+    '@elastic/distillate.isContextualCssVarName (cjs)',
+    distillate.isContextualCssVarName,
+  ],
+  ['@elastic/distillate.StyleRegistry (cjs)', distillate.StyleRegistry],
+];
+
+const leaked = forbiddenExports
+  .filter(([, value]) => value !== undefined)
+  .map(([name]) => name);
+
+if (leaked.length > 0) {
+  throw new Error(`Forbidden CJS package exports: ${leaked.join(', ')}`);
+}
+
 // Nothing above exercises "main": with an "exports" map present, Node
 // resolves the "require" condition and never consults it. Require the
 // literal file "main" names so a future drift between "main" and
@@ -105,5 +130,5 @@ if (!Array.isArray(violations)) {
 }
 
 console.log(
-  `CJS package export check passed: ${requiredExports.length} required, "main" and one rendered path per entry point verified.`
+  `CJS package export check passed: ${requiredExports.length} required, ${forbiddenExports.length} forbidden, "main" and one rendered path per entry point verified.`
 );
