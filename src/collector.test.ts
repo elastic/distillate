@@ -146,17 +146,41 @@ describe('StylesCollector.subscribe', () => {
 
   it('notifies for rules collected by useRulesWhenDepsMet', () => {
     const { distillery, demo } = createFixture();
+    const aside = distillery.createStyleModule('aside', (t) => ({
+      focus: rule(
+        () => `.${demo.handles.second.readableName}:focus`,
+        t.decls`
+          outline: none;
+        `
+      ),
+    }));
     const collector = distillery.artifactCollector('readable');
     collector.useHandles([demo.handles.second]);
     expect(distillery.renderStyles(collector)).not.toContain(':focus');
     const notifications = countNotifications(collector);
 
-    collector.useRulesWhenDepsMet(demo);
+    collector.useRulesWhenDepsMet(aside);
     expect(notifications.count()).toBe(1);
     expect(distillery.renderStyles(collector)).toContain('.demo-second:focus');
 
-    collector.useRulesWhenDepsMet(demo);
+    collector.useRulesWhenDepsMet(aside);
     expect(notifications.count()).toBe(1);
+  });
+
+  it('useRulesWhenDepsMet skips auto:false rules even when their deps are met', () => {
+    const { distillery, demo } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([demo.handles.second]);
+    const notifications = countNotifications(collector);
+
+    collector.useRulesWhenDepsMet(demo);
+    expect(notifications.count()).toBe(0);
+    expect(distillery.renderStyles(collector)).not.toContain(':focus');
+
+    collector.use(
+      demo.entries.find((entry) => entry.kind === 'rule' && !entry.auto) ?? demo
+    );
+    expect(distillery.renderStyles(collector)).toContain('.demo-second:focus');
   });
 
   it('notifies for a new theme var only', () => {

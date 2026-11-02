@@ -10,8 +10,7 @@ import { describe, expect, it } from 'vitest';
 import { createEmotion, type StyleSink } from './emotion';
 import { createDistillery } from './engine';
 import type { LocalVarGroup, StyleHandle } from './styles';
-import { lightDark } from './tokens';
-import { cq } from './tokens';
+import { contextualVar, cq, lightDark } from './tokens';
 
 const fixtureTheme = {
   colors: {
@@ -106,6 +105,22 @@ describe('createEmotion — css wrapper', () => {
     );
   });
 
+  it('does not dedupe contextual vars that differ only by emitted name', () => {
+    const distillery = createFixtureDistillery();
+    const em = createEmotion(distillery);
+    const a = em.css`
+      color: ${contextualVar('vars/tone', '--a-tone')};
+    `;
+    const b = em.css`
+      color: ${contextualVar('vars/tone', '--b-tone')};
+    `;
+
+    expect(a).not.toBe(b);
+    const sheet = em.stylesheet();
+    expect(sheet).toContain(`.${String(a)}{color:var(--a-tone)}`);
+    expect(sheet).toContain(`.${String(b)}{color:var(--b-tone)}`);
+  });
+
   it('renders nested selectors and media authored in one template', () => {
     const distillery = createFixtureDistillery();
     const em = createEmotion(distillery);
@@ -162,6 +177,27 @@ describe('createEmotion — composition', () => {
     const css = distillery.renderStyles(collector);
     const readable = String(ext);
     expect(css).toContain(`.${readable}:hover{color:blue}`);
+  });
+
+  it('dedupes a template whether it interpolates a wrapper or its native handle', () => {
+    const distillery = createFixtureDistillery();
+    const em = createEmotion(distillery);
+    const target = em.css`color: red;`;
+    const native = distillery.registry.handle(target.key);
+    if (!native) {
+      throw new Error('expected a registered handle');
+    }
+    const viaWrapper = em.css`
+      ${target} & {
+        outline: 0;
+      }
+    `;
+    const viaNative = em.css`
+      ${native} & {
+        outline: 0;
+      }
+    `;
+    expect(viaNative).toBe(viaWrapper);
   });
 
   it('keeps a compat handle in selector position as a cross-class target', () => {
