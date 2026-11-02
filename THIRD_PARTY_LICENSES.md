@@ -44,6 +44,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@commitlint/to-lines` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+to-lines@19.8.1/node_modules/@commitlint/to-lines` |
 | `@commitlint/top-level` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+top-level@19.8.1/node_modules/@commitlint/top-level` |
 | `@commitlint/types` | 19.8.1 | MIT | `node_modules/.pnpm/@commitlint+types@19.8.1/node_modules/@commitlint/types` |
+| `@dual-bundle/import-meta-resolve` | 4.2.1 | MIT | `node_modules/.pnpm/@dual-bundle+import-meta-resolve@4.2.1/node_modules/@dual-bundle/import-meta-resolve` |
 | `@eslint-community/eslint-utils` | 4.10.1 | MIT | `node_modules/.pnpm/@eslint-community+eslint-utils@4.10.1_eslint@9.39.5_jiti@2.6.1_/node_modules/@eslint-community/eslint-utils` |
 | `@eslint-community/regexpp` | 4.12.2 | MIT | `node_modules/.pnpm/@eslint-community+regexpp@4.12.2/node_modules/@eslint-community/regexpp` |
 | `@eslint/config-array` | 0.21.2 | Apache-2.0 | `node_modules/.pnpm/@eslint+config-array@0.21.2/node_modules/@eslint/config-array` |
@@ -276,7 +277,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `eslint` | 9.39.5 | MIT | `node_modules/.pnpm/eslint@9.39.5_jiti@2.6.1/node_modules/eslint` |
 | `eslint-config-prettier` | 10.1.8 | MIT | `node_modules/.pnpm/eslint-config-prettier@10.1.8_eslint@9.39.5_jiti@2.6.1_/node_modules/eslint-config-prettier` |
 | `eslint-plugin-license-header` | 0.9.0 | MIT | `node_modules/.pnpm/eslint-plugin-license-header@0.9.0_eslint@9.39.5_jiti@2.6.1_/node_modules/eslint-plugin-license-header` |
-| `eslint-plugin-prettier` | 5.5.6 | MIT | `node_modules/.pnpm/eslint-plugin-prettier@5.5.6_eslint-config-prettier@10.1.8_eslint@9.39.5_jiti@2.6.1___e_a4316a196562703b4e2d4e910c29afbb/node_modules/eslint-plugin-prettier` |
+| `eslint-plugin-prettier` | 5.5.7 | MIT | `node_modules/.pnpm/eslint-plugin-prettier@5.5.7_eslint-config-prettier@10.1.8_eslint@9.39.5_jiti@2.6.1___e_e7742ac8bce04c284d544daf8f693a8a/node_modules/eslint-plugin-prettier` |
 | `eslint-plugin-simple-import-sort` | 14.0.0 | MIT | `node_modules/.pnpm/eslint-plugin-simple-import-sort@14.0.0_eslint@9.39.5_jiti@2.6.1_/node_modules/eslint-plugin-simple-import-sort` |
 | `eslint-scope` | 8.4.0 | BSD-2-Clause | `node_modules/.pnpm/eslint-scope@8.4.0/node_modules/eslint-scope` |
 | `eslint-visitor-keys` | 3.4.3 | Apache-2.0 | `node_modules/.pnpm/eslint-visitor-keys@3.4.3/node_modules/eslint-visitor-keys` |
@@ -686,7 +687,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `supports-color` | 5.5.0 | MIT | `node_modules/.pnpm/supports-color@5.5.0/node_modules/supports-color` |
 | `supports-color` | 7.2.0 | MIT | `node_modules/.pnpm/supports-color@7.2.0/node_modules/supports-color` |
 | `supports-hyperlinks` | 3.2.0 | MIT | `node_modules/.pnpm/supports-hyperlinks@3.2.0/node_modules/supports-hyperlinks` |
-| `synckit` | 0.11.13 | MIT | `node_modules/.pnpm/synckit@0.11.13/node_modules/synckit` |
+| `synckit` | 0.12.3 | MIT | `node_modules/.pnpm/synckit@0.12.3/node_modules/synckit` |
 | `tagged-tag` | 1.0.0 | MIT | `node_modules/.pnpm/tagged-tag@1.0.0/node_modules/tagged-tag` |
 | `tar` | 7.5.22 | BlueOak-1.0.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/tar` |
 | `temp-dir` | 3.0.0 | MIT | `node_modules/.pnpm/temp-dir@3.0.0/node_modules/temp-dir` |
