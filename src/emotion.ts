@@ -6,7 +6,7 @@
  */
 
 import type { Distillery } from './engine';
-import { contentHash64 } from './hash';
+import { canonicalize, hashCanonical } from './hash';
 import { flattenTemplate, type TemplateSlice } from './nesting';
 import type { StyleSink } from './sink';
 import {
@@ -76,7 +76,7 @@ interface EmotionState {
   readonly wrappers: Map<string, EmotionCss>;
   /** Original templates for inlining nested compat handles. */
   readonly rawSources: Map<string, TemplateSlice>;
-  /** Module name → canonical source hash. */
+  /** Module name → canonical template string, for the collision tripwire. */
   readonly canonicalByModule: Map<string, string>;
   /** Modules produced by `injectGlobal`. */
   readonly globals: StylesModule[];
@@ -149,14 +149,14 @@ export const createEmotion = <TTokens>(
     ...values: readonly unknown[]
   ): EmotionCss => {
     assertTemplate(strings, 'css');
-    const hash = contentHash64(strings, values);
+    const canonical = canonicalize(strings, values);
+    const hash = hashCanonical(canonical);
+    const moduleName = `css-${hash}`;
+    detectCollision(state, moduleName, canonical);
     const cached = state.wrappers.get(hash);
     if (cached) {
       return cached;
     }
-    const moduleName = `css-${hash}`;
-    const canonical = canonicalKey(strings, values);
-    detectCollision(state, moduleName, canonical);
 
     const flat = flattenTemplate(strings, values, {
       mode: 'self',
@@ -185,13 +185,13 @@ export const createEmotion = <TTokens>(
     ...values: readonly unknown[]
   ): void => {
     assertTemplate(strings, 'injectGlobal');
-    const hash = contentHash64(strings, values);
+    const canonical = canonicalize(strings, values);
+    const hash = hashCanonical(canonical);
     const moduleName = `global-${hash}`;
+    detectCollision(state, moduleName, canonical);
     if (registry.module(moduleName)) {
       return;
     }
-    const canonical = canonicalKey(strings, values);
-    detectCollision(state, moduleName, canonical);
 
     const flat = flattenTemplate(strings, values, {
       mode: 'global',
@@ -284,19 +284,4 @@ const detectCollision = (
       `Content-hash collision for "${moduleName}"; two distinct templates hashed to the same name.`
     );
   }
-};
-
-// Exact tripwire for hash collisions, compared only against another canonical string for the same module name.
-const canonicalKey = (
-  strings: readonly string[],
-  values: readonly unknown[]
-): string => {
-  const segments: string[] = [];
-  strings.forEach((part, index) => {
-    segments.push(part);
-    if (index < values.length) {
-      segments.push(String(values[index]));
-    }
-  });
-  return segments.join('\u0000');
 };
