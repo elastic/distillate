@@ -15,7 +15,6 @@ import {
 import type {
   ContextualVarPath,
   CssVarPath,
-  Declarations,
   DefaultGroupDeps,
   StyleEntry,
   StyleHandle,
@@ -26,6 +25,7 @@ import type {
   StylesModule,
 } from './styles';
 import { isEmptyDeclarations } from './styles/declarations';
+import { declarationsOf, rulesOf } from './styles/entries';
 import { isHandleLike } from './values';
 
 const warnedHandles = new WeakSet<StyleHandle>();
@@ -43,26 +43,14 @@ const dependentEntries = (
   if (!cached) {
     cached = new Map<string, StyleEntry[]>();
     for (const entry of module.entries) {
-      if (entry.kind === 'rule') {
-        if (!entry.auto) {
-          continue;
+      const deps = new Set<string>();
+      for (const rule of rulesOf(entry)) {
+        if (rule.auto) {
+          rule.dependsOn.forEach((key) => deps.add(key));
         }
-        for (const dep of entry.dependsOn) {
-          appendDependent(cached, dep, entry);
-        }
-        continue;
       }
-      if (entry.kind === 'media') {
-        const deps = new Set<string>();
-        for (const nested of entry.rules) {
-          if (!nested.auto) {
-            continue;
-          }
-          nested.dependsOn.forEach((key) => deps.add(key));
-        }
-        for (const dep of deps) {
-          appendDependent(cached, dep, entry);
-        }
+      for (const dep of deps) {
+        appendDependent(cached, dep, entry);
       }
     }
     dependentEntriesCache.set(module, cached);
@@ -160,34 +148,14 @@ export class StylesCollector {
     if (isStylesModule(value)) {
       // Variant entries' deps would claim compact names for handles never rendered.
       for (const entry of value.entries) {
-        if (entry.variant) {
-          continue;
+        if (!entry.variant) {
+          this.collect(entry);
         }
-        if (entry.kind === 'handle' && !this.retainHandle(entry)) {
-          continue;
-        }
-        this.setEntry(entry);
-        if (entry.kind === 'handle' || entry.kind === 'rule') {
-          this.addDeclarationDeps(entry.declarations);
-        } else {
-          for (const inner of entry.rules) {
-            this.addDeclarationDeps(inner.declarations);
-          }
-        }
-      }
-      for (const handle of value.handleList) {
-        if (handle.variant) {
-          continue;
-        }
-        if (!this.retainHandle(handle)) {
-          continue;
-        }
-        this.setHandle(handle);
       }
       return;
     }
 
-    this.addEntry(value);
+    this.collect(value);
   }
 
   /**
@@ -198,18 +166,8 @@ export class StylesCollector {
   useAllEntries(module: StylesModule): void {
     this.batch(() => {
       for (const entry of module.entries) {
-        if (entry.kind === 'handle' && !this.retainHandle(entry)) {
-          continue;
-        }
-        this.setEntry(entry);
+        this.collect(entry);
       }
-      for (const handle of module.handleList) {
-        if (!this.retainHandle(handle)) {
-          continue;
-        }
-        this.setHandle(handle);
-      }
-      this.addDeps(module.themeDeps, module.varDeps);
     });
   }
 
@@ -242,9 +200,7 @@ export class StylesCollector {
           continue;
         }
         added = true;
-        this.setEntry(handle);
-        this.setHandle(handle);
-        this.addDeclarationDeps(handle.declarations);
+        this.admit(handle);
       }
       // A later handle may complete deps for a skipped one, so rescan them all.
       if (added) {
@@ -277,7 +233,7 @@ export class StylesCollector {
           continue;
         }
         if (this.allDepsMet(entry.dependsOn)) {
-          this.addEntry(entry);
+          this.collect(entry);
         }
       }
     });
@@ -309,7 +265,7 @@ export class StylesCollector {
       if (!this.allDepsMet(entry.dependsOn)) {
         return;
       }
-      this.addEntry(entry);
+      this.collect(entry);
       return;
     }
     if (entry.kind === 'media') {
@@ -327,10 +283,7 @@ export class StylesCollector {
       }
       const filtered: StyleMedia =
         rules.length === entry.rules.length ? entry : { ...entry, rules };
-      this.setEntry(filtered);
-      for (const rule of rules) {
-        this.addDeclarationDeps(rule.declarations);
-      }
+      this.admit(filtered);
     }
   }
 
@@ -418,17 +371,9 @@ export class StylesCollector {
     harvest(handle.declarations.deps.refs);
 
     for (const entry of this.entries.values()) {
-      if (entry.kind === 'rule') {
-        if (entry.dependsOn.has(handle.key)) {
-          harvest(entry.declarations.deps.refs);
-        }
-        continue;
-      }
-      if (entry.kind === 'media') {
-        for (const innerRule of entry.rules) {
-          if (innerRule.dependsOn.has(handle.key)) {
-            harvest(innerRule.declarations.deps.refs);
-          }
+      for (const rule of rulesOf(entry)) {
+        if (rule.dependsOn.has(handle.key)) {
+          harvest(rule.declarations.deps.refs);
         }
       }
     }
@@ -462,14 +407,8 @@ export class StylesCollector {
 
     // Rules have no host handle for reachability, so every default key counts, as at render.
     for (const entry of this.entries.values()) {
-      if (entry.kind === 'rule') {
-        includeAllDefaults(entry.declarations.deps.defaults, theme, vars);
-        continue;
-      }
-      if (entry.kind === 'media') {
-        for (const inner of entry.rules) {
-          includeAllDefaults(inner.declarations.deps.defaults, theme, vars);
-        }
+      for (const rule of rulesOf(entry)) {
+        includeAllDefaults(rule.declarations.deps.defaults, theme, vars);
       }
     }
 
@@ -492,27 +431,23 @@ export class StylesCollector {
     return this.names !== 'compact';
   }
 
-  private addEntry(entry: StyleEntry): void {
+  /** Collects one entry unless it is a handle {@link retainHandle} rejects. */
+  private collect(entry: StyleEntry): void {
     if (entry.kind === 'handle' && !this.retainHandle(entry)) {
       return;
     }
+    this.admit(entry);
+  }
+
+  /** Records an entry, its handle, and its declaration deps without the retention check. */
+  private admit(entry: StyleEntry): void {
     this.setEntry(entry);
     if (entry.kind === 'handle') {
       this.setHandle(entry);
-      this.addDeclarationDeps(entry.declarations);
-      return;
     }
-    if (entry.kind === 'rule') {
-      this.addDeclarationDeps(entry.declarations);
-      return;
+    for (const { deps } of declarationsOf(entry)) {
+      this.addDeps(deps.theme, deps.vars);
     }
-    for (const rule of entry.rules) {
-      this.addDeclarationDeps(rule.declarations);
-    }
-  }
-
-  private addDeclarationDeps(declarations: Declarations): void {
-    this.addDeps(declarations.deps.theme, declarations.deps.vars);
   }
 
   private addDeps(

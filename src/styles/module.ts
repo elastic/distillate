@@ -17,6 +17,7 @@ import { isContextualCssVar, isContextualCssVarName } from '../tokens';
 import { hasEntryKind } from '../values';
 
 import { composeSelector, css, decls, isVariantMarked } from './authoring';
+import { declarationsOf } from './entries';
 import type { StyleRegistry } from './registry';
 import { createSelectorResolver } from './selector_resolver';
 import type {
@@ -266,11 +267,7 @@ const warnContextualVarDrift = (
     }
   };
   for (const entry of entries) {
-    if (entry.kind === 'media') {
-      entry.rules.forEach((rule) => check(rule.declarations));
-    } else {
-      check(entry.declarations);
-    }
+    declarationsOf(entry).forEach(check);
   }
 };
 
