@@ -27,7 +27,6 @@ export {
   isEmptyDeclarations,
   stringifyCssValue,
 } from './declarations';
-export { declarationsOf, rulesOf } from './entries';
 export {
   createStyleModuleWithEnvironment,
   type StyleModuleDiagnostics,
