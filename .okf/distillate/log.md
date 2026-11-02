@@ -7,6 +7,7 @@
 
 ## 2026-11-01
 
+- **Update**: Breaking export trim on the root entry. Removed `combineClassNames` (deprecated in favor of `resolveClassNames` after v0.2.0, so the deprecation never shipped), `createStyleNameResolver` (collectors create resolvers; `StyleNameResolverOptions` stays because `distillery.createNameResolver` takes it), and the `isContextualCssVar` / `isContextualCssVarName` guards. `StyleRegistry` is a type-only export; `distillery.registry` is the instance. `isCssToken` / `isScaleToken` stay for walking a derived token tree.
 - **Update**: Emotion content hashes tag theme tokens, contextual vars, and local var refs by emitted custom-property name as well as path, so two `css` or `injectGlobal` templates that differ only in a var's name no longer share one class. The hash-collision tripwire now runs before the wrapper cache and registry checks, so it can fire. `useRulesWhenDepsMet` collects `auto` rules only; `auto: false` rules still require `collector.use(rule)`.
 
 ## 2026-10-30

@@ -22,7 +22,7 @@ export interface StyleNameResolver {
   cssVarRef(key: string): `var(--${string})`;
 }
 
-/** Inputs for {@link createStyleNameResolver}. */
+/** Inputs for `distillery.createNameResolver`, which supplies the prefix. */
 export interface StyleNameResolverOptions {
   /** Naming strategy (`compact` or `readable`). */
   names: StyleNameMode;

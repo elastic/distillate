@@ -13,7 +13,6 @@ import { createEmotion } from './emotion';
 import { createDistillery } from './engine';
 import type { DistilleryOptions } from './environment';
 import {
-  combineClassNames,
   container,
   type CssValue,
   media,
@@ -1737,7 +1736,6 @@ describe('resolveClassNames', () => {
     expect(live.css()).not.toContain('.demo-root{');
     expect(resolveClassNames(live, demo.handles.root)).toBe('demo-root');
     expect(live.css()).toContain('.demo-root{');
-    expect(combineClassNames(live, demo.handles.root)).toBe('demo-root');
   });
 
   it('delegates all handles and returns the context-specific names', () => {
