@@ -12,6 +12,7 @@ import type {
   ContextualVarPath,
   CssVarPath,
   Declarations,
+  StyleHandle,
   StyleRegistrySnapshot,
   StylesModule,
 } from './types';
@@ -22,6 +23,7 @@ import type {
 export class StyleRegistry {
   private readonly modulesByName = new Map<string, StylesModule>();
   private targetedKeys: Set<string> | undefined;
+  private handlesByKey: Map<string, StyleHandle> | undefined;
 
   constructor(
     private readonly prefix: string,
@@ -51,12 +53,23 @@ export class StyleRegistry {
     );
     this.modulesByName.set(module.name, module);
     this.targetedKeys = undefined;
+    this.handlesByKey = undefined;
+  }
+
+  /** Looks up a registered handle by its `key` (`<module>/<localName>`). */
+  handle(key: string): StyleHandle | undefined {
+    this.handlesByKey ??= new Map(
+      this.modules.flatMap((module) =>
+        module.handleList.map((handle) => [handle.key, handle] as const)
+      )
+    );
+    return this.handlesByKey.get(key);
   }
 
   /**
    * True when some rule, or some inner rule of an `@media` / `@container` block, reads `key` in its selector.
    *
-   * A nested `&` rule records its owning handle through `recordRuleDeps`, so a handle with an empty self block but real nested rules is targeted. A rule-less nested block targets nothing.
+   * A nested `&` rule records its owning handle through `trackRuleDeps`, so a handle with an empty self block but real nested rules is targeted. A rule-less nested block targets nothing.
    */
   targetsHandle(key: string): boolean {
     return this.targetedHandleKeys().has(key);
@@ -226,11 +239,7 @@ const assertReadableNameCollisions = (
   index(incoming);
 };
 
-// `deps.vars` records every contextual var a module *references*, which includes
-// shared ones the module does not own. A shared path synthesizes the same
-// readable name as a local var would, so leaving them in makes two modules that
-// merely reference one shared var collide on it. The same exclusion is applied
-// when compaction maps readable names to compact ones.
+// `deps.vars` includes shared vars the module only references; counting those would make two referencing modules collide.
 const localVarPathsOf = (
   module: StylesModule,
   sharedVarPaths: ReadonlySet<string>

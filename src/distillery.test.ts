@@ -5,14 +5,22 @@
  * 2.0.
  */
 
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import type { StylesCollectorOptions } from './collector';
 import { createDomSink, type StyleElementLike } from './dom_sink';
 import { createEmotion } from './emotion';
 import { createDistillery } from './engine';
 import type { DistilleryOptions } from './environment';
-import { container, media, rule, variants } from './styles';
+import {
+  combineClassNames,
+  container,
+  type CssValue,
+  media,
+  resolveClassNames,
+  rule,
+  variants,
+} from './styles';
 import { lightDark } from './tokens';
 import { contextualVar, cq } from './tokens';
 
@@ -28,7 +36,7 @@ const fixtureTheme = {
 };
 
 const createFixtureDistillery = (
-  options: Pick<DistilleryOptions, 'dev'> = {}
+  options: Pick<DistilleryOptions, 'dev' | 'warn'> = {}
 ) =>
   createDistillery({
     prefix: 'eui',
@@ -77,6 +85,62 @@ describe('createDistillery with a foreign environment', () => {
       '.panel-root{padding:8px;background:var(--eui-colors-surface)}'
     );
     expect(css).not.toContain('aui');
+  });
+
+  it('snapshots registered stylesheet modules including variants and theme deps', () => {
+    const distillery = createFixtureDistillery();
+    distillery.createStyleModule('panel', (t) => ({
+      root: t.css`
+        color: ${t.tokens.colors.ink};
+      `,
+      look: variants(
+        ['accent'],
+        () => t.css`
+          color: ${t.tokens.colors.accent};
+        `
+      ),
+    }));
+    const collector = distillery.stylesheetCollector();
+    distillery.createStyleModule('later', (t) => ({
+      root: t.css`
+        background: ${t.tokens.colors.surface};
+      `,
+    }));
+    const css = distillery.renderStyles(collector);
+
+    expect(css).toContain('.panel-root{color:var(--eui-colors-ink)}');
+    expect(css).toContain('.panel-look-accent{color:var(--eui-colors-accent)}');
+    expect(css).toContain('--eui-colors-ink:light-dark(#111,#eee)');
+    expect(css).toContain('--eui-colors-accent:light-dark(#06c,#8cf)');
+    expect(css).not.toContain('later');
+    expect(css).not.toContain('--eui-colors-surface');
+    expect(distillery.renderStyles(distillery.stylesheetCollector())).toContain(
+      '.later-root'
+    );
+  });
+
+  it('supports stylesheet naming and warning options', () => {
+    const distillery = createFixtureDistillery({ dev: true });
+    distillery.createStyleModule('panel', (t) => ({
+      empty: t.css``,
+      root: t.css`
+        color: red;
+      `,
+    }));
+    const warnings: string[] = [];
+    const warn = (message: string) => warnings.push(message);
+    const compact = distillery.stylesheetCollector('compact', {
+      warn,
+    });
+
+    expect(distillery.renderStyles(compact)).toBe('.a{color:red}');
+    expect(warnings).toHaveLength(1);
+    expect(
+      distillery.renderStyles(
+        distillery.stylesheetCollector(undefined, { warn })
+      )
+    ).toBe('.panel-root{color:red}');
+    expect(warnings).toHaveLength(1);
   });
 
   it('keeps custom-property names literal inside strings and URLs', () => {
@@ -384,7 +448,6 @@ describe('createDistillery with a foreign environment', () => {
     expect(css).not.toContain('aui');
   });
 
-  // Regression for finding `local-var-override-ordering`.
   it('emits t.vars defaults before .set() overrides when the override handle sorts first', () => {
     const distillery = createFixtureDistillery();
     const demo = distillery.createStyleModule('chip', (t) => {
@@ -452,12 +515,7 @@ describe('nested Emotion-style css templates', () => {
     expect(css.indexOf(':hover')).toBeLessThan(css.indexOf('@media'));
   });
 
-  // Regression for finding `media-block-ordering`. A module whose name sorts
-  // after `media` (which `deck` deliberately does not) used to emit its
-  // `@media` overrides before the base rules they override, so at equal
-  // specificity the base rule won and the responsive override never applied.
-  // `row` and `table` in the official pack are the real cases; this mirrors
-  // their explicit `media(...)`/`rule(...)` shape.
+  // At equal specificity a base rule emitted after its `@media` override would win.
   it('emits base rules before an overriding media block when the module name sorts after `media`', () => {
     const distillery = createFixtureDistillery();
     distillery.createStyleModule('zebra', (t) => ({
@@ -549,11 +607,7 @@ describe('nested Emotion-style css templates', () => {
     expect(css).not.toContain('@media (min-width:1080px)');
   });
 
-  // `container(...)` keeps `kind: 'media'` precisely so it inherits the
-  // emission rank from finding `media-block-ordering`: `@container` adds no
-  // specificity either, so a same-selector override only wins by coming later
-  // in source. Mirrors the `zebra` media case above with a module name that
-  // sorts after `container`.
+  // `@container` adds no specificity either, so the same ordering applies.
   it('emits base rules before an overriding container block when the module name sorts after `container`', () => {
     const distillery = createFixtureDistillery();
     distillery.createStyleModule('zebra', (t) => ({
@@ -1595,5 +1649,297 @@ describe('distillery.liveCollection', () => {
 
     expect(live.resolveClassName(wrapper)).toBe(String(wrapper));
     expect(live.css()).toContain(`.${String(wrapper)}{color:red}`);
+  });
+});
+
+describe('distillery.owns', () => {
+  const createDemo = (distillery: ReturnType<typeof createFixtureDistillery>) =>
+    distillery.createStyleModule('demo', (t) => ({
+      root: t.css`
+        color: ${t.tokens.colors.ink};
+      `,
+    }));
+
+  it('recognizes its own handles, by object or by key', () => {
+    const distillery = createFixtureDistillery();
+    const demo = createDemo(distillery);
+
+    expect(distillery.owns(demo.handles.root)).toBe(true);
+    expect(distillery.owns({ key: demo.handles.root.key })).toBe(true);
+    expect(distillery.owns({ key: 'demo/missing' })).toBe(false);
+  });
+
+  it('rejects a handle from another distillery even when keys coincide', () => {
+    const mine = createFixtureDistillery();
+    const theirs = createFixtureDistillery();
+    createDemo(mine);
+    const foreign = createDemo(theirs);
+
+    expect(mine.owns(foreign.handles.root)).toBe(false);
+    expect(theirs.owns(foreign.handles.root)).toBe(true);
+  });
+
+  it('recognizes its own Emotion wrappers and rejects foreign ones', () => {
+    const mine = createFixtureDistillery();
+    const theirs = createFixtureDistillery();
+    const wrapper = createEmotion(mine).css`
+      color: red;
+    `;
+    const foreign = createEmotion(theirs).css`
+      color: red;
+    `;
+
+    expect(wrapper).not.toBe(mine.registry.handle(wrapper.key));
+    expect(mine.owns(wrapper)).toBe(true);
+    expect(mine.owns(foreign)).toBe(false);
+    expect(theirs.owns(foreign)).toBe(true);
+  });
+
+  it('lets a live collection resolve class names by key', () => {
+    const distillery = createFixtureDistillery();
+    const demo = createDemo(distillery);
+    const live = distillery.liveCollection();
+
+    expect(live.resolveClassName({ key: demo.handles.root.key })).toBe(
+      'demo-root'
+    );
+  });
+});
+
+describe('resolveClassNames', () => {
+  it('falls back to readable names without a context', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('demo', (t) => ({
+      root: t.css`
+        color: ${t.tokens.colors.ink};
+      `,
+      icon: t.css`
+        margin: ${t.tokens.gap};
+      `,
+    }));
+
+    expect(resolveClassNames(undefined, demo.handles.root)).toBe('demo-root');
+    expect(resolveClassNames(null, demo.handles.root, demo.handles.icon)).toBe(
+      'demo-root demo-icon'
+    );
+    expect(resolveClassNames(undefined)).toBe('');
+  });
+
+  it('collects through a context when one is present', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('demo', (t) => ({
+      root: t.css`
+        color: ${t.tokens.colors.ink};
+      `,
+    }));
+    const live = distillery.liveCollection();
+
+    expect(live.css()).not.toContain('.demo-root{');
+    expect(resolveClassNames(live, demo.handles.root)).toBe('demo-root');
+    expect(live.css()).toContain('.demo-root{');
+    expect(combineClassNames(live, demo.handles.root)).toBe('demo-root');
+  });
+
+  it('delegates all handles and returns the context-specific names', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('demo', (t) => ({
+      root: t.css`
+        color: red;
+      `,
+      icon: t.css`
+        margin: 0;
+      `,
+    }));
+    const resolveClassName = vi.fn(() => 'a b');
+
+    expect(
+      resolveClassNames(
+        { resolveClassName },
+        demo.handles.root,
+        demo.handles.icon
+      )
+    ).toBe('a b');
+    expect(resolveClassName).toHaveBeenCalledExactlyOnceWith(
+      demo.handles.root,
+      demo.handles.icon
+    );
+  });
+});
+
+describe('t.vars value validation at render', () => {
+  const unbranded = {
+    toString: () => '#f00',
+  } as unknown as CssValue;
+
+  it('rejects an unbranded object as a reachable default', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', { bg: unbranded });
+      return {
+        root: t.css`
+          ${look}
+          background: ${look.bg};
+        `,
+      };
+    });
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([demo.handles.root]);
+
+    expect(() => distillery.renderStyles(collector)).toThrow(
+      't.vars(...) value must be a string, number, theme token, contextual var, scale token, or local var ref; received object.'
+    );
+  });
+
+  it('rejects an unbranded object in a set() override', () => {
+    const distillery = createFixtureDistillery();
+    const demo = distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', { bg: '#fff' });
+      return {
+        loud: t.css`
+          ${look.set({ bg: unbranded })}
+        `,
+      };
+    });
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([demo.handles.loud]);
+
+    expect(() => distillery.renderStyles(collector)).toThrow(
+      /received object\.$/
+    );
+  });
+});
+
+describe('distillery.contextualVar', () => {
+  const createShared = (
+    options: Pick<DistilleryOptions, 'dev' | 'warn'> = {}
+  ) =>
+    createDistillery({
+      prefix: 'eui',
+      themeScope: '.x',
+      theme: {},
+      sharedVars: ['vars/tone'],
+      ...options,
+    });
+
+  it('derives the custom property from the prefix and path', () => {
+    const distillery = createShared();
+    const tone = distillery.contextualVar('vars/tone');
+
+    expect(tone.path).toBe('vars/tone');
+    expect(tone.ref).toBe('var(--eui-tone)');
+    expect(String(tone.name)).toBe('--eui-tone');
+  });
+
+  it('throws for a path not declared in sharedVars', () => {
+    const distillery = createShared();
+
+    expect(() => distillery.contextualVar('vars/missing')).toThrow(
+      'declare "vars/missing" in createDistillery({ sharedVars })'
+    );
+  });
+
+  it('warns in dev when a hand-built shared var uses another name', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createShared({ dev: true, warn });
+    const drifted = contextualVar('vars/tone', '--slide-vars-tone');
+
+    distillery.createStyleModule('chip', (t) => ({
+      root: t.css`
+        color: ${drifted};
+      `,
+      loud: t.css`
+        outline-color: ${drifted};
+      `,
+    }));
+
+    expect(warnings).toEqual([
+      'Style module "chip" interpolates shared var "vars/tone" as "--slide-vars-tone" instead of "--eui-tone"; build it with distillery.contextualVar("vars/tone") so readable and compact names agree.',
+    ]);
+  });
+
+  it('compares each interpolation exactly, so a prefix match or a correct sibling does not mask drift', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createShared({ dev: true, warn });
+    const superset = contextualVar('vars/tone', '--eui-tone-custom');
+    const drifted = contextualVar('vars/tone', '--slide-vars-tone');
+
+    distillery.createStyleModule('chip', (t) => ({
+      root: t.css`
+        color: ${superset};
+      `,
+      loud: t.css`
+        color: ${distillery.contextualVar('vars/tone')};
+        outline-color: ${drifted};
+        ${drifted.name}: red;
+      `,
+    }));
+
+    expect(warnings).toEqual([
+      expect.stringContaining('as "--eui-tone-custom" instead of "--eui-tone"'),
+      expect.stringContaining('as "--slide-vars-tone" instead of "--eui-tone"'),
+    ]);
+  });
+
+  it('warns for a drifted var inside a local-var override', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createShared({ dev: true, warn });
+    const drifted = contextualVar('vars/tone', '--slide-vars-tone');
+
+    distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', { bg: '#fff' });
+      return {
+        root: t.css`
+          ${look}
+          background: ${look.bg};
+        `,
+        loud: t.css`
+          ${look.set({ bg: drifted })}
+        `,
+      };
+    });
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('"vars/tone"');
+  });
+
+  it('stays quiet for a derived var, a foreign var, or outside dev', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createShared({ dev: true, warn });
+    const foreign = contextualVar('vars/other/tone', '--other-tone');
+
+    distillery.createStyleModule('chip', (t) => {
+      const look = t.vars('look', {
+        bg: distillery.contextualVar('vars/tone'),
+      });
+      return {
+        root: t.css`
+          ${look}
+          color: ${distillery.contextualVar('vars/tone')};
+          border-color: ${foreign};
+        `,
+      };
+    });
+    expect(warnings).toEqual([]);
+
+    const quiet = createShared({ warn });
+    quiet.createStyleModule('chip', (t) => ({
+      root: t.css`
+        color: ${contextualVar('vars/tone', '--slide-vars-tone')};
+      `,
+    }));
+    expect(warnings).toEqual([]);
+  });
+
+  it('routes collector no-op warnings through the distillery sink', () => {
+    const { warnings, warn } = collectWarnings();
+    const distillery = createFixtureDistillery({ dev: true, warn });
+    const demo = distillery.createStyleModule('quiet', (t) => ({
+      empty: t.css``,
+    }));
+
+    distillery.artifactCollector('compact').useHandles([demo.handles.empty]);
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('handle "empty" has no declarations');
   });
 });

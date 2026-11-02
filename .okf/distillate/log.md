@@ -1,10 +1,29 @@
 # Directory Update Log
 
+## 2026-11-02
+
+- **Update**: Renamed the license workflow to `.github/workflows/dependency-licenses.yml` and allowed the verified `elastic-renovate-prod[bot]` PR author alongside Dependabot, still restricted to same-repository heads. Read-only generation, report-only writes, stale-head leases, and CI dispatch after a report commit are unchanged. `.github/post-release.md` documents the separate required-check setting; existing approval requirements are unchanged.
+
+## 2026-11-01
+
+- **Update**: Emotion content hashes tag theme tokens, contextual vars, and local var refs by emitted custom-property name as well as path, so two `css` or `injectGlobal` templates that differ only in a var's name no longer share one class. The hash-collision tripwire now runs before the wrapper cache and registry checks, so it can fire. `useRulesWhenDepsMet` collects `auto` rules only; `auto: false` rules still require `collector.use(rule)`.
+
+## 2026-10-30
+
+- **Update**: Revised stylesheet tree-shaking guidance at the publishing boundary instead of adding explicit-module collector options. `stylesheetCollector(names?, { warn }?)` remains unchanged. Style-owning libraries must mark actual published registration files as side-effectful and load their complete inventory through a library-owned stylesheet entry; a side-effect-only inventory barrel needs its own exemption too. Bundling regressions cover `"sideEffects": false`, incomplete exemptions, direct and barrel imports, readable/compact output, and preserved artifact CSS pruning.
+- **Update**: `distillery.contextualVar(path)` builds a shared var named `cssVarName(prefix, path)` and throws for a path not in `sharedVars`. `createDistillery({ warn })` is the default sink for `dev` warnings, inherited by collectors. Under `dev`, `createStyleModule` warns when a hand-built `contextualVar` for a declared path uses another custom-property name, which would never compact.
+- **Update**: `scaleToken(value, cq?)` / `cq(value, cq?)`: the container-relative argument defaults to `value`. `resolveClassNames(context, ...handles)` resolves through `context.resolveClassName` or falls back to readable names when `context` is `null` / `undefined`; `combineClassNames` is deprecated in its favor, and `ClassNameContext` names the context shape. `themeValueOverrides` JSDoc and the React-renderer and compact-artifact guides point fixed-scheme targets at `renderStyles({ scheme })`.
+- **Update**: `StylesCollector.useHandles` and `liveCollection.resolveClassName` accept a bare `{ key }` (`StyleHandleRef`), resolved through `StyleRegistry.handle(key)`; an unregistered key throws. `distillery.owns(handle)` reports whether a handle belongs to the distillery, by identity for a full handle and by key for a bare one, so adapters no longer derive it from `registry.module`.
+
 ## 2026-10-23
 
-- **Update**: `.github/workflows/dependabot-licenses.yml` regenerates and commits license reports on Dependabot dependency PRs, then dispatches `ci.yml` for the updated branch. Generation runs with read-only access, and the write job commits only the two reports with a lease on the original PR head.
+- **Update**: `.github/workflows/dependency-licenses.yml` (originally named `dependabot-licenses.yml`) regenerates and commits license reports on Dependabot dependency PRs, then dispatches `ci.yml` for the updated branch. Generation runs with read-only access, and the write job commits only the two reports with a lease on the original PR head.
 - **Update**: Snapshots under `next`. Each push to `main` that changes a published file or build input runs a Snapshot job in `release.yml`, where trusted publishing is bound, and `scripts/publish_snapshot.js` publishes `@elastic/distillate` at `<release + 1 patch>-main.<time>.g<sha>` under the `next` dist-tag, with no tag or commit. `.github/post-release.md`, the installation docs, README, and the public contract describe it.
 - **Update**: `renderStyles` builds its readable-name lookup once per call and rewrites `--<prefix>-…` names in one pass per CSS span, instead of building a `RegExp` per theme token per span (#41). `StylesCollector` caches its finalized theme and var deps until the collection changes. Output is unchanged; `src/runtime.test.ts` pins compact substitution and the cache.
+
+## 2026-09-29
+
+- **Update**: `.releaserc.json` adds a `breakingHeaderPattern` to the angular preset's parser options, so a `feat!:` or `fix(scope)!:` header drives a major release and lands under breaking changes in the notes without a `BREAKING CHANGE` footer. `scripts/releaserc.test.js` runs the config through the upstream analyzer and notes generator.
 
 ## 2026-09-25
 

@@ -23,14 +23,15 @@ import {
 | ------ | ---- | ---- |
 | `createDistillery` | runtime | Bind prefix and a theme tree. |
 | `cssVarName` | runtime | `--${prefix}-${path}` with `/` joined on `-`; strips a leading `vars/`. |
-| `lightDark` / `cq` | runtime | Theme-tree leaves. `cq` aliases `scaleToken`. |
+| `lightDark` / `cq` | runtime | Theme-tree leaves. `cq` aliases `scaleToken`; its second argument defaults to the first. |
 | `zipSchemes` | runtime | Fold two per-scheme trees. Differing strings become `lightDark`. |
 | `resolveThemeValues` | runtime | Nested literal values for one scheme. Prefer `distillery.resolveValues`. |
-| `themeToken` / `scaleToken` / `contextualVar` | runtime | Token factories. Derivation calls `themeToken` / `scaleToken`. |
+| `themeToken` / `scaleToken` / `contextualVar` | runtime | Token factories. Derivation calls `themeToken` / `scaleToken`. For a path in `sharedVars`, prefer `distillery.contextualVar(path)`. |
 | `isCssToken` / `isScaleToken` / `isContextualCssVar` / `isContextualCssVarName` | runtime | Type guards. |
 | `css` / `decls` | runtime | Handle and declaration templates. Also on the `createStyleModule` factory argument. |
 | `rule` / `media` / `container` / `variants` / `mapDomain` | runtime | Root-entry authoring helpers. `mapDomain` has no collector side effect. |
-| `combineClassNames` | runtime | `context.resolveClassName(...handles)`. |
+| `resolveClassNames` | runtime | `context.resolveClassName(...handles)`, or readable names when `context` is `null` / `undefined`. |
+| `combineClassNames` | runtime | `context.resolveClassName(...handles)`. Deprecated in favor of `resolveClassNames`. |
 | `StylesCollector` | runtime | Class; `artifactCollector` / `stylesheetCollector` / `liveCollection` return or wrap instances. `subscribe` reports growth. |
 | `createDomSink` | runtime | One `<style>` element in `document.head` or a given `parent` (e.g. a `ShadowRoot`), flushed per turn. Also exported from `./emotion`. |
 | `renderStyles` | runtime | Unbound renderer; prefer `distillery.renderStyles`. |
@@ -38,7 +39,8 @@ import {
 | `StyleRegistry` | runtime | Module registry class. |
 | `Distillery` / `DistilleryOptions` / `DistilleryEnvironment` / `ThemeVarDefinition` | type | Bindings. |
 | `TokensOf` / `ValuesOf` / `PathsOf` / `ThemeTree` / `SchemePair` / `ThemeVariation` / `ResolvedThemeVariation` / `ThemeAlternate` / `RenderStylesOptions` | type | Theme derivation and render selection. |
-| `StyleHandle` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. |
+| `StyleHandle` / `StyleHandleRef` / `StylesModule` / `StyleNameResolver` / `StyleNameMode` / `StyleTarget` | type | Handles, modules, naming. `StyleHandleRef` is `Pick<StyleHandle, 'key'>`, accepted by `useHandles` and `owns`. |
+| `ClassNameContext` | type | `{ resolveClassName(...handles) }`, the shape `resolveClassNames` and `combineClassNames` accept. |
 | `LiveCollection` / `LiveCollectionOptions` | type | `distillery.liveCollection` result and options. |
 | `StyleSink` / `CreateDomSinkOptions` / `DocumentLike` / `StyleElementLike` / `StyleParentLike` | type | Sink surface. |
 
@@ -50,6 +52,8 @@ createDistillery<const TTheme extends ThemeTree>(
 ): Distillery<TokensOf<TTheme>, TTheme>;
 
 distillery.resolveValues(scheme: 'light' | 'dark', variation?: string): ValuesOf<TTheme>;
+distillery.owns(handle: StyleHandleRef): boolean; // StyleHandleRef = Pick<StyleHandle, 'key'>
+distillery.contextualVar(path: `vars/${string}`): ContextualCssVar; // path must be in sharedVars
 
 distillery.createStyleModule(name, ({ css, tokens }) => ({ ... }));
 distillery.artifactCollector(

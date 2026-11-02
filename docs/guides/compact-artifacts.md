@@ -64,7 +64,7 @@ Compact class names depend on the **full** collected set. If you print class nam
 1. Walk the tree. For every style you would apply, `collector.useHandles([...])`. Do not read compact names yet.
 2. `const resolver = collector.createResolver()`.
 3. Walk again (or serialize from a recorded list). Write `resolver.className(handle.key, handle.readableName)` only for handles `useHandles` retained.
-4. `distillery.renderStyles(collector, resolver)` and inline the CSS.
+4. `distillery.renderStyles(collector, resolver)` and inline the CSS. For a target with no color scheme to resolve `light-dark()` against (email, SVG, PDF), pass `{ scheme: 'light' }` or `{ scheme: 'dark' }` as the third argument.
 
 A readable artifact (`artifactCollector('readable')`) can skip the second pass because `handle.readableName` does not depend on the collected set. Compact is cheaper on the wire; readable is easier to debug.
 

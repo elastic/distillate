@@ -8,7 +8,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { contentHash64 } from './hash';
-import { scaleToken, themeToken } from './tokens';
+import { contextualVar, scaleToken, themeToken } from './tokens';
 
 describe('contentHash64', () => {
   it('is deterministic for identical input', () => {
@@ -37,6 +37,25 @@ describe('contentHash64', () => {
       [themeToken('colors/accent', '--accent')]
     );
     expect(withInk).not.toBe(withAccent);
+  });
+
+  it('distinguishes contextual vars by emitted name, not path alone', () => {
+    const a = contextualVar('vars/tone', '--a-tone');
+    const b = contextualVar('vars/tone', '--b-tone');
+    expect(contentHash64(['color:', ';'], [a])).not.toBe(
+      contentHash64(['color:', ';'], [b])
+    );
+    expect(contentHash64(['', ':red;'], [a.name])).not.toBe(
+      contentHash64(['', ':red;'], [b.name])
+    );
+  });
+
+  it('distinguishes theme tokens by custom property name', () => {
+    expect(
+      contentHash64(['color:', ';'], [themeToken('colors/ink', '--a-ink')])
+    ).not.toBe(
+      contentHash64(['color:', ';'], [themeToken('colors/ink', '--b-ink')])
+    );
   });
 
   it('separates strings from values so shifts do not collide', () => {

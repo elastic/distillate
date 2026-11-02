@@ -18,6 +18,7 @@ sources:
 2. Call `createDistillery` with `prefix`, `themeScope`, `theme`, and optional `sharedVars` / `variations`.[^fixture]
 3. Author modules with `createStyleModule`. Interpolate `tokens`. For a non-CSS surface, `distillery.resolveValues(scheme, variation?)` returns the same tree as nested literal strings.
 4. Emit `stylesheetCollector()` for an app sheet, or `artifactCollector('compact')` for a payload.
+5. For a published full stylesheet, expose a library-owned entry importing the complete style inventory. Mark actual registration files as side-effectful in the library's package manifest. If importing a barrel only for side effects, mark it too, not instead of its style files. Keep the inventory inside the library; consumers need no module list. See [reachability collection](/concepts/collection.md).
 
 `prefix` must be a CSS identifier segment. One distillery per library so registries stay private. See [the distillery](/concepts/distillery.md).
 

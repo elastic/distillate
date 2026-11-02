@@ -23,16 +23,21 @@ sources:
   - id: collector-tests
     resource: https://github.com/elastic/distillate/blob/main/src/collector.test.ts
     title: Change-notification tests
+  - id: bundling-tests
+    resource: https://github.com/elastic/distillate/blob/main/docs/playground/src/lib/stylesheet_bundling.test.ts
+    title: Published style-file retention regression
 ---
 
 # Definition
 
-Prefer `distillery.artifactCollector(names)` (empty) and `distillery.stylesheetCollector(names?)` (preloads every module via `useAllEntries`, default `'readable'`). There is no `StylesCollector.artifact` static factory.[^collector]
+Prefer `distillery.artifactCollector(names)` (empty) and `distillery.stylesheetCollector(names?)` (preloads every currently registered module via `useAllEntries`, default `'readable'`). There is no `StylesCollector.artifact` static factory.[^collector]
+
+Registry-only collection sees only files already loaded; `"sideEffects": false` can let Rollup/Rolldown drop files used only for registration. The style-owning library must mark actual published registration files as side-effectful (for example, `"sideEffects": ["**/*.styles.js", "**/*.styles.ts"]`, adjusted to its output and source exports). Distillate's package metadata cannot override another library's manifest. A library-owned stylesheet entry directly imports the complete style inventory before calling the unchanged `stylesheetCollector()`. Maintain or generate that inventory inside the library, never in each consumer. To reuse a barrel imported only for side effects, mark both the barrel and actual style files; an unmarked barrel can itself be skipped. Patterns do not discover unimported files; marking only a barrel or adding a `void` read does not suffice. Retained registration JavaScript does not change artifact CSS pruning.[^engine][^distillery-tests][^bundling-tests]
 
 | Method                  | Effect                                                               |
 | ----------------------- | -------------------------------------------------------------------- |
 | `use(module)`           | Non-variant entries.                                                 |
-| `useHandles(handles)`   | Named handles plus `auto` rules whose selector deps are all present. Media blocks add live inner rules and keep rules already collected by `use(module)` or `useAllEntries`. Returns retained handles; compact mode omits empty untargeted ones. |
+| `useHandles(handles)`   | Named handles plus `auto` rules whose selector deps are all present. Media blocks add live inner rules and keep rules already collected by `use(module)` or `useAllEntries`. Returns retained handles; compact mode omits empty untargeted ones. A bare `{ key }` (`StyleHandleRef`) resolves through the registry and throws when unregistered. |
 | `useAllEntries(module)` | Every entry, including variants. Compact mode skips empty untargeted handles. |
 | `useThemeVar(path)`     | Slash-delimited `themeVars` key, e.g. `colors/ink`.                  |
 | `subscribe(listener)`   | Calls `listener` after a mutation adds an entry, handle, theme var, or contextual var, including auto rules and a widened media block. Once per outermost call: `use([a, b])` notifies once. Returns an unsubscribe function. |
@@ -45,7 +50,7 @@ Call `createResolver()` after collection is complete; compact names are assigned
 
 `distillery.liveCollection({ sink?, render?, warn? })` wraps a readable artifact collector for one live render. `resolveClassName(...handles)` collects and returns readable names; `css()` renders what is collected so far; `collector` accepts globals and theme vars. The sink is invalidated on every change reported by `subscribe`, so a subtree that resolves later (Suspense) re-flushes it. It is readable only: compact names need the complete set and two passes.[^engine][^collector-tests][^distillery-tests]
 
-A handle whose declarations are empty and that no rule targets is a no-op. Compact collectors drop it from collection. Warnings fire only when `createDistillery({ dev: true })`; `dev` defaults to `false`. `{ warn }` on a collector overrides the sink. Empty blocks never ship. Readable collectors keep the class name. Targeting reads `dependsOn`, which `recordRuleDeps` fills for nested `&` rules; a rule-less `@media (...) {}` targets nothing. A local-var marker counts as content.[^collector][^runtime][^distillery-tests]
+A handle whose declarations are empty and that no rule targets is a no-op. Compact collectors drop it from collection. Warnings fire only when `createDistillery({ dev: true })`; `dev` defaults to `false`. `{ warn }` on a collector overrides the sink. Empty blocks never ship. Readable collectors keep the class name. Targeting reads `dependsOn`, which `trackRuleDeps` fills for nested `&` rules; a rule-less `@media (...) {}` targets nothing. A local-var marker counts as content.[^collector][^runtime][^distillery-tests]
 
 [^collector]: StylesCollector
 
@@ -56,3 +61,5 @@ A handle whose declarations are empty and that no rule targets is a no-op. Compa
 [^engine]: distillery.liveCollection
 
 [^collector-tests]: Change-notification tests
+
+[^bundling-tests]: Published style-file retention regression

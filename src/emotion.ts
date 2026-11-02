@@ -6,8 +6,8 @@
  */
 
 import type { Distillery } from './engine';
-import { contentHash64 } from './hash';
-import { flattenTemplate, isHandleLike, type TemplateSlice } from './nesting';
+import { canonicalize, hashCanonical } from './hash';
+import { flattenTemplate, type TemplateSlice } from './nesting';
 import type { StyleSink } from './sink';
 import {
   globalStylesFromFlattened,
@@ -16,6 +16,7 @@ import {
   type StyleRegistry,
   type StylesModule,
 } from './styles';
+import { isHandleLike } from './values';
 
 export {
   createDomSink,
@@ -75,7 +76,7 @@ interface EmotionState {
   readonly wrappers: Map<string, EmotionCss>;
   /** Original templates for inlining nested compat handles. */
   readonly rawSources: Map<string, TemplateSlice>;
-  /** Module name → canonical source hash. */
+  /** Module name → canonical template string, for the collision tripwire. */
   readonly canonicalByModule: Map<string, string>;
   /** Modules produced by `injectGlobal`. */
   readonly globals: StylesModule[];
@@ -129,10 +130,7 @@ export const createEmotion = <TTokens>(
 
   if (options.sink) {
     state.sinks.add(options.sink);
-    // Catch a late-attached sink up to styles already registered on this
-    // registry: cached `css`/`injectGlobal` calls return early without
-    // invalidating, so without this the managed `<style>` would miss every
-    // style registered before the sink was attached.
+    // A sink attached after styles registered needs one flush to catch up.
     options.sink.invalidate(stylesheet);
   }
 
@@ -151,14 +149,14 @@ export const createEmotion = <TTokens>(
     ...values: readonly unknown[]
   ): EmotionCss => {
     assertTemplate(strings, 'css');
-    const hash = contentHash64(strings, values);
+    const canonical = canonicalize(strings, values);
+    const hash = hashCanonical(canonical);
+    const moduleName = `css-${hash}`;
+    detectCollision(state, moduleName, canonical);
     const cached = state.wrappers.get(hash);
     if (cached) {
       return cached;
     }
-    const moduleName = `css-${hash}`;
-    const canonical = canonicalKey(strings, values);
-    detectCollision(state, moduleName, canonical);
 
     const flat = flattenTemplate(strings, values, {
       mode: 'self',
@@ -187,13 +185,13 @@ export const createEmotion = <TTokens>(
     ...values: readonly unknown[]
   ): void => {
     assertTemplate(strings, 'injectGlobal');
-    const hash = contentHash64(strings, values);
+    const canonical = canonicalize(strings, values);
+    const hash = hashCanonical(canonical);
     const moduleName = `global-${hash}`;
+    detectCollision(state, moduleName, canonical);
     if (registry.module(moduleName)) {
       return;
     }
-    const canonical = canonicalKey(strings, values);
-    detectCollision(state, moduleName, canonical);
 
     const flat = flattenTemplate(strings, values, {
       mode: 'global',
@@ -255,8 +253,6 @@ export const createEmotion = <TTokens>(
 const makeWrapper = (handle: StyleHandle): EmotionCss => {
   const readable = handle.readableName;
   const asString = (): string => readable;
-  // Spread copy keeps `resolveClassName` (closed over the original handle) and
-  // `key` intact so collector dedupe and compaction work unchanged.
   const wrapper = { ...handle } as EmotionCss & {
     toString: () => string;
     [Symbol.toPrimitive]: () => string;
@@ -288,21 +284,4 @@ const detectCollision = (
       `Content-hash collision for "${moduleName}"; two distinct templates hashed to the same name.`
     );
   }
-};
-
-// A cheap, exact collision tripwire independent of the (lossy) hash. NUL-joins
-// strings and String()s values — good enough because it is only ever compared
-// against another canonical string for the same module name.
-const canonicalKey = (
-  strings: readonly string[],
-  values: readonly unknown[]
-): string => {
-  const segments: string[] = [];
-  strings.forEach((part, index) => {
-    segments.push(part);
-    if (index < values.length) {
-      segments.push(String(values[index]));
-    }
-  });
-  return segments.join('\u0000');
 };

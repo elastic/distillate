@@ -42,9 +42,9 @@ export const Button = ({ children }: { children: ReactNode }) => (
 
 ## Compact artifact (export / email / SVG)
 
-Collection has to observe the tree. Compact names depend on the full collected set, so render twice: once to `useHandles`, once to write class names. `combineClassNames` is the component-facing API so views never mention the collector.
+Collection has to observe the tree. Compact names depend on the full collected set, so render twice: once to `useHandles`, once to write class names. `resolveClassNames` is the component-facing API so views never mention the collector.
 
-Reuse the distillery and `button` module from above. The extra pieces are a context, views that call `combineClassNames`, and a two-pass helper. Imports in the next snippet cover the rest of this section.
+Reuse the distillery and `button` module from above. The extra pieces are a context, views that call `resolveClassNames`, and a two-pass helper. Imports in the next snippet cover the rest of this section.
 
 ### Pass a class-name context
 
@@ -52,41 +52,29 @@ Both render passes implement this shape. Views only ever see `resolveClassName`:
 
 ```tsx
 import {
-  combineClassNames,
+  type ClassNameContext,
   type Distillery,
-  type StyleHandle,
+  resolveClassNames,
   type StylesModule,
 } from '@elastic/distillate';
 import { createContext, useContext, type ReactElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-interface StyleContextValue {
-  resolveClassName: (...handles: StyleHandle[]) => string;
-}
-
-const StyleContext = createContext<StyleContextValue | null>(null);
-
-const useStyleContext = (): StyleContextValue => {
-  const value = useContext(StyleContext);
-  if (!value) {
-    throw new Error('StyleContext is missing.');
-  }
-  return value;
-};
+const StyleContext = createContext<ClassNameContext | null>(null);
 ```
 
-### Views call `combineClassNames`
+### Views call `resolveClassNames`
 
 Same `handles.root` as the app button. Swap `readableName` for the context:
 
 ```tsx
 const Button = ({ children }: { children: ReactNode }) => {
-  const ctx = useStyleContext();
-  return <button className={combineClassNames(ctx, handles.root)}>{children}</button>;
+  const ctx = useContext(StyleContext);
+  return <button className={resolveClassNames(ctx, handles.root)}>{children}</button>;
 };
 ```
 
-Pass every handle the element should wear: `combineClassNames(ctx, handles.root, other.handles.title)`.
+Pass every handle the element should wear: `resolveClassNames(ctx, handles.root, other.handles.title)`. Without a provider, `ctx` is `null` and the view falls back to readable names, so the same component renders in a unit test or a plain DOM mount.
 
 ### Render twice
 
@@ -104,7 +92,7 @@ export const renderArtifact = (
   }
 
   // Pass 1: record handles. Compact names are not assigned yet.
-  const collecting: StyleContextValue = {
+  const collecting: ClassNameContext = {
     resolveClassName: (...handles) => {
       collector.useHandles(handles);
       return '';
@@ -118,7 +106,7 @@ export const renderArtifact = (
   const resolver = collector.createResolver();
 
   // Pass 2: write class names now that the collected set is complete.
-  const emitting: StyleContextValue = {
+  const emitting: ClassNameContext = {
     resolveClassName: (...handles) =>
       collector
         .useHandles(handles)
@@ -136,6 +124,8 @@ renderArtifact(<Button>Hello</Button>, distillery);
 ```
 
 A readable artifact can skip the emitting pass because `handle.readableName` does not depend on the collected set. For a live tree, use [a live readable collection](#live-readable-collection-shadow-root). See [Ship a compact artifact](compact-artifacts.md).
+
+A target that cannot resolve `light-dark()` (email HTML, an SVG or PDF rasterizer) passes `{ scheme: 'light' }` as the third argument to `renderStyles`. Do not rebuild that from `themeVars` with `themeValueOverrides`; overrides are for values known only at request time. See [declare and select variations](theming.md).
 
 ### Include `injectGlobal` styles
 

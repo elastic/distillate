@@ -9,14 +9,15 @@ description: DistilleryOptions, DistilleryEnvironment, and ThemeVarDefinition fi
 
 ## `DistilleryOptions`
 
-| Field        | Type                             | Required | Notes                                                                                                           |
-| ------------ | -------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
-| `prefix`     | `string`                         | yes      | CSS identifier segment. Used in readable class and CSS-variable names.                                          |
-| `themeScope` | `string`                         | yes      | Selector wrapping the theme-variable block.                                                                     |
-| `theme`      | `ThemeTree`                      | yes      | Nested value tree. Strings and `lightDark` become theme vars; `cq` / `scaleToken` inline.                       |
-| `variations` | `Record<string, ThemeVariation>` | no       | Named value-only diffs of `theme`. Declaring a variation does not emit it. See [theming](../guides/theming.md). |
-| `sharedVars` | `readonly \`vars/${string}\`[]`  | no       | Cross-module contextual-var paths. Names follow `cssVarName`.                                                   |
-| `dev`        | `boolean`                        | no       | When `true`, collectors warn about no-op handles. Default `false`. Does not affect the single-copy guard.       |
+| Field        | Type                             | Required | Notes                                                                                                                                                                |
+| ------------ | -------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `prefix`     | `string`                         | yes      | CSS identifier segment. Used in readable class and CSS-variable names.                                                                                               |
+| `themeScope` | `string`                         | yes      | Selector wrapping the theme-variable block.                                                                                                                          |
+| `theme`      | `ThemeTree`                      | yes      | Nested value tree. Strings and `lightDark` become theme vars; `cq` / `scaleToken` inline.                                                                            |
+| `variations` | `Record<string, ThemeVariation>` | no       | Named value-only diffs of `theme`. Declaring a variation does not emit it. See [theming](../guides/theming.md).                                                      |
+| `sharedVars` | `readonly \`vars/${string}\`[]`  | no       | Cross-module contextual-var paths. Names follow `cssVarName`.                                                                                                        |
+| `dev`        | `boolean`                        | no       | When `true`, collectors warn about no-op handles and module authoring warns about contextual-var name drift. Default `false`. Does not affect the single-copy guard. |
+| `warn`       | `(message: string) => void`      | no       | Sink for `dev` warnings. Defaults to `console.warn`. A collector's own `{ warn }` overrides it.                                                                      |
 
 Theme-tree keys must match `/^[A-Za-z_][A-Za-z0-9_]*$/`. Hyphens are rejected so hyphen-joined custom properties reverse uniquely.
 
@@ -48,12 +49,12 @@ Differing `light` / `dark` fold into `light-dark(light, dark)`.
 
 Passed as the third argument to `distillery.renderStyles` / `renderStyles`.
 
-| Field                 | Type                              | Notes                                                                                                                                         |
-| --------------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `flatten`             | `string`                          | Flatten this declared variation into `themeScope`. Default is the base. A media variation does not replace the primary block.                 |
-| `scheme`              | `'light' \| 'dark'`               | Emit one scheme's literal instead of `light-dark(...)`. Applies to every emitted block. `themeValueOverrides` wins.                           |
-| `alternates`          | `readonly ThemeAlternate[]`       | Extra blocks for runtime switching. Each entry emits only the variation's diff. `ThemeAlternate.variation` is the declared name.              |
-| `themeValueOverrides` | `Partial<Record<string, string>>` | Replace a collected token's emitted value. Wins over the flattened variation and over `scheme`.                                               |
+| Field                 | Type                              | Notes                                                                                                                            |
+| --------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `flatten`             | `string`                          | Flatten this declared variation into `themeScope`. Default is the base. A media variation does not replace the primary block.    |
+| `scheme`              | `'light' \| 'dark'`               | Emit one scheme's literal instead of `light-dark(...)`. Applies to every emitted block. `themeValueOverrides` wins.              |
+| `alternates`          | `readonly ThemeAlternate[]`       | Extra blocks for runtime switching. Each entry emits only the variation's diff. `ThemeAlternate.variation` is the declared name. |
+| `themeValueOverrides` | `Partial<Record<string, string>>` | Replace a collected token's emitted value. Wins over the flattened variation and over `scheme`.                                  |
 
 A non-media alternate requires `selector`. A media-conditioned alternate may omit it and uses `themeScope`. See [declare and select variations](../guides/theming.md).
 

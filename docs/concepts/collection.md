@@ -17,15 +17,59 @@ const css = distillery.renderStyles(collector);
 
 `artifactCollector` starts empty. `stylesheetCollector(names?)` defaults to `'readable'` and preloads every registered module via `useAllEntries`. Both accept an optional `{ warn }` so hosts can capture no-op-handle warnings when `createDistillery({ dev: true })`.
 
+## Tree-shaking and library stylesheets
+
+`stylesheetCollector()` snapshots only modules whose files have already loaded and registered with this distillery. It does not discover or import style files, and modules loaded later are not added automatically.
+
+Libraries declaring `"sideEffects": false` let bundlers remove files whose exports are unused. Rollup and Rolldown can therefore drop style files imported only for registration, silently leaving an incomplete or empty stylesheet. Registration is a real side effect: the **library that owns the style files** must describe it accurately in its published `package.json`. Distillate's own manifest cannot override another package's metadata.
+
+For example, if registration files are named `*.styles.ts` and compile to `*.styles.js`, replace `"sideEffects": false` with:
+
+```json
+{
+  "sideEffects": ["**/*.styles.js", "**/*.styles.ts"]
+}
+```
+
+Match the **actual published registration files**, including ESM and CommonJS paths, not just a barrel or stylesheet entry. Adapt the patterns to your naming and output layout; keep any other existing side-effect exemptions (for example, CSS files). Include source patterns only if consumers can resolve source files. If your build bundles many modules into one output file, mark that output file instead and ensure the library build also retains registration.
+
+Expose a library-owned stylesheet entry that loads the complete style inventory before collecting:
+
+```ts
+// stylesheet.ts: maintain or generate these imports inside the library.
+import './styles/button.styles.js';
+import './styles/panel.styles.js';
+import { distillery } from './environment.js';
+
+export const stylesheet = () =>
+  distillery.renderStyles(distillery.stylesheetCollector());
+```
+
+Export this entry through the library's package exports, so consumers only import and call `stylesheet()`. Maintain or generate the imports at the library boundary as styles are added; consumers never pass a module list. The side-effect patterns retain imports but do not discover files: each intended style file must still be reachable through this entry's imports.
+
+To reuse an existing style barrel instead of direct imports, import it from the stylesheet entry and mark **both the barrel and the actual style files** as side-effectful:
+
+```json
+{
+  "sideEffects": ["./dist/styles/index.js", "**/*.styles.js"]
+}
+```
+
+Adapt the barrel paths for every published output/source layout you expose. An unmarked barrel imported only for side effects can be skipped even when its style files are marked. Conversely, marking only the barrel does not retain unmarked style files. Adding a `void` read or using bare imports under `"sideEffects": false` does not fix retention.
+
+`stylesheetCollector()` remains registry-based and includes all variants. `stylesheetCollector('compact', { warn })` remains supported. Retaining registration JavaScript does not disable Distillate's CSS reachability pruning: `artifactCollector` still emits only collected entries and their dependencies.
+
+Verify the published package by bundling a consumer entry that only calls `stylesheet()` and checking its CSS, not just whether the barrel exists in the bundle. The regression fixture covers lost registrations under `"sideEffects": false`, incomplete barrel/style-file exemptions, and retained direct and barrel imports with readable/compact stylesheet output and artifact pruning.
+
 ## What each method collects
 
-| Method                  | Effect                                                                                                                                       |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `use(module)`           | Non-variant entries on the module. Variants stay out.                                                                                        |
-| `use(entry)`            | One handle, rule, or media block.                                                                                                            |
-| `useHandles(handles)`   | Those handles, then any `auto` rule or media-inner-rule whose deps are all present. Media blocks keep inner rules collected earlier.         |
-| `useAllEntries(module)` | Every entry, including variants. Used by the stylesheet target.                                                                              |
-| `useThemeVar(path)`     | Marks a theme token path reachable even if no collected declaration reads it.                                                                |
+| Method                  | Effect                                                                                                                                                                                                            |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `use(module)`           | Non-variant entries on the module. Variants stay out.                                                                                                                                                             |
+| `use(entry)`            | One handle, rule, or media block.                                                                                                                                                                                 |
+| `useHandles(handles)`   | Those handles, then any `auto` rule or media-inner-rule whose deps are all present. Media blocks keep inner rules collected earlier. A bare `{ key }` resolves through the registry and throws when unregistered. |
+| `useAllEntries(module)` | Every entry, including variants. Used by the stylesheet target.                                                                                                                                                   |
+| `useThemeVar(path)`     | Marks a theme token path reachable even if no collected declaration reads it.                                                                                                                                     |
 
 Paths are slash-delimited (`colors/ink`), matching `themeVars` keys. There is no `StylesCollector.artifact(...)` static factory.
 
@@ -59,7 +103,7 @@ Empty blocks never ship: `renderStyles` drops a handle or rule whose rendered bo
 
 Dropping the class name itself happens only in `compact` mode. Readable names are stable, so a consumer stylesheet or test may scope on one. Compact names have no such contract, and no-op handles do not consume a compact slot. `useHandles` returns the retained handles so hosts can build the class string without changing `combineClassNames`.
 
-A handle is targeted when some rule, or some inner rule of an `@media` / `@container` block, reads it in a selector. `recordRuleDeps` fills that in for nested `&` rules too, so a handle with an empty self block and a real `& h2` stays. A nested block with no rules inside it (`@media (...) {}`) targets nothing and does not rescue its owner. A local-var marker counts as content, so marker-bearing handles are never pruned.
+A handle is targeted when some rule, or some inner rule of an `@media` / `@container` block, reads it in a selector. `trackRuleDeps` fills that in for nested `&` rules too, so a handle with an empty self block and a real `& h2` stays. A nested block with no rules inside it (`@media (...) {}`) targets nothing and does not rescue its owner. A local-var marker counts as content, so marker-bearing handles are never pruned.
 
 ## Resolvers
 

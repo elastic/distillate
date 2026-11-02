@@ -44,7 +44,7 @@ Useful individual scripts:
 
 ## Pull requests
 
-- Use [conventional commits](https://www.conventionalcommits.org/). `feat:` and `fix:` drive the next release version. Do not bump `version` in `package.json` or edit `CHANGELOG.md`: releases are tracked by git tags, and the notes are published to [GitHub Releases](https://github.com/elastic/distillate/releases).
+- Use [conventional commits](https://www.conventionalcommits.org/). `feat:` and `fix:` drive the next release version. While the package is pre-1.0, a `BREAKING CHANGE` footer or a `!` after the type (`feat!:`) also releases a minor and is listed under breaking changes in the notes; cutting `1.0.0` means changing the `breaking` rule in `.releaserc.json` to `major` and updating `scripts/releaserc.test.js` to match. Do not bump `version` in `package.json` or edit `CHANGELOG.md`: releases are tracked by git tags, and the notes are published to [GitHub Releases](https://github.com/elastic/distillate/releases).
 - Add tests for behavioral changes.
 - Run `pnpm verify` before opening a PR.
 - Keep documentation updates in the same PR when the public API changes.

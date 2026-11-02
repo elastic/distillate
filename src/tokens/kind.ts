@@ -5,9 +5,10 @@
  * 2.0.
  */
 
+/** `true` when `value` carries the `__kind` brand `kind` (tokens, refs, markers). */
 export const hasKind = (value: unknown, kind: string): boolean =>
   Boolean(
     value &&
     typeof value === 'object' &&
-    (value as { __kind?: string }).__kind === kind
+    (value as { __kind?: unknown }).__kind === kind
   );

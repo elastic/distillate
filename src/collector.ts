@@ -19,12 +19,14 @@ import type {
   DefaultGroupDeps,
   StyleEntry,
   StyleHandle,
+  StyleHandleRef,
   StyleMedia,
   StyleRegistry,
   StyleRule,
   StylesModule,
 } from './styles';
 import { isEmptyDeclarations } from './styles/declarations';
+import { isHandleLike } from './values';
 
 const warnedHandles = new WeakSet<StyleHandle>();
 
@@ -93,7 +95,7 @@ export interface StylesCollectorOptions {
   prefix: string;
   /** When `true`, emit no-op-handle warnings through `warn`. Inherited from `createDistillery({ dev })`. */
   dev?: boolean;
-  /** Warning sink for no-op handles. Used only when `dev` is `true`. Defaults to `console.warn`. */
+  /** Warning sink for no-op handles. Used only when `dev` is `true`. The distillery passes its own sink; a bare collector defaults to `console.warn`. */
   warn?: (message: string) => void;
 }
 
@@ -111,10 +113,8 @@ export class StylesCollector {
   private readonly warn: (message: string) => void;
   private readonly entries = new Map<string, StyleEntry>();
   private readonly handles = new Map<string, StyleHandle>();
-  // Handles `useHandles` has fully processed since the last entry or handle change.
+  // Handles `useHandles` has fully processed since the last mutation.
   private readonly settledHandles = new Set<StyleHandle>();
-  // Bumped whenever `settledHandles` is invalidated.
-  private revision = 0;
   private readonly themeDeps = new Set<string>();
   private readonly varDeps = new Set<ContextualVarPath>();
   private readonly listeners = new Set<() => void>();
@@ -158,10 +158,7 @@ export class StylesCollector {
     }
 
     if (isStylesModule(value)) {
-      // Aggregate deps from non-variant entries only. The module-level
-      // `themeDeps`/`varDeps` snapshot would also include variant entries'
-      // deps, which would push their var paths into the resolver's compact
-      // registry and steal short names from actually-rendered handles.
+      // Variant entries' deps would claim compact names for handles never rendered.
       for (const entry of value.entries) {
         if (entry.variant) {
           continue;
@@ -221,15 +218,17 @@ export class StylesCollector {
    *
    * Media blocks gain inner rules whose deps are met and keep rules already collected.
    *
-   * @param handles Handles resolved during this render pass (e.g. from `resolveClassName`).
+   * @param handles Handles resolved during this render pass (e.g. from `resolveClassName`). A bare `{ key }` resolves through the registry.
    * @returns Handles that were retained. Empty untargeted handles are omitted in compact mode.
+   * @throws If a `{ key }` names no handle registered with this collector's registry.
    */
-  useHandles(handles: readonly StyleHandle[]): readonly StyleHandle[] {
+  useHandles(handles: readonly StyleHandleRef[]): readonly StyleHandle[] {
     return this.batch(() => {
-      const revision = this.revision;
+      let added = false;
       const retained: StyleHandle[] = [];
       let pending: StyleHandle[] = [];
-      for (const handle of handles) {
+      for (const ref of handles) {
+        const handle = this.resolveHandle(ref);
         if (this.settledHandles.has(handle)) {
           retained.push(handle);
           continue;
@@ -242,12 +241,13 @@ export class StylesCollector {
         if (this.handles.has(handle.key)) {
           continue;
         }
+        added = true;
         this.setEntry(handle);
         this.setHandle(handle);
         this.addDeclarationDeps(handle.declarations);
       }
       // A later handle may complete deps for a skipped one, so rescan them all.
-      if (this.revision !== revision) {
+      if (added) {
         pending = retained;
       }
       for (const handle of pending) {
@@ -270,7 +270,7 @@ export class StylesCollector {
   useRulesWhenDepsMet(module: StylesModule): void {
     this.batch(() => {
       for (const entry of module.entries) {
-        if (entry.kind !== 'rule') {
+        if (entry.kind !== 'rule' || !entry.auto) {
           continue;
         }
         if (this.entries.has(entryKey(entry))) {
@@ -334,6 +334,20 @@ export class StylesCollector {
     }
   }
 
+  // A full handle passes through unchanged, even from another distillery.
+  private resolveHandle(ref: StyleHandleRef): StyleHandle {
+    if (isHandleLike(ref)) {
+      return ref;
+    }
+    const handle = this.registry.handle(ref.key);
+    if (!handle) {
+      throw new Error(
+        `Unknown style handle key "${ref.key}". Register its module with this distillery before collecting it.`
+      );
+    }
+    return handle;
+  }
+
   private allDepsMet(dependsOn: ReadonlySet<string>): boolean {
     for (const dep of dependsOn) {
       if (!this.handles.has(dep)) {
@@ -381,11 +395,6 @@ export class StylesCollector {
     return this.finalizeDeps().vars;
   }
 
-  // Reachability-aware default-emission set used by the runtime. For a
-  // given handle and `${group}` site, returns the keys whose declarations
-  // should ship: union of group-keys appearing in `handle.declarations.deps.refs`
-  // and in `deps.refs` of every collected rule/media-inner-rule whose
-  // selector targets `handle`.
   /**
    * Returns the variable keys within `groupPath` that are reachable from `handle` or from any collected rule targeting it.
    *
@@ -427,9 +436,7 @@ export class StylesCollector {
     return reachable;
   }
 
-  // Computes the final theme/var dep sets, folding in default-marker
-  // contributions only for keys that survive reachability. Cached until the
-  // next change to entries, handles, or deps.
+  // Cached until entries, handles, or deps change.
   private finalizeDeps(): FinalizedDeps {
     this.finalized ??= this.computeFinalizedDeps();
     return this.finalized;
@@ -453,10 +460,7 @@ export class StylesCollector {
       }
     }
 
-    // Default markers inside rule / media-inner-rule declarations don't have
-    // a host handle to anchor reachability against. The runtime emits every
-    // listed key when rendering such a declaration, so we mirror that here
-    // and include all of them in the registry.
+    // Rules have no host handle for reachability, so every default key counts, as at render.
     for (const entry of this.entries.values()) {
       if (entry.kind === 'rule') {
         includeAllDefaults(entry.declarations.deps.defaults, theme, vars);
@@ -523,8 +527,7 @@ export class StylesCollector {
       this.varDeps.add(path);
     }
     if (this.themeDeps.size + this.varDeps.size !== before) {
-      this.dirty = true;
-      this.finalized = undefined;
+      this.touch(true);
     }
   }
 
@@ -532,35 +535,34 @@ export class StylesCollector {
   private setEntry(entry: StyleEntry): void {
     const key = entryKey(entry);
     const existing = this.entries.get(key);
-    if (existing !== entry) {
-      this.invalidateSettled();
-      this.finalized = undefined;
+    if (existing === entry) {
+      return;
     }
     this.entries.set(key, entry);
-    if (
+    this.touch(
       !existing ||
-      (existing.kind === 'media' &&
-        entry.kind === 'media' &&
-        existing.rules.length !== entry.rules.length)
-    ) {
-      this.dirty = true;
-    }
+        (existing.kind === 'media' &&
+          entry.kind === 'media' &&
+          existing.rules.length !== entry.rules.length)
+    );
   }
 
   private setHandle(handle: StyleHandle): void {
-    if (this.handles.get(handle.key) !== handle) {
-      this.invalidateSettled();
-      this.finalized = undefined;
-    }
-    if (!this.handles.has(handle.key)) {
-      this.dirty = true;
+    const existing = this.handles.get(handle.key);
+    if (existing === handle) {
+      return;
     }
     this.handles.set(handle.key, handle);
+    this.touch(!existing);
   }
 
-  private invalidateSettled(): void {
+  /** Every mutation funnels through here: caches drop, and growth queues the listeners. */
+  private touch(grew: boolean): void {
+    this.finalized = undefined;
     this.settledHandles.clear();
-    this.revision += 1;
+    if (grew) {
+      this.dirty = true;
+    }
   }
 
   // Listeners run once the outermost public mutation returns.
@@ -626,8 +628,7 @@ const localVarOverrideRank = (entry: StyleEntry): number => {
   return entry.declarations.css.some(isLocalVarOverrideMarker) ? 1 : 0;
 };
 
-// Base entries before every `@media`/`@container` block (no specificity). See finding `media-block-ordering`.
-// `${group.set()}` after `${group}` defaults so a stacked override class wins. See finding `local-var-override-ordering`.
+// Base entries precede every at-rule block, which adds no specificity. Override markers follow default markers so a stacked override class wins.
 const compareEntriesForEmission = (a: StyleEntry, b: StyleEntry): number => {
   const rankDelta = mediaSortRank(a) - mediaSortRank(b);
   if (rankDelta !== 0) {

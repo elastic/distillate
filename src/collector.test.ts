@@ -146,17 +146,41 @@ describe('StylesCollector.subscribe', () => {
 
   it('notifies for rules collected by useRulesWhenDepsMet', () => {
     const { distillery, demo } = createFixture();
+    const aside = distillery.createStyleModule('aside', (t) => ({
+      focus: rule(
+        () => `.${demo.handles.second.readableName}:focus`,
+        t.decls`
+          outline: none;
+        `
+      ),
+    }));
     const collector = distillery.artifactCollector('readable');
     collector.useHandles([demo.handles.second]);
     expect(distillery.renderStyles(collector)).not.toContain(':focus');
     const notifications = countNotifications(collector);
 
-    collector.useRulesWhenDepsMet(demo);
+    collector.useRulesWhenDepsMet(aside);
     expect(notifications.count()).toBe(1);
     expect(distillery.renderStyles(collector)).toContain('.demo-second:focus');
 
-    collector.useRulesWhenDepsMet(demo);
+    collector.useRulesWhenDepsMet(aside);
     expect(notifications.count()).toBe(1);
+  });
+
+  it('useRulesWhenDepsMet skips auto:false rules even when their deps are met', () => {
+    const { distillery, demo } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([demo.handles.second]);
+    const notifications = countNotifications(collector);
+
+    collector.useRulesWhenDepsMet(demo);
+    expect(notifications.count()).toBe(0);
+    expect(distillery.renderStyles(collector)).not.toContain(':focus');
+
+    collector.use(
+      demo.entries.find((entry) => entry.kind === 'rule' && !entry.auto) ?? demo
+    );
+    expect(distillery.renderStyles(collector)).toContain('.demo-second:focus');
   });
 
   it('notifies for a new theme var only', () => {
@@ -287,6 +311,39 @@ describe('StylesCollector.useHandles', () => {
     collector.useHandles([overlay.handles.panel, base.handles.mark]);
     expect(distillery.renderStyles(collector)).toContain(
       '.base-mark .overlay-panel{outline:1px solid red}'
+    );
+  });
+});
+
+describe('useHandles by key', () => {
+  it('resolves a bare { key } through the registry', () => {
+    const { distillery, demo } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+
+    const retained = collector.useHandles([{ key: demo.handles.first.key }]);
+
+    expect(retained).toEqual([demo.handles.first]);
+    expect(distillery.renderStyles(collector)).toContain('.demo-first:hover');
+  });
+
+  it('settles a key-resolved handle like a full one', () => {
+    const { distillery, demo } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+    collector.useHandles([{ key: demo.handles.first.key }]);
+    const notifications = countNotifications(collector);
+
+    collector.useHandles([demo.handles.first]);
+    collector.useHandles([{ key: demo.handles.first.key }]);
+
+    expect(notifications.count()).toBe(0);
+  });
+
+  it('throws on a key no registered module owns', () => {
+    const { distillery } = createFixture();
+    const collector = distillery.artifactCollector('readable');
+
+    expect(() => collector.useHandles([{ key: 'demo/missing' }])).toThrow(
+      'Unknown style handle key "demo/missing"'
     );
   });
 });

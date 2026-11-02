@@ -656,12 +656,12 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `source-map-js` | 1.2.1 | BSD-3-Clause | `node_modules/.pnpm/source-map-js@1.2.1/node_modules/source-map-js` |
 | `spawn-error-forwarder` | 1.0.0 | MIT | `node_modules/.pnpm/spawn-error-forwarder@1.0.0/node_modules/spawn-error-forwarder` |
 | `spdx-correct` | 3.2.0 | Apache-2.0 | `node_modules/.pnpm/spdx-correct@3.2.0/node_modules/spdx-correct` |
-| `spdx-exceptions` | 2.5.0 | CC-BY-3.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/spdx-exceptions` |
 | `spdx-exceptions` | 2.5.0 | CC-BY-3.0 | `node_modules/.pnpm/spdx-exceptions@2.5.0/node_modules/spdx-exceptions` |
+| `spdx-exceptions` | 2.5.0 | CC-BY-3.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/spdx-exceptions` |
 | `spdx-expression-parse` | 3.0.1 | MIT | `node_modules/.pnpm/spdx-expression-parse@3.0.1/node_modules/spdx-expression-parse` |
 | `spdx-expression-parse` | 4.0.0 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/spdx-expression-parse` |
-| `spdx-license-ids` | 3.0.23 | CC0-1.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/spdx-license-ids` |
 | `spdx-license-ids` | 3.0.23 | CC0-1.0 | `node_modules/.pnpm/spdx-license-ids@3.0.23/node_modules/spdx-license-ids` |
+| `spdx-license-ids` | 3.0.23 | CC0-1.0 | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/spdx-license-ids` |
 | `split2` | 1.0.0 | ISC | `node_modules/.pnpm/split2@1.0.0/node_modules/split2` |
 | `split2` | 4.2.0 | ISC | `node_modules/.pnpm/split2@4.2.0/node_modules/split2` |
 | `ssri` | 13.0.1 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/ssri` |

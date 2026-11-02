@@ -42,9 +42,7 @@ const spaceIsSignificant = (
  * @param value Raw CSS text.
  */
 export const minifyCss = (value: string): string => {
-  // Dropping comments can leave two whitespace spans adjacent — `.a /*c*/ .b`
-  // — and emitting one space per span would keep both. Coalescing after the
-  // filter makes the run a single decision.
+  // Dropping a comment can leave two whitespace spans adjacent (`.a /*c*/ .b`).
   const spans = scanCss(value)
     .filter((span) => span.kind !== 'comment')
     .filter(
@@ -52,8 +50,7 @@ export const minifyCss = (value: string): string => {
         span.kind !== 'whitespace' || all[index - 1]?.kind !== 'whitespace'
     );
   const out: string[] = [];
-  // Indices into `spans` of what has been emitted, so lookaround skips the
-  // whitespace being decided about.
+  // Non-whitespace spans, so lookaround skips the whitespace being decided.
   const significant = spans.filter((span) => span.kind !== 'whitespace');
   let significantIndex = 0;
 
@@ -67,9 +64,7 @@ export const minifyCss = (value: string): string => {
       return;
     }
 
-    // A declaration's terminator is redundant against the block's own close.
-    // Only a bare `;` qualifies: an escaped one is part of a value, and it
-    // arrives as an `escape` span rather than a structural `;`.
+    // A bare `;` before `}` is redundant; an escaped one arrives as an `escape` span.
     if (
       span.kind === 'structural' &&
       span.text === '}' &&
