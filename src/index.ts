@@ -56,6 +56,7 @@ export {
   cssVarName,
   type StyleNameMode,
   type StyleNameResolver,
+  type StyleNameResolverOptions,
   type StyleTarget,
 } from './names';
 export { StylesCollector, type StylesCollectorOptions } from './collector';

@@ -2,7 +2,7 @@
 
 ## 2026-11-01
 
-- **Update**: Breaking export trim on the root entry. Removed `combineClassNames` (deprecated; use `resolveClassNames`), `createStyleNameResolver` and `StyleNameResolverOptions` (collectors create resolvers), and the `isContextualCssVar` / `isContextualCssVarName` guards. `StyleRegistry` is a type-only export; `distillery.registry` is the instance. `isCssToken` / `isScaleToken` stay for walking a derived token tree.
+- **Update**: Breaking export trim on the root entry. Removed `combineClassNames` (deprecated in favor of `resolveClassNames` after v0.2.0, so the deprecation never shipped), `createStyleNameResolver` (collectors create resolvers; `StyleNameResolverOptions` stays because `distillery.createNameResolver` takes it), and the `isContextualCssVar` / `isContextualCssVarName` guards. `StyleRegistry` is a type-only export; `distillery.registry` is the instance. `isCssToken` / `isScaleToken` stay for walking a derived token tree.
 
 ## 2026-10-30
 

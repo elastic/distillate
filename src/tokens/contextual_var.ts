@@ -9,7 +9,7 @@ import { hasKind } from './kind';
 
 /** Represents a contextual CSS variable name. Stringifies to its custom property name. */
 export interface ContextualCssVarName {
-  /** Brand for {@link isContextualCssVarName}. */
+  /** Brand checked by `isContextualCssVarName`. */
   readonly __kind: 'contextual-var-name';
   /** Group/key path for this variable. */
   readonly path: `vars/${string}`;
@@ -23,7 +23,7 @@ export interface ContextualCssVarName {
 
 /** Represents a contextual CSS variable. Stringifies to `var(--...)`. */
 export interface ContextualCssVar {
-  /** Brand for {@link isContextualCssVar}. */
+  /** Brand checked by `isContextualCssVar`. */
   readonly __kind: 'contextual-var';
   /** Group/key path for this variable. */
   readonly path: `vars/${string}`;
