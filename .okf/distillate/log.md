@@ -2,6 +2,7 @@
 
 ## 2026-11-02
 
+- **Update**: `css` and `injectGlobal` templates treat a backslash escape outside a string as data, so `\{`, `\"` and similar in a selector no longer trip the unbalanced-template check. The structure scan now walks the shared `scanCss` spans; comments, strings, `url(...)`, and escapes are opaque in every pass.
 - **Update**: Renamed the license workflow to `.github/workflows/dependency-licenses.yml` and allowed the verified `elastic-renovate-prod[bot]` PR author alongside Dependabot, still restricted to same-repository heads. Read-only generation, report-only writes, stale-head leases, and CI dispatch after a report commit are unchanged. `.github/post-release.md` documents the separate required-check setting; existing approval requirements are unchanged.
 
 ## 2026-11-01

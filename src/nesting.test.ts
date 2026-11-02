@@ -185,6 +185,19 @@ describe('flattenTemplate — scope rejections', () => {
     expect(() => self(['&:hover { color: red'])).toThrow(/unbalanced/);
   });
 
+  it('rejects unterminated strings and comments', () => {
+    expect(() => self(['&::before{content:"x}'])).toThrow(/unbalanced/);
+    expect(() => self(['&:hover{color:red} /* open'])).toThrow(/unbalanced/);
+  });
+
+  it('allows @media in a sibling block after an earlier @media closed', () => {
+    expect(() =>
+      self([
+        '@media (min-width:0){color:red} &:hover{@media (min-width:0){color:blue}}',
+      ])
+    ).not.toThrow();
+  });
+
   it('rejects reserved sentinel patterns in authored text', () => {
     expect(() => self(['__dstl0__ { color: red }'])).toThrow(/reserved/);
     expect(() => self(['content: "x"; --dstl-9: 0;'])).toThrow(/reserved/);
@@ -224,6 +237,10 @@ describe('flattenTemplate — tolerance', () => {
   it('handles quoted braces without treating them as blocks', () => {
     const rule = asRule(self(['&::before{content:"{"}']).nested[0]);
     expect(rule.slice.strings.join('')).toContain('content:"{"');
+  });
+
+  it('treats an escaped brace outside a string as data', () => {
+    expect(() => self(['&.x\\{y{color:red}'])).not.toThrow();
   });
 
   it('handles braces inside url() via paren tracking', () => {

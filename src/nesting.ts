@@ -18,7 +18,7 @@
 
 import { compile, type Element } from 'stylis';
 
-import { scanCss } from './css_scan';
+import { type CssSpan, scanCss } from './css_scan';
 import { isLocalVarMarker } from './local_vars';
 import type { StyleHandle } from './styles/types';
 import { describeValue, isCssValue, isHandleLike } from './values';
@@ -110,8 +110,9 @@ export const flattenTemplate = (
     inlined.values,
     mode
   );
-  scanStructure(text, mode);
-  const tree = compile(canonicalizeAtMedia(text));
+  const spans = scanCss(text);
+  scanStructure(spans, mode);
+  const tree = compile(canonicalizeAtMedia(spans));
   return walk(tree, mode, sentinelValues);
 };
 
@@ -177,105 +178,88 @@ const assertNoReservedPatterns = (strings: readonly string[]): void => {
 };
 
 // Validates structure before stylis can normalize, hoist, or drop malformed
-// constructs. Never restructures; stylis owns flattening.
-const scanStructure = (text: string, mode: FlattenMode): void => {
+// constructs. Never restructures; stylis owns flattening. Comments, strings,
+// `url(...)`, and escapes are opaque spans, so a brace inside them is data.
+const scanStructure = (spans: readonly CssSpan[], mode: FlattenMode): void => {
   let depth = 0;
   let parenDepth = 0;
-  let mediaDepth = 0;
-  const mediaBraceStack: number[] = [];
-  let quote: string | null = null;
-  let inComment = false;
+  // Depth of the prelude of the open `@media` block, or null outside one.
+  let mediaDepth: number | null = null;
 
-  for (let i = 0; i < text.length; i += 1) {
-    const ch = text[i];
-    if (inComment) {
-      if (ch === '*' && text[i + 1] === '/') {
-        inComment = false;
-        i += 1;
+  for (const span of spans) {
+    if (span.kind === 'text') {
+      for (let i = 0; i < span.text.length; i += 1) {
+        const ch = span.text[i];
+        if (ch === '(') {
+          parenDepth += 1;
+        } else if (ch === ')') {
+          parenDepth = Math.max(0, parenDepth - 1);
+        } else if (parenDepth > 0) {
+          continue;
+        } else if (ch === '@') {
+          const name = /^[a-zA-Z-]+/.exec(span.text.slice(i + 1))?.[0] ?? '';
+          if (name.toLowerCase() !== 'media') {
+            throw new Error(
+              `Only @media is supported in css templates; found @${name || '(unknown)'}.`
+            );
+          }
+          if (mediaDepth !== null) {
+            throw new Error('Nested @media inside @media is not supported.');
+          }
+          mediaDepth = depth;
+        } else if (mode === 'global' && depth === 0 && ch === '&') {
+          throw new Error(
+            'injectGlobal templates cannot use `&` at the top level; global styles have no self handle.'
+          );
+        }
       }
       continue;
     }
-    if (quote) {
-      if (ch === '\\') {
-        i += 1;
-      } else if (ch === quote) {
-        quote = null;
-      }
+    if (span.kind !== 'structural' || parenDepth > 0) {
       continue;
     }
-    if (ch === '/' && text[i + 1] === '*') {
-      inComment = true;
-      i += 1;
-      continue;
-    }
-    if (ch === '"' || ch === "'") {
-      quote = ch;
-      continue;
-    }
-    if (ch === '(') {
-      parenDepth += 1;
-      continue;
-    }
-    if (ch === ')') {
-      parenDepth = Math.max(0, parenDepth - 1);
-      continue;
-    }
-    if (parenDepth > 0) {
-      continue;
-    }
-    if (ch === '@') {
-      const rest = text.slice(i + 1);
-      const name = /^[a-zA-Z-]+/.exec(rest)?.[0] ?? '';
-      if (name.toLowerCase() !== 'media') {
-        throw new Error(
-          `Only @media is supported in css templates; found @${name || '(unknown)'}. (@supports, @container, @keyframes, @font-face, and others are follow-ups.)`
-        );
-      }
-      if (mediaDepth > 0) {
-        throw new Error('Nested @media inside @media is not supported.');
-      }
-      mediaDepth += 1;
-      mediaBraceStack.push(depth);
-      continue;
-    }
-    if (ch === '{') {
+    if (span.text === '{') {
       depth += 1;
-      continue;
-    }
-    if (ch === '}') {
+    } else if (span.text === '}') {
       depth = Math.max(0, depth - 1);
-      if (
-        mediaDepth > 0 &&
-        mediaBraceStack.length > 0 &&
-        depth === mediaBraceStack[mediaBraceStack.length - 1]
-      ) {
-        mediaBraceStack.pop();
-        mediaDepth -= 1;
+      if (depth === mediaDepth) {
+        mediaDepth = null;
       }
-      continue;
-    }
-    if (mode === 'global' && depth === 0) {
-      if (ch === ';') {
-        throw new Error(
-          'injectGlobal templates cannot have top-level declarations; wrap them in a selector.'
-        );
-      }
-      if (ch === '&') {
-        throw new Error(
-          'injectGlobal templates cannot use `&` at the top level; global styles have no self handle.'
-        );
-      }
+    } else if (span.text === ';' && mode === 'global' && depth === 0) {
+      throw new Error(
+        'injectGlobal templates cannot have top-level declarations; wrap them in a selector.'
+      );
     }
   }
 
-  if (depth !== 0 || quote || inComment) {
+  const last = spans.at(-1);
+  if (depth !== 0 || (last !== undefined && isUnterminated(last))) {
     throw new Error('css template has unbalanced braces, quotes, or comments.');
   }
 };
 
+// `scanCss` runs an unterminated string or comment to the end of the text.
+const isUnterminated = (span: CssSpan): boolean => {
+  const { kind, text } = span;
+  if (kind === 'comment') {
+    return text.length < 4 || !text.endsWith('*/');
+  }
+  if (kind !== 'string') {
+    return false;
+  }
+  for (let i = 1; i < text.length; i += 1) {
+    if (text[i] === '\\') {
+      i += 1;
+    } else if (text[i] === text[0]) {
+      return false;
+    }
+  }
+  return true;
+};
+
 /** stylis matches at-rules case-sensitively, so `@MEDIA` is lowercased in text spans only; inside a string, comment, or `url(...)` it is data. */
-const canonicalizeAtMedia = (text: string): string =>
-  scanCss(text)
+const canonicalizeAtMedia = (spans: readonly CssSpan[]): string =>
+  spans
     .map((span) =>
       span.kind === 'text'
         ? // Not `\\b`, which would also match `@media-foo`.
