@@ -15,7 +15,6 @@ import {
 } from './local_vars';
 import { minifyCss } from './minify';
 import { cssVarName, type StyleNameResolver } from './names';
-import { describeValue, isCssValue } from './nesting';
 import {
   type ContextualVarPath,
   createSelectorResolver,
@@ -30,6 +29,7 @@ import {
   type ResolvedThemeVariation,
   serializedThemeValue,
 } from './theme';
+import { describeValue, isCssValue } from './values';
 
 /**
  * Emits collected CSS: theme block, then entries, minified.

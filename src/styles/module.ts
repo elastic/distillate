@@ -14,7 +14,7 @@ import {
 } from '../local_vars';
 import { cssVarName } from '../names';
 import { isContextualCssVar, isContextualCssVarName } from '../tokens';
-import { hasEntryKind } from '../tokens/kind';
+import { hasEntryKind } from '../values';
 
 import { composeSelector, css, decls, isVariantMarked } from './authoring';
 import { declarationsOf } from './entries';

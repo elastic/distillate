@@ -12,7 +12,6 @@ import {
   type StyleNameResolver,
   type StyleTarget,
 } from './names';
-import { isHandleLike } from './nesting';
 import type {
   ContextualVarPath,
   CssVarPath,
@@ -27,6 +26,7 @@ import type {
 } from './styles';
 import { isEmptyDeclarations } from './styles/declarations';
 import { declarationsOf, rulesOf } from './styles/entries';
+import { isHandleLike } from './values';
 
 const warnedHandles = new WeakSet<StyleHandle>();
 
@@ -83,7 +83,7 @@ export interface StylesCollectorOptions {
   prefix: string;
   /** When `true`, emit no-op-handle warnings through `warn`. Inherited from `createDistillery({ dev })`. */
   dev?: boolean;
-  /** Warning sink for no-op handles. Used only when `dev` is `true`. Defaults to `console.warn`. */
+  /** Warning sink for no-op handles. Used only when `dev` is `true`. The distillery passes its own sink; a bare collector defaults to `console.warn`. */
   warn?: (message: string) => void;
 }
 
