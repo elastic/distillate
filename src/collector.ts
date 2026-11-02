@@ -270,7 +270,7 @@ export class StylesCollector {
   useRulesWhenDepsMet(module: StylesModule): void {
     this.batch(() => {
       for (const entry of module.entries) {
-        if (entry.kind !== 'rule') {
+        if (entry.kind !== 'rule' || !entry.auto) {
           continue;
         }
         if (this.entries.has(entryKey(entry))) {

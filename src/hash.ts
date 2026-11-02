@@ -45,18 +45,22 @@ const base36 = (value: number): string => value.toString(36).padStart(7, '0');
 export const contentHash64 = (
   strings: readonly string[],
   values: readonly unknown[]
-): string => {
-  const canonical = canonicalize(strings, values);
-  return (
-    base36(fnv1a(canonical, FNV_OFFSET_A)) +
-    base36(fnv1a(canonical, FNV_OFFSET_B))
-  );
-};
+): string => hashCanonical(canonicalize(strings, values));
 
-// Canonical, injective-enough serialization. Template strings and tagged
-// values are interleaved and joined with a NUL sentinel that cannot appear in
-// authored CSS, so distinct templates cannot collide by concatenation.
-const canonicalize = (
+/** 64-bit hash of a {@link canonicalize} string as 14 base36 characters. */
+export const hashCanonical = (canonical: string): string =>
+  base36(fnv1a(canonical, FNV_OFFSET_A)) +
+  base36(fnv1a(canonical, FNV_OFFSET_B));
+
+/**
+ * Canonical, injective-enough serialization of a template. Strings and tagged
+ * values are interleaved and joined with a NUL sentinel that cannot appear in
+ * authored CSS, so distinct templates cannot collide by concatenation. Tags
+ * carry the emitted custom-property name, not just the path, because the
+ * rendered CSS differs when the name does. Two templates with equal canonical
+ * strings render identically, so this is also the exact collision check.
+ */
+export const canonicalize = (
   strings: readonly string[],
   values: readonly unknown[]
 ): string => {
@@ -75,16 +79,16 @@ const tagValue = (value: unknown): string => {
     return `r:${value}`;
   }
   if (isCssToken(value)) {
-    return `t:${value.path}`;
+    return `t:${value.path}=${value.cssVar}`;
   }
   if (isContextualCssVar(value)) {
-    return `v:${value.path}`;
+    return `v:${value.path}=${value.name.name}`;
   }
   if (isContextualCssVarName(value)) {
-    return `n:${value.path}`;
+    return `n:${value.path}=${value.name}`;
   }
   if (isLocalVarRef(value)) {
-    return `l:${value.path}`;
+    return `l:${value.path}=${value.propName}`;
   }
   if (isScaleToken(value)) {
     return `s:${value.value}`;
