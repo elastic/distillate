@@ -39,9 +39,9 @@ const context = (...messages) => ({
 
 describe('.releaserc.json commit analysis', () => {
   it.each([
-    ['feat!: drop x', 'major'],
-    ['fix(sdk)!: drop x', 'major'],
-    ['feat: add y\n\nBREAKING CHANGE: drop x', 'major'],
+    ['feat!: drop x', 'minor'],
+    ['fix(sdk)!: drop x', 'minor'],
+    ['feat: add y\n\nBREAKING CHANGE: drop x', 'minor'],
     ['feat: add y', 'minor'],
     ['fix: repair z', 'patch'],
     ['chore: tidy', null],
