@@ -709,7 +709,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `traverse` | 0.6.8 | MIT | `node_modules/.pnpm/traverse@0.6.8/node_modules/traverse` |
 | `treeverse` | 3.0.0 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/treeverse` |
 | `ts-api-utils` | 2.5.0 | MIT | `node_modules/.pnpm/ts-api-utils@2.5.0_typescript@5.9.3/node_modules/ts-api-utils` |
-| `tsc-alias` | 1.9.4 | MIT | `node_modules/.pnpm/tsc-alias@1.9.4/node_modules/tsc-alias` |
+| `tsc-alias` | 1.9.10 | MIT | `node_modules/.pnpm/tsc-alias@1.9.10/node_modules/tsc-alias` |
 | `tuf-js` | 4.1.0 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/tuf-js` |
 | `tunnel` | 0.0.6 | MIT | `node_modules/.pnpm/tunnel@0.0.6/node_modules/tunnel` |
 | `type-check` | 0.4.0 | MIT | `node_modules/.pnpm/type-check@0.4.0/node_modules/type-check` |
