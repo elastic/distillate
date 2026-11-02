@@ -19,7 +19,7 @@
         "releaseRules": [
           {
             "breaking": true,
-            "release": "major"
+            "release": "minor"
           },
           {
             "type": "feat",
