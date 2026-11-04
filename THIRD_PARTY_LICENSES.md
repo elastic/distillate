@@ -650,7 +650,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `slice-ansi` | 7.1.2 | MIT | `node_modules/.pnpm/slice-ansi@7.1.2/node_modules/slice-ansi` |
 | `slice-ansi` | 8.0.0 | MIT | `node_modules/.pnpm/slice-ansi@8.0.0/node_modules/slice-ansi` |
 | `smart-buffer` | 4.2.0 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/smart-buffer` |
-| `smol-toml` | 1.8.0 | BSD-3-Clause | `node_modules/.pnpm/smol-toml@1.8.0/node_modules/smol-toml` |
+| `smol-toml` | 1.9.1 | BSD-3-Clause | `node_modules/.pnpm/smol-toml@1.9.1/node_modules/smol-toml` |
 | `socks` | 2.8.9 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/socks` |
 | `socks-proxy-agent` | 8.0.5 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/socks-proxy-agent` |
 | `source-map` | 0.6.1 | BSD-3-Clause | `node_modules/.pnpm/source-map@0.6.1/node_modules/source-map` |
