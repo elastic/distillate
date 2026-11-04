@@ -178,6 +178,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `aproba` | 2.1.0 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/aproba` |
 | `archy` | 1.0.0 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/archy` |
 | `argparse` | 2.0.1 | Python-2.0 | `node_modules/.pnpm/argparse@2.0.1/node_modules/argparse` |
+| `argparse` | 3.0.4 | PSF-2.0 | `node_modules/.pnpm/argparse@3.0.4/node_modules/argparse` |
 | `argv-formatter` | 1.0.0 | MIT | `node_modules/.pnpm/argv-formatter@1.0.0/node_modules/argv-formatter` |
 | `array-ify` | 1.0.0 | MIT | `node_modules/.pnpm/array-ify@1.0.0/node_modules/array-ify` |
 | `array-union` | 2.1.0 | MIT | `node_modules/.pnpm/array-union@2.1.0/node_modules/array-union` |
@@ -263,6 +264,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `emoji-regex` | 8.0.0 | MIT | `node_modules/.pnpm/emoji-regex@8.0.0/node_modules/emoji-regex` |
 | `emojilib` | 2.4.0 | MIT | `node_modules/.pnpm/emojilib@2.4.0/node_modules/emojilib` |
 | `entities` | 4.5.0 | BSD-2-Clause | `node_modules/.pnpm/entities@4.5.0/node_modules/entities` |
+| `entities` | 8.1.0 | BSD-2-Clause | `node_modules/.pnpm/entities@8.1.0/node_modules/entities` |
 | `env-ci` | 11.2.0 | MIT | `node_modules/.pnpm/env-ci@11.2.0/node_modules/env-ci` |
 | `env-paths` | 2.2.1 | MIT | `node_modules/.pnpm/env-paths@2.2.1/node_modules/env-paths` |
 | `env-paths` | 2.2.1 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/env-paths` |
@@ -333,7 +335,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `globals` | 14.0.0 | MIT | `node_modules/.pnpm/globals@14.0.0/node_modules/globals` |
 | `globals` | 17.12.0 | MIT | `node_modules/.pnpm/globals@17.12.0/node_modules/globals` |
 | `globby` | 11.1.0 | MIT | `node_modules/.pnpm/globby@11.1.0/node_modules/globby` |
-| `globby` | 16.2.2 | MIT | `node_modules/.pnpm/globby@16.2.2/node_modules/globby` |
+| `globby` | 16.2.4 | MIT | `node_modules/.pnpm/globby@16.2.4/node_modules/globby` |
 | `graceful-fs` | 4.2.10 | ISC | `node_modules/.pnpm/graceful-fs@4.2.10/node_modules/graceful-fs` |
 | `graceful-fs` | 4.2.11 | ISC | `node_modules/.pnpm/graceful-fs@4.2.11/node_modules/graceful-fs` |
 | `graceful-fs` | 4.2.11 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/graceful-fs` |
@@ -401,7 +403,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `js-tokens` | 10.0.0 | MIT | `node_modules/.pnpm/js-tokens@10.0.0/node_modules/js-tokens` |
 | `js-tokens` | 4.0.0 | MIT | `node_modules/.pnpm/js-tokens@4.0.0/node_modules/js-tokens` |
 | `js-yaml` | 4.3.2 | MIT | `node_modules/.pnpm/js-yaml@4.3.2/node_modules/js-yaml` |
-| `js-yaml` | 5.2.2 | MIT | `node_modules/.pnpm/js-yaml@5.2.2/node_modules/js-yaml` |
+| `js-yaml` | 5.4.3 | MIT | `node_modules/.pnpm/js-yaml@5.4.3/node_modules/js-yaml` |
 | `json-buffer` | 3.0.1 | MIT | `node_modules/.pnpm/json-buffer@3.0.1/node_modules/json-buffer` |
 | `json-parse-better-errors` | 1.0.2 | MIT | `node_modules/.pnpm/json-parse-better-errors@1.0.2/node_modules/json-parse-better-errors` |
 | `json-parse-even-better-errors` | 2.3.1 | MIT | `node_modules/.pnpm/json-parse-even-better-errors@2.3.1/node_modules/json-parse-even-better-errors` |
@@ -434,6 +436,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `libnpmversion` | 8.0.4 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/libnpmversion` |
 | `lines-and-columns` | 1.2.4 | MIT | `node_modules/.pnpm/lines-and-columns@1.2.4/node_modules/lines-and-columns` |
 | `linkify-it` | 5.0.2 | MIT | `node_modules/.pnpm/linkify-it@5.0.2/node_modules/linkify-it` |
+| `linkify-it` | 6.1.0 | MIT | `node_modules/.pnpm/linkify-it@6.1.0/node_modules/linkify-it` |
 | `lint-staged` | 16.4.0 | MIT | `node_modules/.pnpm/lint-staged@16.4.0/node_modules/lint-staged` |
 | `listr2` | 9.0.5 | MIT | `node_modules/.pnpm/listr2@9.0.5/node_modules/listr2` |
 | `load-json-file` | 4.0.0 | MIT | `node_modules/.pnpm/load-json-file@4.0.0/node_modules/load-json-file` |
@@ -465,9 +468,10 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `make-dir` | 4.0.0 | MIT | `node_modules/.pnpm/make-dir@4.0.0/node_modules/make-dir` |
 | `make-fetch-happen` | 15.0.6 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/make-fetch-happen` |
 | `markdown-it` | 14.3.0 | MIT | `node_modules/.pnpm/markdown-it@14.3.0/node_modules/markdown-it` |
-| `markdownlint` | 0.41.1 | MIT | `node_modules/.pnpm/markdownlint@0.41.1/node_modules/markdownlint` |
-| `markdownlint-cli2` | 0.23.2 | MIT | `node_modules/.pnpm/markdownlint-cli2@0.23.2/node_modules/markdownlint-cli2` |
-| `markdownlint-cli2-formatter-default` | 0.0.6 | MIT | `node_modules/.pnpm/markdownlint-cli2-formatter-default@0.0.6_markdownlint-cli2@0.23.2/node_modules/markdownlint-cli2-formatter-default` |
+| `markdown-it` | 15.0.3 | MIT | `node_modules/.pnpm/markdown-it@15.0.3/node_modules/markdown-it` |
+| `markdownlint` | 0.42.0 | MIT | `node_modules/.pnpm/markdownlint@0.42.0/node_modules/markdownlint` |
+| `markdownlint-cli2` | 0.24.0 | MIT | `node_modules/.pnpm/markdownlint-cli2@0.24.0/node_modules/markdownlint-cli2` |
+| `markdownlint-cli2-formatter-default` | 0.0.6 | MIT | `node_modules/.pnpm/markdownlint-cli2-formatter-default@0.0.6_markdownlint-cli2@0.24.0/node_modules/markdownlint-cli2-formatter-default` |
 | `marked` | 15.0.12 | MIT | `node_modules/.pnpm/marked@15.0.12/node_modules/marked` |
 | `marked-terminal` | 7.3.0 | MIT | `node_modules/.pnpm/marked-terminal@7.3.0_marked@15.0.12/node_modules/marked-terminal` |
 | `mdurl` | 2.1.0 | MIT | `node_modules/.pnpm/mdurl@2.1.0/node_modules/mdurl` |
@@ -475,16 +479,17 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `meow` | 13.2.0 | MIT | `node_modules/.pnpm/meow@13.2.0/node_modules/meow` |
 | `merge-stream` | 2.0.0 | MIT | `node_modules/.pnpm/merge-stream@2.0.0/node_modules/merge-stream` |
 | `merge2` | 1.4.1 | MIT | `node_modules/.pnpm/merge2@1.4.1/node_modules/merge2` |
-| `micromark` | 4.0.2 | MIT | `node_modules/.pnpm/micromark@4.0.2/node_modules/micromark` |
-| `micromark-core-commonmark` | 2.0.3 | MIT | `node_modules/.pnpm/micromark-core-commonmark@2.0.3/node_modules/micromark-core-commonmark` |
+| `micromark` | 4.0.3 | MIT | `node_modules/.pnpm/micromark@4.0.3/node_modules/micromark` |
+| `micromark-core-commonmark` | 2.0.4 | MIT | `node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark` |
 | `micromark-extension-directive` | 4.0.0 | MIT | `node_modules/.pnpm/micromark-extension-directive@4.0.0/node_modules/micromark-extension-directive` |
 | `micromark-extension-gfm-autolink-literal` | 2.1.0 | MIT | `node_modules/.pnpm/micromark-extension-gfm-autolink-literal@2.1.0/node_modules/micromark-extension-gfm-autolink-literal` |
 | `micromark-extension-gfm-footnote` | 2.1.0 | MIT | `node_modules/.pnpm/micromark-extension-gfm-footnote@2.1.0/node_modules/micromark-extension-gfm-footnote` |
-| `micromark-extension-gfm-table` | 2.1.1 | MIT | `node_modules/.pnpm/micromark-extension-gfm-table@2.1.1/node_modules/micromark-extension-gfm-table` |
+| `micromark-extension-gfm-table` | 2.1.2 | MIT | `node_modules/.pnpm/micromark-extension-gfm-table@2.1.2/node_modules/micromark-extension-gfm-table` |
 | `micromark-extension-math` | 3.1.0 | MIT | `node_modules/.pnpm/micromark-extension-math@3.1.0/node_modules/micromark-extension-math` |
 | `micromark-factory-destination` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-factory-destination@2.0.1/node_modules/micromark-factory-destination` |
 | `micromark-factory-label` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-factory-label@2.0.1/node_modules/micromark-factory-label` |
 | `micromark-factory-space` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-factory-space@2.0.1/node_modules/micromark-factory-space` |
+| `micromark-factory-space` | 2.1.0 | MIT | `node_modules/.pnpm/micromark-factory-space@2.1.0/node_modules/micromark-factory-space` |
 | `micromark-factory-title` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-factory-title@2.0.1/node_modules/micromark-factory-title` |
 | `micromark-factory-whitespace` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-factory-whitespace@2.0.1/node_modules/micromark-factory-whitespace` |
 | `micromark-util-character` | 2.1.1 | MIT | `node_modules/.pnpm/micromark-util-character@2.1.1/node_modules/micromark-util-character` |
@@ -492,6 +497,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `micromark-util-classify-character` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-util-classify-character@2.0.1/node_modules/micromark-util-classify-character` |
 | `micromark-util-combine-extensions` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-util-combine-extensions@2.0.1/node_modules/micromark-util-combine-extensions` |
 | `micromark-util-decode-numeric-character-reference` | 2.0.2 | MIT | `node_modules/.pnpm/micromark-util-decode-numeric-character-reference@2.0.2/node_modules/micromark-util-decode-numeric-character-reference` |
+| `micromark-util-edit-map` | 1.0.0 | MIT | `node_modules/.pnpm/micromark-util-edit-map@1.0.0/node_modules/micromark-util-edit-map` |
 | `micromark-util-encode` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-util-encode@2.0.1/node_modules/micromark-util-encode` |
 | `micromark-util-html-tag-name` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-util-html-tag-name@2.0.1/node_modules/micromark-util-html-tag-name` |
 | `micromark-util-normalize-identifier` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-util-normalize-identifier@2.0.1/node_modules/micromark-util-normalize-identifier` |
@@ -499,7 +505,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `micromark-util-sanitize-uri` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-util-sanitize-uri@2.0.1/node_modules/micromark-util-sanitize-uri` |
 | `micromark-util-subtokenize` | 2.1.0 | MIT | `node_modules/.pnpm/micromark-util-subtokenize@2.1.0/node_modules/micromark-util-subtokenize` |
 | `micromark-util-symbol` | 2.0.1 | MIT | `node_modules/.pnpm/micromark-util-symbol@2.0.1/node_modules/micromark-util-symbol` |
-| `micromark-util-types` | 2.0.2 | MIT | `node_modules/.pnpm/micromark-util-types@2.0.2/node_modules/micromark-util-types` |
+| `micromark-util-types` | 2.0.3 | MIT | `node_modules/.pnpm/micromark-util-types@2.0.3/node_modules/micromark-util-types` |
 | `micromatch` | 4.0.8 | MIT | `node_modules/.pnpm/micromatch@4.0.8/node_modules/micromatch` |
 | `mime` | 4.1.0 | MIT | `node_modules/.pnpm/mime@4.1.0/node_modules/mime` |
 | `mimic-fn` | 4.0.0 | MIT | `node_modules/.pnpm/mimic-fn@4.0.0/node_modules/mimic-fn` |
@@ -611,6 +617,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `queue-lit` | 1.5.2 | MIT | `node_modules/.pnpm/queue-lit@1.5.2/node_modules/queue-lit` |
 | `queue-microtask` | 1.2.3 | MIT | `node_modules/.pnpm/queue-microtask@1.2.3/node_modules/queue-microtask` |
 | `rc` | 1.2.8 | (BSD-2-Clause OR MIT OR Apache-2.0) | `node_modules/.pnpm/rc@1.2.8/node_modules/rc` |
+| `re2js` | 2.8.6 | MIT | `node_modules/.pnpm/re2js@2.8.6/node_modules/re2js` |
 | `read` | 5.0.1 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/read` |
 | `read-cmd-shim` | 6.0.0 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/read-cmd-shim` |
 | `read-package-up` | 11.0.0 | MIT | `node_modules/.pnpm/read-package-up@11.0.0/node_modules/read-package-up` |
@@ -673,8 +680,8 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `string-argv` | 0.3.2 | MIT | `node_modules/.pnpm/string-argv@0.3.2/node_modules/string-argv` |
 | `string-width` | 4.2.3 | MIT | `node_modules/.pnpm/string-width@4.2.3/node_modules/string-width` |
 | `string-width` | 7.2.0 | MIT | `node_modules/.pnpm/string-width@7.2.0/node_modules/string-width` |
-| `string-width` | 8.2.1 | MIT | `node_modules/.pnpm/string-width@8.2.1/node_modules/string-width` |
 | `string-width` | 8.2.2 | MIT | `node_modules/.pnpm/string-width@8.2.2/node_modules/string-width` |
+| `string-width` | 8.3.0 | MIT | `node_modules/.pnpm/string-width@8.3.0/node_modules/string-width` |
 | `strip-ansi` | 6.0.1 | MIT | `node_modules/.pnpm/strip-ansi@6.0.1/node_modules/strip-ansi` |
 | `strip-ansi` | 7.2.0 | MIT | `node_modules/.pnpm/strip-ansi@7.2.0/node_modules/strip-ansi` |
 | `strip-bom` | 3.0.0 | MIT | `node_modules/.pnpm/strip-bom@3.0.0/node_modules/strip-bom` |
@@ -722,6 +729,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `typescript` | 5.9.3 | Apache-2.0 | `node_modules/.pnpm/typescript@5.9.3/node_modules/typescript` |
 | `typescript-eslint` | 8.70.0 | MIT | `node_modules/.pnpm/typescript-eslint@8.70.0_eslint@9.39.5_jiti@2.6.1__typescript@5.9.3/node_modules/typescript-eslint` |
 | `uc.micro` | 2.1.0 | MIT | `node_modules/.pnpm/uc.micro@2.1.0/node_modules/uc.micro` |
+| `uc.micro` | 3.0.0 | MIT | `node_modules/.pnpm/uc.micro@3.0.0/node_modules/uc.micro` |
 | `uglify-js` | 3.19.3 | BSD-2-Clause | `node_modules/.pnpm/uglify-js@3.19.3/node_modules/uglify-js` |
 | `undici` | 6.28.0 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/undici` |
 | `undici` | 6.28.1 | MIT | `node_modules/.pnpm/undici@6.28.1/node_modules/undici` |
