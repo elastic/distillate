@@ -277,7 +277,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `eslint` | 9.39.5 | MIT | `node_modules/.pnpm/eslint@9.39.5_jiti@2.6.1/node_modules/eslint` |
 | `eslint-config-prettier` | 10.1.8 | MIT | `node_modules/.pnpm/eslint-config-prettier@10.1.8_eslint@9.39.5_jiti@2.6.1_/node_modules/eslint-config-prettier` |
 | `eslint-plugin-license-header` | 0.9.0 | MIT | `node_modules/.pnpm/eslint-plugin-license-header@0.9.0_eslint@9.39.5_jiti@2.6.1_/node_modules/eslint-plugin-license-header` |
-| `eslint-plugin-prettier` | 5.5.7 | MIT | `node_modules/.pnpm/eslint-plugin-prettier@5.5.7_eslint-config-prettier@10.1.8_eslint@9.39.5_jiti@2.6.1___e_e7742ac8bce04c284d544daf8f693a8a/node_modules/eslint-plugin-prettier` |
+| `eslint-plugin-prettier` | 5.5.7 | MIT | `node_modules/.pnpm/eslint-plugin-prettier@5.5.7_eslint-config-prettier@10.1.8_eslint@9.39.5_jiti@2.6.1___e_65bfe4fafbb512063c17e3ba6640bb23/node_modules/eslint-plugin-prettier` |
 | `eslint-plugin-simple-import-sort` | 14.0.0 | MIT | `node_modules/.pnpm/eslint-plugin-simple-import-sort@14.0.0_eslint@9.39.5_jiti@2.6.1_/node_modules/eslint-plugin-simple-import-sort` |
 | `eslint-scope` | 8.4.0 | BSD-2-Clause | `node_modules/.pnpm/eslint-scope@8.4.0/node_modules/eslint-scope` |
 | `eslint-visitor-keys` | 3.4.3 | Apache-2.0 | `node_modules/.pnpm/eslint-visitor-keys@3.4.3/node_modules/eslint-visitor-keys` |
@@ -594,7 +594,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `postcss` | 8.5.28 | MIT | `node_modules/.pnpm/postcss@8.5.28/node_modules/postcss` |
 | `postcss-selector-parser` | 7.1.4 | MIT | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/postcss-selector-parser` |
 | `prelude-ls` | 1.2.1 | MIT | `node_modules/.pnpm/prelude-ls@1.2.1/node_modules/prelude-ls` |
-| `prettier` | 3.9.6 | MIT | `node_modules/.pnpm/prettier@3.9.6/node_modules/prettier` |
+| `prettier` | 3.9.10 | MIT | `node_modules/.pnpm/prettier@3.9.10/node_modules/prettier` |
 | `prettier-linter-helpers` | 1.0.1 | MIT | `node_modules/.pnpm/prettier-linter-helpers@1.0.1/node_modules/prettier-linter-helpers` |
 | `pretty-ms` | 9.3.1 | MIT | `node_modules/.pnpm/pretty-ms@9.3.1/node_modules/pretty-ms` |
 | `proc-log` | 6.1.0 | ISC | `node_modules/.pnpm/npm@11.19.1/node_modules/npm/node_modules/proc-log` |
