@@ -718,7 +718,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `type-fest` | 4.41.0 | (MIT OR CC0-1.0) | `node_modules/.pnpm/type-fest@4.41.0/node_modules/type-fest` |
 | `type-fest` | 5.9.0 | (MIT OR CC0-1.0) | `node_modules/.pnpm/type-fest@5.9.0/node_modules/type-fest` |
 | `typedoc` | 0.28.20 | Apache-2.0 | `node_modules/.pnpm/typedoc@0.28.20_typescript@5.9.3/node_modules/typedoc` |
-| `typedoc-plugin-markdown` | 4.13.0 | MIT | `node_modules/.pnpm/typedoc-plugin-markdown@4.13.0_typedoc@0.28.20_typescript@5.9.3_/node_modules/typedoc-plugin-markdown` |
+| `typedoc-plugin-markdown` | 4.14.1 | MIT | `node_modules/.pnpm/typedoc-plugin-markdown@4.14.1_typedoc@0.28.20_typescript@5.9.3_/node_modules/typedoc-plugin-markdown` |
 | `typescript` | 5.9.3 | Apache-2.0 | `node_modules/.pnpm/typescript@5.9.3/node_modules/typescript` |
 | `typescript-eslint` | 8.70.0 | MIT | `node_modules/.pnpm/typescript-eslint@8.70.0_eslint@9.39.5_jiti@2.6.1__typescript@5.9.3/node_modules/typescript-eslint` |
 | `uc.micro` | 2.1.0 | MIT | `node_modules/.pnpm/uc.micro@2.1.0/node_modules/uc.micro` |
