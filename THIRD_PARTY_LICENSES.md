@@ -331,7 +331,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `glob-parent` | 6.0.2 | ISC | `node_modules/.pnpm/glob-parent@6.0.2/node_modules/glob-parent` |
 | `global-directory` | 4.0.1 | MIT | `node_modules/.pnpm/global-directory@4.0.1/node_modules/global-directory` |
 | `globals` | 14.0.0 | MIT | `node_modules/.pnpm/globals@14.0.0/node_modules/globals` |
-| `globals` | 17.12.0 | MIT | `node_modules/.pnpm/globals@17.12.0/node_modules/globals` |
+| `globals` | 17.14.0 | MIT | `node_modules/.pnpm/globals@17.14.0/node_modules/globals` |
 | `globby` | 11.1.0 | MIT | `node_modules/.pnpm/globby@11.1.0/node_modules/globby` |
 | `globby` | 16.2.2 | MIT | `node_modules/.pnpm/globby@16.2.2/node_modules/globby` |
 | `graceful-fs` | 4.2.10 | ISC | `node_modules/.pnpm/graceful-fs@4.2.10/node_modules/graceful-fs` |
