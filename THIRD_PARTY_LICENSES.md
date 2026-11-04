@@ -103,7 +103,7 @@ Direct `devDependencies` and their installed dependency closure. These are not d
 | `@pnpm/config.env-replace` | 1.1.0 | MIT | `node_modules/.pnpm/@pnpm+config.env-replace@1.1.0/node_modules/@pnpm/config.env-replace` |
 | `@pnpm/network.ca-file` | 1.0.2 | MIT | `node_modules/.pnpm/@pnpm+network.ca-file@1.0.2/node_modules/@pnpm/network.ca-file` |
 | `@pnpm/npm-conf` | 3.0.3 | MIT | `node_modules/.pnpm/@pnpm+npm-conf@3.0.3/node_modules/@pnpm/npm-conf` |
-| `@rmenke/css-tokenizer-tests` | 1.2.0 | MIT | `node_modules/.pnpm/@rmenke+css-tokenizer-tests@1.2.0/node_modules/@rmenke/css-tokenizer-tests` |
+| `@rmenke/css-tokenizer-tests` | 1.4.0 | MIT | `node_modules/.pnpm/@rmenke+css-tokenizer-tests@1.4.0/node_modules/@rmenke/css-tokenizer-tests` |
 | `@sec-ant/readable-stream` | 0.4.1 | MIT | `node_modules/.pnpm/@sec-ant+readable-stream@0.4.1/node_modules/@sec-ant/readable-stream` |
 | `@semantic-release/commit-analyzer` | 13.0.1 | MIT | `node_modules/.pnpm/@semantic-release+commit-analyzer@13.0.1_semantic-release@25.0.9_typescript@5.9.3_/node_modules/@semantic-release/commit-analyzer` |
 | `@semantic-release/error` | 4.0.0 | MIT | `node_modules/.pnpm/@semantic-release+error@4.0.0/node_modules/@semantic-release/error` |
