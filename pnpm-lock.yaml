@@ -26,8 +26,8 @@ importers:
         specifier: ^9.39.5
         version: 9.39.5
       '@rmenke/css-tokenizer-tests':
-        specifier: ^1.2.0
-        version: 1.2.0
+        specifier: ^1.4.0
+        version: 1.4.0
       '@semantic-release/commit-analyzer':
         specifier: ^13.0.1
         version: 13.0.1(semantic-release@25.0.9(typescript@5.9.3))
@@ -630,8 +630,8 @@ packages:
     resolution: {integrity: sha512-//0sR/cow/s4ICQaYoAobOl4aU8cjU6x/V24V7XkKotb9+O+3zySIYp146vpaobYHnxa4pZX8NkV54Z5AwbDKA==}
     engines: {node: '>=12'}
 
-  '@rmenke/css-tokenizer-tests@1.2.0':
-    resolution: {integrity: sha512-XfdeXzW5QGc3inl69eid2FTLGY/514xs+VXQWlEzdUVm1QdU6MicU5S2hcEbHoC9WMzIMALTzxiZb49w+xJk0Q==}
+  '@rmenke/css-tokenizer-tests@1.4.0':
+    resolution: {integrity: sha512-vQstlz0BOhWz5fxKXm0lnmgDuXLmi0ZozUDwBreXV5vY2K/k2SY02iaGygj9jr+qaEQse1YalJ+2pPNdReef7Q==}
 
   '@rolldown/pluginutils@1.0.0-beta.27':
     resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
@@ -3635,7 +3635,7 @@ snapshots:
       '@pnpm/network.ca-file': 1.0.2
       config-chain: 1.1.13
 
-  '@rmenke/css-tokenizer-tests@1.2.0': {}
+  '@rmenke/css-tokenizer-tests@1.4.0': {}
 
   '@rolldown/pluginutils@1.0.0-beta.27': {}
 
