@@ -114,7 +114,7 @@
     "semantic-release": "^25.0.9",
     "tsc-alias": "^1.9.9",
     "typedoc": "^0.28.20",
-    "typedoc-plugin-markdown": "^4.9.0",
+    "typedoc-plugin-markdown": "^4.14.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.31.0",
     "vitest": "^4.1.11"
