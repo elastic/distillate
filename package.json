@@ -124,7 +124,7 @@
       "esbuild"
     ],
     "overrides": {
-      "smol-toml": ">=1.7.1",
+      "smol-toml": ">=1.9.1",
       "dompurify": ">=3.4.17"
     }
   }
