@@ -77,7 +77,7 @@ importers:
         specifier: ^25.0.9
         version: 25.0.9(typescript@5.9.3)
       tsc-alias:
-        specifier: ^1.9.9
+        specifier: ^1.9.10
         version: 1.9.10
       typedoc:
         specifier: ^0.28.20
